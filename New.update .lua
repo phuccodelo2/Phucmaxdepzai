@@ -1,4 +1,4 @@
--- ✅ Phần UI như bạn gửi, thêm đủ chức năng: Godmode, Anti-Hit, Infinite Jump, ESP Player, Fall, Sky, Ascend Floor, ESP Base
+-- âœ… Pháº§n UI nhÆ° báº¡n gá»­i, thÃªm Ä‘á»§ chá»©c nÄƒng: Godmode, Anti-Hit, Infinite Jump, ESP Player, Fall, Sky, Ascend Floor, ESP Base
 
 if getgenv then
 	if getgenv()._phucmax_ui_loaded then return end
@@ -66,7 +66,7 @@ layout.Padding = UDim.new(0, 8)
 layout.SortOrder = Enum.SortOrder.LayoutOrder
 layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Nút bật/tắt menu
+-- NÃºt báº­t/táº¯t menu
 local logo = Instance.new("ImageButton")
 logo.Name = "ToggleButton"
 logo.Parent = gui
@@ -100,9 +100,9 @@ local function showNotification(msg)
 	notify:Destroy()
 end
 
-showNotification("✅ PHUCMAX UI LOADED")
+showNotification("âœ… PHUCMAX UI LOADED")
 
--- Tạo nút toggle
+-- Táº¡o nÃºt toggle
 local function createButton(text, callback)
 	local btn = Instance.new("TextButton", scroller)
 	btn.Size = UDim2.new(0.85, 0, 0, 32)
@@ -122,7 +122,7 @@ local function createButton(text, callback)
 	end)
 end
 
--- ✅ Chức năng
+-- âœ… Chá»©c nÄƒng
 
 -- Ascend
 createButton("Ascend to Floor 1", function()
@@ -210,7 +210,7 @@ createButton("ESP Player", function(state)
 					esp.AlwaysOnTop = true
 					local label = Instance.new("TextLabel", esp)
 					label.Size = UDim2.new(1, 0, 1, 0)
-					label.Text = "👤 " .. p.Name
+					label.Text = "ðŸ‘¤ " .. p.Name
 					label.TextColor3 = Color3.fromRGB(255, 0, 0)
 					label.BackgroundTransparency = 1
 					label.TextStrokeTransparency = 0
@@ -226,8 +226,8 @@ createButton("ESP Player", function(state)
 		end
 	end
 end)
--- 📍 ESP Base gần nhất
-createButton("ESP Base Gần Nhất", function(state)
+-- ðŸ“ ESP Base gáº§n nháº¥t
+createButton("ESP Base Gáº§n Nháº¥t", function(state)
 	local basePositions = {
 		Vector3.new(-469.1, -6.6, -99.3), Vector3.new(-348.4, -6.6, 7.1),
 		Vector3.new(-469.1, -6.5, 8.2), Vector3.new(-348.0, -6.6, -100.0),
@@ -272,13 +272,13 @@ createButton("ESP Base Gần Nhất", function(state)
 		else
 			workspace.ESPBase.Position = closestPos
 		end
-		print("✅ Đã lưu base tại:", tostring(closestPos))
+		print("âœ… ÄÃ£ lÆ°u base táº¡i:", tostring(closestPos))
 	end
 end)
 local lockedMain = nil
 local isLockingBase = false
 
---  T�m "Main" cha ESPBase
+--  Tìm "Main" cha ESPBase
 local function findMainContainingESP()
     local esp = workspace:FindFirstChild("ESPBase")
     if not esp then return nil end
@@ -288,7 +288,7 @@ local function findMainContainingESP()
             local pos = obj.Position
             local range = Vector3.new(size.X/2, size.Y/2, size.Z/2)
 
-            -- Nu ESPBase nm trong v�ng Part
+            -- Nu ESPBase nm trong vùng Part
             if (esp.Position.X >= pos.X - range.X and esp.Position.X <= pos.X + range.X) and
                (esp.Position.Y >= pos.Y - range.Y and esp.Position.Y <= pos.Y + range.Y) and
                (esp.Position.Z >= pos.Z - range.Z and esp.Position.Z <= pos.Z + range.Z) then
@@ -313,25 +313,25 @@ createButton(scroller, " Lock Base", function(state)
                 char:FindFirstChild("Humanoid"):BreakJoints()
             end
 
-            showNotification(" Lock v�o Main cha ESP Base...")
+            showNotification(" Lock vào Main cha ESP Base...")
         else
-            showNotification(" Kh�ng t�m thy 'Main' n�o cha ESPBase!")
+            showNotification(" Không tìm thy 'Main' nào cha ESPBase!")
         end
     else
         isLockingBase = false
         lockedMain = nil
-        showNotification(" Lock Base � tt")
+        showNotification(" Lock Base ã tt")
     end
 end)
 
---  Tele li�n tc v�o Main � lock khi cha hi sinh
+--  Tele liên tc vào Main ã lock khi cha hi sinh
 task.spawn(function()
     while task.wait(0.2) do
         if isLockingBase and lockedMain then
             local char = LocalPlayer.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
             if not hrp then
-                -- nh�n vt cha hi sinh
+                -- nhân vt cha hi sinh
                 local c = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
                 local newHRP = c:WaitForChild("HumanoidRootPart", 5)
                 if newHRP then
@@ -339,7 +339,7 @@ task.spawn(function()
                 end
             else
                 isLockingBase = false
-                showNotification(" � teleport v�o Main cha ESPBase!")
+                showNotification(" ã teleport vào Main cha ESPBase!")
             end
         end
     end
