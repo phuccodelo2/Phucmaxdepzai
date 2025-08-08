@@ -1,187 +1,209 @@
+--// Load Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+
+--// Main Window
 local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX" .. Fluent.Version,
-    SubTitle = "[vip]",
+    Title = "PHUCMAX " .. Fluent.Version,
+    SubTitle = "[VIP]",
     TabWidth = 160,
     Size = UDim2.fromOffset(500, 300),
     Acrylic = true,
-    Theme = "darker",
+    Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
+--// Tabs
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
     Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
 }
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
-SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes({})
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
-Window:SelectTab(1)
-
-Fluent:Notify({
-    Title = "phucmax",
-    Content = "loading script thành công ",
-    Duration = 8
-})
-
-SaveManager:LoadAutoloadConfig()
-
---------------------------------------------------------------------
--- ✅ FastAttack Toggle
-_G.FastAttack = false
+--// FastAttack Settings (giữ nguyên)
+_G.FastAttack = true
 
 local function StartFastAttack()
-    if not _G.FastAttack then return end
-    local _ENV = (getgenv or getrenv or getfenv)()
-
-    local function SafeWaitForChild(parent, childName)
-        local success, result = pcall(function()
-            return parent:WaitForChild(childName)
-        end)
-        if not success or not result then
-            warn("noooooo: " .. childName)
-        end
-        return result
-    end
-
-    local function WaitChilds(path, ...)
-        local last = path
-        for _, child in {...} do
-            last = last:FindFirstChild(child) or SafeWaitForChild(last, child)
-            if not last then break end
-        end
-        return last
-    end
-
-    local VirtualInputManager = game:GetService("VirtualInputManager")
-    local CollectionService = game:GetService("CollectionService")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local TeleportService = game:GetService("TeleportService")
-    local RunService = game:GetService("RunService")
     local Players = game:GetService("Players")
     local Player = Players.LocalPlayer
+    local RunService = game:GetService("RunService")
 
-    if not Player then
-        warn("Không tìm thấy người chơi cục bộ.")
-        return
+    local Remotes = ReplicatedStorage:WaitForChild("Remotes", 5)
+    if not Remotes then return end
+    local Modules = ReplicatedStorage:WaitForChild("Modules", 5)
+    local Net = Modules:WaitForChild("Net", 5)
+    local Enemies = workspace:WaitForChild("Enemies", 5)
+    local Characters = workspace:WaitForChild("Characters", 5)
+
+    local RegisterAttack = Net:WaitForChild("RE/RegisterAttack", 5)
+    local RegisterHit = Net:WaitForChild("RE/RegisterHit", 5)
+
+    local function IsAlive(char)
+        return char and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0
     end
 
-    local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
-    if not Remotes then return end
-
-    local Validator = SafeWaitForChild(Remotes, "Validator")
-    local CommF = SafeWaitForChild(Remotes, "CommF_")
-    local CommE = SafeWaitForChild(Remotes, "CommE")
-
-    local ChestModels = SafeWaitForChild(workspace, "ChestModels")
-    local WorldOrigin = SafeWaitForChild(workspace, "_WorldOrigin")
-    local Characters = SafeWaitForChild(workspace, "Characters")
-    local Enemies = SafeWaitForChild(workspace, "Enemies")
-    local Map = SafeWaitForChild(workspace, "Map")
-
-    local EnemySpawns = SafeWaitForChild(WorldOrigin, "EnemySpawns")
-    local Locations = SafeWaitForChild(WorldOrigin, "Locations")
-
-    local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
-    local Net = SafeWaitForChild(Modules, "Net")
-
-    local Settings = {
-        AutoClick = true,
-        ClickDelay = 0.1
-    }
-
-    local Module = {}
-    Module.FastAttack = (function()
-        if _ENV.rz_FastAttack then
-            return _ENV.rz_FastAttack
-        end
-
-        local FastAttack = {
-            Distance = 100,
-            attackMobs = true,
-            attackPlayers = true,
-            Equipped = nil
-        }
-
-        local RegisterAttack = SafeWaitForChild(Net, "RE/RegisterAttack")
-        local RegisterHit = SafeWaitForChild(Net, "RE/RegisterHit")
-
-        local function IsAlive(character)
-            return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
-        end
-
-        local function ProcessEnemies(OthersEnemies, Folder)
-            local BasePart = nil
-            for _, Enemy in Folder:GetChildren() do
-                local Head = Enemy:FindFirstChild("Head")
-                if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
-                    if Enemy ~= Player.Character then
-                        table.insert(OthersEnemies, { Enemy, Head })
-                        BasePart = Head
-                    end
+    local function GetTargets(folder)
+        local targets, part = {}, nil
+        for _, enemy in ipairs(folder:GetChildren()) do
+            local head = enemy:FindFirstChild("Head")
+            if head and IsAlive(enemy) and Player:DistanceFromCharacter(head.Position) < 100 then
+                if enemy ~= Player.Character then
+                    table.insert(targets, {enemy, head})
+                    part = head
                 end
             end
-            return BasePart
         end
+        return part, targets
+    end
 
-        function FastAttack:Attack(BasePart, OthersEnemies)
-            if not BasePart or #OthersEnemies == 0 then return end
-            RegisterAttack:FireServer(Settings.ClickDelay or 0)
-            RegisterHit:FireServer(BasePart, OthersEnemies)
-        end
-
-        function FastAttack:AttackNearest()
-            local OthersEnemies = {}
-            local Part1 = ProcessEnemies(OthersEnemies, Enemies)
-            local Part2 = ProcessEnemies(OthersEnemies, Characters)
-            if #OthersEnemies > 0 then
-                self:Attack(Part1 or Part2, OthersEnemies)
-            else
-                task.wait(0)
+    RunService.Heartbeat:Connect(function()
+        if _G.FastAttack then
+            local part, targets = GetTargets(Enemies)
+            if #targets == 0 then
+                part, targets = GetTargets(Characters)
+            end
+            if part and #targets > 0 then
+                -- Note: ClickDelay cố định ở đây; nếu muốn chỉnh được, tao thêm slider.
+                RegisterAttack:FireServer(0.1)
+                RegisterHit:FireServer(part, targets)
             end
         end
-
-        function FastAttack:BladeHits()
-            local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
-            if Equipped and Equipped.ToolTip ~= "Gun" then
-                self:AttackNearest()
-            else
-                task.wait(0)
-            end
-        end
-
-        task.spawn(function()
-            while task.wait(Settings.ClickDelay) do
-                if Settings.AutoClick and _G.FastAttack then
-                    FastAttack:BladeHits()
-                end
-            end
-        end)
-
-        _ENV.rz_FastAttack = FastAttack
-        return FastAttack
-    end)()
+    end)
 end
 
---------------------------------------------------------------------
--- 🔘 Nút bật/tắt trong Tab Settings
+StartFastAttack()
+
+--// Toggle trong Settings
 Tabs.Settings:AddToggle("FastAttackToggle", {
     Title = "Fast Attack",
     Default = true,
     Callback = function(state)
         _G.FastAttack = state
-        if state then
-            Fluent:Notify({ Title = "FastAttack", Content = "Đã bật", Duration = 3 })
-            StartFastAttack()
-        else
-            Fluent:Notify({ Title = "FastAttack", Content = "Đã tắt", Duration = 3 })
-        end
+        Fluent:Notify({
+            Title = "FastAttack",
+            Content = state and "Đã bật" or "Đã tắt",
+            Duration = 3
+        })
     end
 })
+
+-- ==================================================================================
+--// Nút bật/tắt UI (giữa bên trái), bo góc, viền rainbow (gradient), kéo được
+-- ==================================================================================
+
+-- tạo ScreenGui (xóa nếu đã tồn tại)
+local coreGui = game:GetService("CoreGui")
+if coreGui:FindFirstChild("PHUCMAX_ToggleGui") then
+    coreGui.PHUCMAX_ToggleGui:Destroy()
+end
+
+local ToggleGui = Instance.new("ScreenGui")
+ToggleGui.Name = "PHUCMAX_ToggleGui"
+ToggleGui.ResetOnSpawn = false
+ToggleGui.Parent = coreGui
+
+-- wrapper để draggable (kéo được)
+local wrapper = Instance.new("Frame")
+wrapper.Name = "Wrapper"
+wrapper.Size = UDim2.new(0, 64, 0, 64)
+wrapper.Position = UDim2.new(0, 12, 0.5, -32) -- giữa bên trái
+wrapper.BackgroundTransparency = 1
+wrapper.Active = true
+wrapper.Draggable = true
+wrapper.AnchorPoint = Vector2.new(0, 0)
+wrapper.Parent = ToggleGui
+wrapper.ZIndex = 9999
+
+-- outer border (gradient) -> tạo cảm giác viền rainbow tĩnh
+local border = Instance.new("Frame")
+border.Name = "Border"
+border.Size = UDim2.new(1, 0, 1, 0)
+border.Position = UDim2.new(0, 0, 0, 0)
+border.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+border.BorderSizePixel = 0
+border.Parent = wrapper
+border.ZIndex = 1
+local borderCorner = Instance.new("UICorner", border)
+borderCorner.CornerRadius = UDim.new(0, 12) -- bo cong viền
+
+local grad = Instance.new("UIGradient", border)
+grad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 85)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 150, 0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 200, 120)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 120, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 0, 255))
+})
+grad.Rotation = 45 -- nghiêng gradient để trông "ảo" hơn
+
+-- inner button (khoảng inset để hiện viền)
+local inner = Instance.new("ImageButton")
+inner.Name = "ToggleButton"
+inner.Size = UDim2.new(1, -8, 1, -8) -- inset 4px
+inner.Position = UDim2.new(0, 4, 0, 4)
+inner.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+inner.AutoButtonColor = true
+inner.Image = "rbxassetid://113632547593752" -- đổi nếu cần
+inner.ScaleType = Enum.ScaleType.Crop
+inner.Parent = border
+inner.ZIndex = 2
+
+local innerCorner = Instance.new("UICorner", inner)
+innerCorner.CornerRadius = UDim.new(0, 10)
+
+-- subtle inner overlay so logo sits nicely
+local overlay = Instance.new("Frame", inner)
+overlay.Size = UDim2.new(1, 0, 1, 0)
+overlay.BackgroundTransparency = 0.6
+overlay.BackgroundColor3 = Color3.fromRGB(0,0,0)
+overlay.ZIndex = 3
+overlay.BorderSizePixel = 0
+local overlayCorner = Instance.new("UICorner", overlay)
+overlayCorner.CornerRadius = UDim.new(0,10)
+
+-- Tooltip hover (không bắt buộc)
+local tooltip = Instance.new("TextLabel", wrapper)
+tooltip.Size = UDim2.new(0,140,0,26)
+tooltip.Position = UDim2.new(1, 8, 0.5, -13)
+tooltip.BackgroundColor3 = Color3.fromRGB(20,20,20)
+tooltip.TextColor3 = Color3.fromRGB(255,255,255)
+tooltip.Text = "Bật/Tắt Menu"
+tooltip.Visible = false
+tooltip.Font = Enum.Font.SourceSans
+tooltip.TextSize = 14
+tooltip.ZIndex = 9999
+local tipCorner = Instance.new("UICorner", tooltip)
+
+inner.MouseEnter:Connect(function() tooltip.Visible = true end)
+inner.MouseLeave:Connect(function() tooltip.Visible = false end)
+
+-- chức năng bật/tắt menu Fluent
+local function toggleMenuVisibility()
+    local success = false
+    -- Fluent Window object thường có WindowFrame (GuiObject). Dùng safe-check.
+    if type(Window) == "table" and Window.WindowFrame and typeof(Window.WindowFrame) == "Instance" then
+        Window.WindowFrame.Visible = not Window.WindowFrame.Visible
+        success = true
+    end
+    -- fallback: thử đổi Window.Visible nếu property có
+    if not success then
+        pcall(function()
+            Window.Visible = not Window.Visible
+        end)
+    end
+end
+
+inner.MouseButton1Click:Connect(function()
+    toggleMenuVisibility()
+end)
+
+-- Đảm bảo menu khởi tạo hiển thị (mặc định)
+task.delay(0.1, function()
+    pcall(function()
+        if type(Window) == "table" and Window.WindowFrame then
+            Window.WindowFrame.Visible = true
+        else
+            Window.Visible = true
+        end
+    end)
+end)
