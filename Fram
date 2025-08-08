@@ -1,209 +1,219 @@
---// Load Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+-- KIỂM TRA ĐÃ LOAD UI CHƯA
+if getgenv then
+    if getgenv()._phucmax_ui_loaded then return end
+    getgenv()._phucmax_ui_loaded = true
+end
 
---// Main Window
-local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX " .. Fluent.Version,
-    SubTitle = "[VIP]",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(500, 300),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
+-- DỊCH VỤ
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
---// Tabs
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
+-- GUI CHÍNH
+local gui = Instance.new("ScreenGui", CoreGui)
+gui.Name = "PhucmaxRainbowUI"
+gui.ResetOnSpawn = false
 
---// FastAttack Settings (giữ nguyên)
-_G.FastAttack = true
-
-local function StartFastAttack()
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Players = game:GetService("Players")
-    local Player = Players.LocalPlayer
-    local RunService = game:GetService("RunService")
-
-    local Remotes = ReplicatedStorage:WaitForChild("Remotes", 5)
-    if not Remotes then return end
-    local Modules = ReplicatedStorage:WaitForChild("Modules", 5)
-    local Net = Modules:WaitForChild("Net", 5)
-    local Enemies = workspace:WaitForChild("Enemies", 5)
-    local Characters = workspace:WaitForChild("Characters", 5)
-
-    local RegisterAttack = Net:WaitForChild("RE/RegisterAttack", 5)
-    local RegisterHit = Net:WaitForChild("RE/RegisterHit", 5)
-
-    local function IsAlive(char)
-        return char and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0
-    end
-
-    local function GetTargets(folder)
-        local targets, part = {}, nil
-        for _, enemy in ipairs(folder:GetChildren()) do
-            local head = enemy:FindFirstChild("Head")
-            if head and IsAlive(enemy) and Player:DistanceFromCharacter(head.Position) < 100 then
-                if enemy ~= Player.Character then
-                    table.insert(targets, {enemy, head})
-                    part = head
-                end
-            end
-        end
-        return part, targets
-    end
-
-    RunService.Heartbeat:Connect(function()
-        if _G.FastAttack then
-            local part, targets = GetTargets(Enemies)
-            if #targets == 0 then
-                part, targets = GetTargets(Characters)
-            end
-            if part and #targets > 0 then
-                -- Note: ClickDelay cố định ở đây; nếu muốn chỉnh được, tao thêm slider.
-                RegisterAttack:FireServer(0.1)
-                RegisterHit:FireServer(part, targets)
-            end
+-- VIỀN RAINBOW
+local function createRainbowFrame(parent)
+    local stroke = Instance.new("UIStroke", parent)
+    stroke.Thickness = 2
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Color = Color3.new(1, 0, 0)
+    task.spawn(function()
+        local hue = 0
+        while parent.Parent do
+            hue = (hue + 1) % 255
+            stroke.Color = Color3.fromHSV(hue / 255, 1, 1)
+            task.wait(0.03)
         end
     end)
 end
 
-StartFastAttack()
+-- FRAME CHÍNH
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 280, 0, 340)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.ClipsDescendants = true
+main.Visible = false
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+createRainbowFrame(main)
 
---// Toggle trong Settings
-Tabs.Settings:AddToggle("FastAttackToggle", {
-    Title = "Fast Attack",
-    Default = true,
-    Callback = function(state)
-        _G.FastAttack = state
-        Fluent:Notify({
-            Title = "FastAttack",
-            Content = state and "Đã bật" or "Đã tắt",
-            Duration = 3
+-- HIỆN MENU (có animation)
+local function toggleMenu()
+    main.Visible = true
+    main.Position = UDim2.new(0.5, 0, 0.5, 0)
+    main.Size = UDim2.new(0, 0, 0, 0)
+    local tween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        Size = UDim2.new(0, 280, 0, 340)
+    })
+    tween:Play()
+end
+
+-- THANH TAB
+local tabBar = Instance.new("ScrollingFrame", main)
+tabBar.Size = UDim2.new(1, -20, 0, 36)
+tabBar.Position = UDim2.new(0, 10, 0, 10)
+tabBar.ScrollBarThickness = 4
+tabBar.ScrollingDirection = Enum.ScrollingDirection.X
+tabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
+tabBar.BackgroundTransparency = 1
+
+local tabLayout = Instance.new("UIListLayout", tabBar)
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.Padding = UDim.new(0, 5)
+tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- TỰ ĐỘNG CẬP NHẬT TAB SCROLL
+local function updateTabCanvas()
+    task.wait()
+    local totalWidth = 0
+    for _, child in pairs(tabBar:GetChildren()) do
+        if child:IsA("TextButton") then
+            totalWidth += child.Size.X.Offset + tabLayout.Padding.Offset
+        end
+    end
+    tabBar.CanvasSize = UDim2.new(0, totalWidth, 0, 0)
+end
+
+-- KHUNG NỘI DUNG TAB
+local tabContainer = Instance.new("Frame", main)
+tabContainer.Size = UDim2.new(1, -20, 1, -60)
+tabContainer.Position = UDim2.new(0, 10, 0, 50)
+tabContainer.BackgroundTransparency = 1
+
+-- TẠO TAB
+local tabs, currentTab = {}, nil
+local function switchTab(name)
+    for i, v in pairs(tabs) do
+        v.Visible = (i == name)
+    end
+end
+
+local function createTab(name)
+    local btn = Instance.new("TextButton", tabBar)
+    btn.Size = UDim2.new(0, 80, 1, 0)
+    btn.Text = name
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+    local page = Instance.new("ScrollingFrame", tabContainer)
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.ScrollBarThickness = 4
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.BackgroundTransparency = 1
+    local layout = Instance.new("UIListLayout", page)
+    layout.Padding = UDim.new(0, 6)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    tabs[name] = page
+    page.Visible = false
+
+    btn.MouseButton1Click:Connect(function()
+        switchTab(name)
+    end)
+
+    if not currentTab then
+        currentTab = name
+        page.Visible = true
+    end
+
+    updateTabCanvas()
+    return page
+end
+
+-- NÚT TOGGLE
+local function createToggle(text, parent, callback)
+    local holder = Instance.new("Frame", parent)
+    holder.Size = UDim2.new(0.9, 0, 0, 32)
+    holder.BackgroundTransparency = 1
+    local box = Instance.new("TextButton", holder)
+    box.Size = UDim2.new(0, 28, 0, 28)
+    box.Position = UDim2.new(0, 0, 0.5, -14)
+    box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    box.Text = ""
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+    createRainbowFrame(box)
+    local lbl = Instance.new("TextLabel", holder)
+    lbl.Position = UDim2.new(0, 35, 0, 0)
+    lbl.Size = UDim2.new(1, -35, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 14
+    lbl.TextColor3 = Color3.new(1, 1, 1)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local state = false
+    box.MouseButton1Click:Connect(function()
+        state = not state
+        box.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(40, 40, 40)
+        callback(state)
+    end)
+end
+
+-- NÚT BÌNH THƯỜNG
+local function createButton(text, parent, callback)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(0.9, 0, 0, 32)
+    btn.Text = text
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    btn.MouseButton1Click:Connect(callback)
+end
+
+-- NÚT BẬT/TẮT MENU
+local logo = Instance.new("ImageButton", gui)
+logo.Size = UDim2.new(0, 48, 0, 48)
+logo.Position = UDim2.new(0, 10, 0.5, -24)
+logo.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+logo.Image = "rbxassetid://113632547593752"
+logo.Draggable = true
+Instance.new("UICorner", logo).CornerRadius = UDim.new(1, 0)
+createRainbowFrame(logo)
+
+logo.MouseButton1Click:Connect(function()
+    if main.Visible then
+        local tween = TweenService:Create(main, TweenInfo.new(0.2), {
+            Size = UDim2.new(0, 0, 0, 0)
         })
+        tween:Play()
+        tween.Completed:Wait()
+        main.Visible = false
+    else
+        toggleMenu()
     end
-})
-
--- ==================================================================================
---// Nút bật/tắt UI (giữa bên trái), bo góc, viền rainbow (gradient), kéo được
--- ==================================================================================
-
--- tạo ScreenGui (xóa nếu đã tồn tại)
-local coreGui = game:GetService("CoreGui")
-if coreGui:FindFirstChild("PHUCMAX_ToggleGui") then
-    coreGui.PHUCMAX_ToggleGui:Destroy()
-end
-
-local ToggleGui = Instance.new("ScreenGui")
-ToggleGui.Name = "PHUCMAX_ToggleGui"
-ToggleGui.ResetOnSpawn = false
-ToggleGui.Parent = coreGui
-
--- wrapper để draggable (kéo được)
-local wrapper = Instance.new("Frame")
-wrapper.Name = "Wrapper"
-wrapper.Size = UDim2.new(0, 64, 0, 64)
-wrapper.Position = UDim2.new(0, 12, 0.5, -32) -- giữa bên trái
-wrapper.BackgroundTransparency = 1
-wrapper.Active = true
-wrapper.Draggable = true
-wrapper.AnchorPoint = Vector2.new(0, 0)
-wrapper.Parent = ToggleGui
-wrapper.ZIndex = 9999
-
--- outer border (gradient) -> tạo cảm giác viền rainbow tĩnh
-local border = Instance.new("Frame")
-border.Name = "Border"
-border.Size = UDim2.new(1, 0, 1, 0)
-border.Position = UDim2.new(0, 0, 0, 0)
-border.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-border.BorderSizePixel = 0
-border.Parent = wrapper
-border.ZIndex = 1
-local borderCorner = Instance.new("UICorner", border)
-borderCorner.CornerRadius = UDim.new(0, 12) -- bo cong viền
-
-local grad = Instance.new("UIGradient", border)
-grad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 85)),
-    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 150, 0)),
-    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
-    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 200, 120)),
-    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 120, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(170, 0, 255))
-})
-grad.Rotation = 45 -- nghiêng gradient để trông "ảo" hơn
-
--- inner button (khoảng inset để hiện viền)
-local inner = Instance.new("ImageButton")
-inner.Name = "ToggleButton"
-inner.Size = UDim2.new(1, -8, 1, -8) -- inset 4px
-inner.Position = UDim2.new(0, 4, 0, 4)
-inner.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-inner.AutoButtonColor = true
-inner.Image = "rbxassetid://113632547593752" -- đổi nếu cần
-inner.ScaleType = Enum.ScaleType.Crop
-inner.Parent = border
-inner.ZIndex = 2
-
-local innerCorner = Instance.new("UICorner", inner)
-innerCorner.CornerRadius = UDim.new(0, 10)
-
--- subtle inner overlay so logo sits nicely
-local overlay = Instance.new("Frame", inner)
-overlay.Size = UDim2.new(1, 0, 1, 0)
-overlay.BackgroundTransparency = 0.6
-overlay.BackgroundColor3 = Color3.fromRGB(0,0,0)
-overlay.ZIndex = 3
-overlay.BorderSizePixel = 0
-local overlayCorner = Instance.new("UICorner", overlay)
-overlayCorner.CornerRadius = UDim.new(0,10)
-
--- Tooltip hover (không bắt buộc)
-local tooltip = Instance.new("TextLabel", wrapper)
-tooltip.Size = UDim2.new(0,140,0,26)
-tooltip.Position = UDim2.new(1, 8, 0.5, -13)
-tooltip.BackgroundColor3 = Color3.fromRGB(20,20,20)
-tooltip.TextColor3 = Color3.fromRGB(255,255,255)
-tooltip.Text = "Bật/Tắt Menu"
-tooltip.Visible = false
-tooltip.Font = Enum.Font.SourceSans
-tooltip.TextSize = 14
-tooltip.ZIndex = 9999
-local tipCorner = Instance.new("UICorner", tooltip)
-
-inner.MouseEnter:Connect(function() tooltip.Visible = true end)
-inner.MouseLeave:Connect(function() tooltip.Visible = false end)
-
--- chức năng bật/tắt menu Fluent
-local function toggleMenuVisibility()
-    local success = false
-    -- Fluent Window object thường có WindowFrame (GuiObject). Dùng safe-check.
-    if type(Window) == "table" and Window.WindowFrame and typeof(Window.WindowFrame) == "Instance" then
-        Window.WindowFrame.Visible = not Window.WindowFrame.Visible
-        success = true
-    end
-    -- fallback: thử đổi Window.Visible nếu property có
-    if not success then
-        pcall(function()
-            Window.Visible = not Window.Visible
-        end)
-    end
-end
-
-inner.MouseButton1Click:Connect(function()
-    toggleMenuVisibility()
 end)
 
--- Đảm bảo menu khởi tạo hiển thị (mặc định)
-task.delay(0.1, function()
-    pcall(function()
-        if type(Window) == "table" and Window.WindowFrame then
-            Window.WindowFrame.Visible = true
-        else
-            Window.Visible = true
-        end
-    end)
+-- TẠO CÁC TAB
+local tabMain = createTab("MAIN")
+
+-- TẠO CHỨC NĂNG BẬT/TẮT FASTATTACK
+_G.FastAttack = true
+
+-- FastAttack Toggle
+createToggle("Toggle FastAttack", tabMain, function(state)
+    _G.FastAttack = state
+    if state then
+        -- Bắt đầu FastAttack
+        game.ReplicatedStorage.Remotes.CommF_:FireServer("FastAttackOn")
+    else
+        -- Tắt FastAttack
+        game.ReplicatedStorage.Remotes.CommF_:FireServer("FastAttackOff")
+    end
 end)
