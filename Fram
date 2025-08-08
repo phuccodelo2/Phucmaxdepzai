@@ -1,14 +1,11 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
-
 local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
+    Title = "PHUCMAX" .. Fluent.Version,
+    SubTitle = "[vip]",
     TabWidth = 160,
-    Size = UDim2.fromOffset(350, 400),
+    Size = UDim2.fromOffset(500, 400),
     Acrylic = true,
-    Theme = "Dark",
+    Theme = "darker",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
@@ -177,7 +174,7 @@ end
 -- 🔘 Nút bật/tắt trong Tab Settings
 Tabs.Settings:AddToggle("FastAttackToggle", {
     Title = "Fast Attack",
-    Default = false,
+    Default = true,
     Callback = function(state)
         _G.FastAttack = state
         if state then
