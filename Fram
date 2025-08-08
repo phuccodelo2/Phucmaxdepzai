@@ -35,7 +35,7 @@ end
 
 -- FRAME CHÍNH
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 280, 0, 340)
+main.Size = UDim2.new(0, 500, 0, 340)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -203,12 +203,16 @@ end)
 -- TẠO CÁC TAB
 local tabMain = createTab("MAIN")
 
+local tabMain = createTab("item")
+
+local tabMain = createTab("shop")
+
 -- Mặc định bật FastAttack
 _G.FastAttack = true
 
 -- Nạp UI trước
 -- ... (PHẦN CODE UI CỦA BẠN Ở TRÊN, giữ nguyên tới dòng tạo tabMain)
-local tabMain = createTab("MAIN")
+local tabMain = createTab("settings")
 
 -- =====================
 -- Fast Attack Module
@@ -329,7 +333,7 @@ InitFastAttack()
 -- =====================
 -- Thêm nút vào UI
 -- =====================
-createToggle("Fast Attack", tabMain, function(state)
+createToggle("Fast Attack", tabsettings, function(state)
     if ToggleFastAttack then
         ToggleFastAttack(state)
     end
