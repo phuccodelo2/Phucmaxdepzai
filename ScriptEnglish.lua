@@ -174,34 +174,40 @@ until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-Window = Rayfield:CreateWindow({
-    Title = "Ten Hub",
-    SubTitle="Blox Fruits", 
-    TabWidth=155, 
-    Theme="Darker",
-    Acrylic=false,
-    Size=UDim2.fromOffset(555, 320), 
-    MinimizeKey = Enum.KeyCode.LeftControl
+local Window = Rayfield:CreateWindow({
+    Name = "Ten Hub",
+    LoadingTitle = "Blox Fruits",
+    LoadingSubtitle = "by PhucMax",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "TenHubConfig"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "",
+        RememberJoins = true
+    },
+    KeySystem = false, -- hoặc true nếu bạn dùng hệ thống key
 })
+
 local Tabs = {
-
-Info=Window:AddTab({ Title="Tab Info" }),
-    Main=Window:AddTab({ Title="Tab Fram" }),
-
-Main1=Window:AddTab({ Title="Tab Fram Other" }),
-    Sea=Window:AddTab({ Title="Tab Sea Event" }),
-    Item=Window:AddTab({ Title="Tab Stack Fram" }),
-    Setting=Window:AddTab({ Title="Tab Setting" }),
-    Status=Window:AddTab({ Title="Tab Status" }),
-    Stats=Window:AddTab({ Title="Tab Stats" }),
-    Player=Window:AddTab({ Title="Tab Player" }),
-    Teleport=Window:AddTab({ Title="Tab Teleport" }),
-    Visual=Window:AddTab({ Title="Tab Visual" }),
-    Fruit=Window:AddTab({ Title="Tab Fruit" }),
-    Raid=Window:AddTab({ Title="Tab Raid" }),
-    Race=Window:AddTab({ Title="Tab Race" }),
-    Shop=Window:AddTab({ Title="Tab Shop" }),
-    Misc=Window:AddTab({ Title="Tab Misc" }),
+    Info = Window:CreateTab("Tab Info"),
+    Main = Window:CreateTab("Tab Fram"),
+    Main1 = Window:CreateTab("Tab Fram Other"),
+    Sea = Window:CreateTab("Tab Sea Event"),
+    Item = Window:CreateTab("Tab Stack Fram"),
+    Setting = Window:CreateTab("Tab Setting"),
+    Status = Window:CreateTab("Tab Status"),
+    Stats = Window:CreateTab("Tab Stats"),
+    Player = Window:CreateTab("Tab Player"),
+    Teleport = Window:CreateTab("Tab Teleport"),
+    Visual = Window:CreateTab("Tab Visual"),
+    Fruit = Window:CreateTab("Tab Fruit"),
+    Raid = Window:CreateTab("Tab Raid"),
+    Race = Window:CreateTab("Tab Race"),
+    Shop = Window:CreateTab("Tab Shop"),
+    Misc = Window:CreateTab("Tab Misc"),
 }
 local Options = Rayfield.Options
 local id = game.PlaceId
