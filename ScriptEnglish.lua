@@ -2350,6 +2350,7 @@ TextLabel.TextYAlignment = Enum.TextYAlignment.Center
 TextLabel.RichText = true
 
 local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local function ColorFromHue(hue)
     local r, g, b
@@ -2386,23 +2387,19 @@ RunService.RenderStepped:Connect(function(dt)
     TextLabel.Text = newText
 end)
 
-local RunService = game:GetService("RunService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
-local toggled = true
+local toggled = true -- mặc định UI hiện
 
 Button.MouseButton1Click:Connect(function()
-    if not imageLoaded then return end
-
     if VirtualInputManager then
-        -- PC: giả lập phím LeftControl
+        -- PC: gửi phím LeftControl để toggle UI Fluent
         toggled = not toggled
         task.defer(function()
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
         end)
     else
-        -- Mobile: đổi trực tiếp Visible của UI Fluent
+        -- Mobile: toggle Visible trực tiếp UI Fluent
+        -- Lưu ý bạn cần có biến Window trỏ tới UI Fluent
         if Window and Window.MainFrame then
             toggled = not toggled
             Window.MainFrame.Visible = toggled
