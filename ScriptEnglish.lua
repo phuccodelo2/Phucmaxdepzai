@@ -2345,7 +2345,7 @@ TextLabel.Size = UDim2.new(1, 0, 1, 0)
 TextLabel.BackgroundTransparency = 1
 TextLabel.Text = "phucmax"
 TextLabel.Font = Enum.Font.GothamBold
-TextLabel.TextSize = 28
+TextLabel.TextSize = 35
 TextLabel.TextStrokeTransparency = 0.6
 TextLabel.TextWrapped = false
 TextLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -2401,13 +2401,16 @@ Button.MouseButton1Click:Connect(function()
         end)
     end
 end)
+local toggled = false
+
 Button.MouseButton1Click:Connect(function()
     if not imageLoaded then
         return
     end
-    local VirtualInputManager = game:GetService("VirtualInputManager")
     if VirtualInputManager then
+        toggled = not toggled -- đảo trạng thái bật/tắt
         task.defer(function()
+            -- gửi phím LeftControl để toggle UI
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
         end)
