@@ -173,52 +173,230 @@ repeat
 until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
--- Tải Rayfield UI
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+if getgenv then
+	if getgenv()._phucmax_ui_loaded then return end
+	getgenv()._phucmax_ui_loaded = true
+end
 
--- Tạo cửa sổ Rayfield
-local Window = Rayfield:CreateWindow({
-    Name = "PHUCMAX",
-    LoadingTitle = "PHUCMAX",
-    LoadingSubtitle = "Blox Fruits",
-    ConfigurationSaving = {
-       Enabled = false
-    },
-    Discord = {
-       Enabled = false
-    },
-    KeySystem = false -- Không dùng key
-})
-
--- Rainbow cho chữ "PHUCMAX" ở tiêu đề
+-- DỊCH VỤ
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
-local hue = 0
-RunService.RenderStepped:Connect(function(deltaTime)
-    hue = (hue + deltaTime * 0.5) % 1
-    pcall(function()
-        Window.Title.TextColor3 = Color3.fromHSV(hue, 1, 1)
-    end)
+local Workspace = game:GetService("Workspace")
+
+-- GUI CHÍNH
+local gui = Instance.new("ScreenGui", CoreGui)
+gui.Name = "PhucmaxRainbowUI"
+gui.ResetOnSpawn = false
+
+-- VIỀN RAINBOW
+local function createRainbowFrame(parent)
+	local stroke = Instance.new("UIStroke", parent)
+	stroke.Thickness = 2
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = Color3.new(1, 0, 0)
+	task.spawn(function()
+		local hue = 0
+		while parent.Parent do
+			hue = (hue + 1) % 255
+			stroke.Color = Color3.fromHSV(hue / 255, 1, 1)
+			task.wait(0.03)
+		end
+	end)
+end
+
+-- FRAME CHÍNH
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 280, 0, 340)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+main.ClipsDescendants = true
+main.Visible = false
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+createRainbowFrame(main)
+
+-- HIỆN MENU (có animation)
+local function toggleMenu()
+	main.Visible = true
+	main.Position = UDim2.new(0.5, 0, 0.5, 0)
+	main.Size = UDim2.new(0, 0, 0, 0)
+	local tween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 280, 0, 340)
+	})
+	tween:Play()
+end
+
+-- THANH TAB
+local tabBar = Instance.new("ScrollingFrame", main)
+tabBar.Size = UDim2.new(1, -20, 0, 36)
+tabBar.Position = UDim2.new(0, 10, 0, 10)
+tabBar.ScrollBarThickness = 4
+tabBar.ScrollingDirection = Enum.ScrollingDirection.X
+tabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
+tabBar.BackgroundTransparency = 1
+
+local tabLayout = Instance.new("UIListLayout", tabBar)
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.Padding = UDim.new(0, 5)
+tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- TỰ ĐỘNG CẬP NHẬT TAB SCROLL
+local function updateTabCanvas()
+	task.wait()
+	local totalWidth = 0
+	for _, child in pairs(tabBar:GetChildren()) do
+		if child:IsA("TextButton") then
+			totalWidth += child.Size.X.Offset + tabLayout.Padding.Offset
+		end
+	end
+	tabBar.CanvasSize = UDim2.new(0, totalWidth, 0, 0)
+end
+
+-- KHUNG NỘI DUNG TAB
+local tabContainer = Instance.new("Frame", main)
+tabContainer.Size = UDim2.new(1, -20, 1, -60)
+tabContainer.Position = UDim2.new(0, 10, 0, 50)
+tabContainer.BackgroundTransparency = 1
+
+-- TẠO TAB
+local tabs, currentTab = {}, nil
+local function switchTab(name)
+	for i, v in pairs(tabs) do
+		v.Visible = (i == name)
+	end
+end
+
+local function createTab(name)
+	local btn = Instance.new("TextButton", tabBar)
+	btn.Size = UDim2.new(0, 80, 1, 0)
+	btn.Text = name
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+	local page = Instance.new("ScrollingFrame", tabContainer)
+	page.Size = UDim2.new(1, 0, 1, 0)
+	page.CanvasSize = UDim2.new(0, 0, 0, 0)
+	page.ScrollBarThickness = 4
+	page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	page.BackgroundTransparency = 1
+	local layout = Instance.new("UIListLayout", page)
+	layout.Padding = UDim.new(0, 6)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+	tabs[name] = page
+	page.Visible = false
+
+	btn.MouseButton1Click:Connect(function()
+		switchTab(name)
+	end)
+
+	if not currentTab then
+		currentTab = name
+		page.Visible = true
+	end
+
+	updateTabCanvas()
+	return page
+end
+
+-- NÚT TOGGLE
+local function createToggle(text, parent, callback)
+	local holder = Instance.new("Frame", parent)
+	holder.Size = UDim2.new(0.9, 0, 0, 32)
+	holder.BackgroundTransparency = 1
+	local box = Instance.new("TextButton", holder)
+	box.Size = UDim2.new(0, 28, 0, 28)
+	box.Position = UDim2.new(0, 0, 0.5, -14)
+	box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	box.Text = ""
+	Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+	createRainbowFrame(box)
+	local lbl = Instance.new("TextLabel", holder)
+	lbl.Position = UDim2.new(0, 35, 0, 0)
+	lbl.Size = UDim2.new(1, -35, 1, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Text = text
+	lbl.Font = Enum.Font.GothamBold
+	lbl.TextSize = 14
+	lbl.TextColor3 = Color3.new(1, 1, 1)
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+	local state = false
+	box.MouseButton1Click:Connect(function()
+		state = not state
+		box.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(40, 40, 40)
+		callback(state)
+	end)
+end
+
+-- NÚT BÌNH THƯỜNG
+local function createButton(text, parent, callback)
+	local btn = Instance.new("TextButton", parent)
+	btn.Size = UDim2.new(0.9, 0, 0, 32)
+	btn.Text = text
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+	btn.MouseButton1Click:Connect(callback)
+end
+
+-- NÚT BẬT/TẮT MENU
+local logo = Instance.new("ImageButton", gui)
+logo.Size = UDim2.new(0, 48, 0, 48)
+logo.Position = UDim2.new(0, 10, 0.5, -24)
+logo.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+logo.Image = "rbxassetid://113632547593752"
+logo.Draggable = true
+Instance.new("UICorner", logo).CornerRadius = UDim.new(1, 0)
+createRainbowFrame(logo)
+
+logo.MouseButton1Click:Connect(function()
+	if main.Visible then
+		local tween = TweenService:Create(main, TweenInfo.new(0.2), {
+			Size = UDim2.new(0, 0, 0, 0)
+		})
+		tween:Play()
+		tween.Completed:Wait()
+		main.Visible = false
+	else
+		toggleMenu()
+	end
 end)
-local Tabs = {
 
-Info=Window:AddTab({ Title="Tab Info" }),
-    Main=Window:AddTab({ Title="Tab Fram" }),
+local Window = {}
+function Window:AddTab(info)
+    return createTabWithAPI(info.Title)
+end
 
-Main1=Window:AddTab({ Title="Tab Fram Other" }),
-    Sea=Window:AddTab({ Title="Tab Sea Event" }),
-    Item=Window:AddTab({ Title="Tab Stack Fram" }),
-    Setting=Window:AddTab({ Title="Tab Setting" }),
-    Status=Window:AddTab({ Title="Tab Status" }),
-    Stats=Window:AddTab({ Title="Tab Stats" }),
-    Player=Window:AddTab({ Title="Tab Player" }),
-    Teleport=Window:AddTab({ Title="Tab Teleport" }),
-    Visual=Window:AddTab({ Title="Tab Visual" }),
-    Fruit=Window:AddTab({ Title="Tab Fruit" }),
-    Raid=Window:AddTab({ Title="Tab Raid" }),
-    Race=Window:AddTab({ Title="Tab Race" }),
-    Shop=Window:AddTab({ Title="Tab Shop" }),
-    Misc=Window:AddTab({ Title="Tab Misc" }),
-}
+-- Tạo các tab như bạn muốn
+local Info     = Window:AddTab({ Title = "Tab Info" })
+local Main     = Window:AddTab({ Title = "Tab Fram" })
+local Main1    = Window:AddTab({ Title = "Tab Fram Other" })
+local Sea      = Window:AddTab({ Title = "Tab Sea Event" })
+local Item     = Window:AddTab({ Title = "Tab Stack Fram" })
+local Setting  = Window:AddTab({ Title = "Tab Setting" })
+local Status   = Window:AddTab({ Title = "Tab Status" })
+local Stats    = Window:AddTab({ Title = "Tab Stats" })
+local Player   = Window:AddTab({ Title = "Tab Player" })
+local Teleport = Window:AddTab({ Title = "Tab Teleport" })
+local Visual   = Window:AddTab({ Title = "Tab Visual" })
+local Fruit    = Window:AddTab({ Title = "Tab Fruit" })
+local Raid     = Window:AddTab({ Title = "Tab Raid" })
+local Race     = Window:AddTab({ Title = "Tab Race" })
+local Shop     = Window:AddTab({ Title = "Tab Shop" })
+local Misc     = Window:AddTab({ Title = "Tab Misc" })
+})
 local Options = Fluent.Options
 local id = game.PlaceId
 if id==2753915549 then Sea1=true; elseif id==4442272183 then Sea2=true; elseif id==7449423635 then Sea3=true; else game:Shutdown() end;
