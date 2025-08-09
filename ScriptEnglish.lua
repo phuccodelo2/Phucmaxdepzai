@@ -31,7 +31,7 @@ if _G.FastAttack then
     local Player = Players.LocalPlayer
 
     if not Player then
-        warn("KhĂƒÂƒĂ‚Â´ng tĂƒÂƒĂ‚Â¬m thĂƒÂ¡Ă‚ÂºĂ‚Â¥y ngĂƒÂ†Ă‚Â°ĂƒÂ¡Ă‚Â»Ă‚Âi chĂƒÂ†Ă‚Â¡i cĂƒÂ¡Ă‚Â»Ă‚Â¥c bĂƒÂ¡Ă‚Â»Ă‚Â™.")
+        warn(".")
         return
     end
 
@@ -174,15 +174,55 @@ until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-Window = Fluent:CreateWindow({
-    Title = "Ten Hub",
-    SubTitle="Blox Fruits", 
-    TabWidth=155, 
-    Theme="Darker",
-    Acrylic=false,
-    Size=UDim2.fromOffset(500, 320), 
+
+local Window = Fluent:CreateWindow({
+    Title = "PHUCMAX ",
+    SubTitle = "Blox Fruits",
+    TabWidth = 165,
+    Theme = "Darker",
+    Acrylic = false,
+    Size = UDim2.fromOffset(500, 320),
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+local RunService = game:GetService("RunService")
+
+-- Lấy Frame chính của window Fluent (cái có thể gắn UIStroke)
+local mainFrame = Window.MainFrame or Window.Frame or Window -- tùy Fluent version
+
+-- Tạo UIStroke viền rainbow
+local stroke = Instance.new("UIStroke")
+stroke.Parent = mainFrame
+stroke.Thickness = 3
+stroke.Transparency = 0
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+-- Hàm chuyển hue sang màu RGB
+local function ColorFromHue(hue)
+    local r, g, b
+    local i = math.floor(hue * 6)
+    local f = hue * 6 - i
+    local q = 1 - f
+
+    i = i % 6
+    if i == 0 then r, g, b = 1, f, 0
+    elseif i == 1 then r, g, b = q, 1, 0
+    elseif i == 2 then r, g, b = 0, 1, f
+    elseif i == 3 then r, g, b = 0, q, 1
+    elseif i == 4 then r, g, b = f, 0, 1
+    elseif i == 5 then r, g, b = 1, 0, q
+    end
+
+    return Color3.new(r, g, b)
+end
+
+local hue = 0
+
+-- Kết nối sự kiện RenderStepped để cập nhật màu
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    stroke.Color = ColorFromHue(hue)
+end)
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab help script lỗi" }),
@@ -192,7 +232,7 @@ Info=Window:AddTab({ Title="Tab help script lỗi" }),
     Status=Window:AddTab({ Title="Tab trạng thái" }),
     Stats=Window:AddTab({ Title="Tab chỉ số" }),
     Player=Window:AddTab({ Title="Tab người chơi" }),
-    Teleport=Window:AddTab({ Title="Tab dịch chuyển" }),
+    Teleport=Window:AddTab({ Title="Tab dịch chuyển đến " }),
     Fruit=Window:AddTab({ Title="Tab trái" }),
     Raid=Window:AddTab({ Title="Tab Raid" }),
     Race=Window:AddTab({ Title="Tab tộc" }),
@@ -1239,7 +1279,7 @@ function UpdateIslandESP()
                         bill.AlwaysOnTop=true
                         local name = Instance.new('TextLabel',bill)
                         name.Font="GothamBold"
-                        name.FontSize="Size14"
+                        name.FontSize="Size10"
                         name.TextWrapped=true
                         name.Size=UDim2.new(1,0,1,0)
                         name.TextYAlignment='Top'
@@ -1247,7 +1287,7 @@ function UpdateIslandESP()
                         name.TextStrokeTransparency=0.5
                         name.TextColor3=Color3.fromRGB(8, 0, 0)
                     else
-                        v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     end
                 end
             else
@@ -1281,7 +1321,7 @@ for i,v in pairs(game:GetService'Players':GetChildren()) do
                     name.Font=Enum.Font.GothamSemibold
                     name.FontSize="Size10"
                     name.TextWrapped=true
-                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Character.Head.Position).Magnitude/3) ..' Distance')
+                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Character.Head.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
@@ -1318,7 +1358,7 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                         bill.AlwaysOnTop=true
                         local name = Instance.new('TextLabel',bill)
                         name.Font=Enum.Font.GothamSemibold
-                        name.FontSize="Size14"
+                        name.FontSize="Size10"
                         name.TextWrapped=true
                         name.Size=UDim2.new(1,0,1,0)
                         name.TextYAlignment='Top'
@@ -1326,18 +1366,18 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                         name.TextStrokeTransparency=0.5
                         if v.Name=="Chest1" then
                             name.TextColor3=Color3.fromRGB(109, 109, 109)
-                            name.Text=("Chest 1" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 1" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                         if v.Name=="Chest2" then
                             name.TextColor3=Color3.fromRGB(173, 158, 21)
-                            name.Text=("Chest 2" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 2" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                         if v.Name=="Chest3" then
                             name.TextColor3=Color3.fromRGB(85, 255, 255)
-                            name.Text=("Chest 3" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 3" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                     else
-                        v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     end
                 end
             else
@@ -1363,16 +1403,16 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 255, 255)
-                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 else
-                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -1397,7 +1437,7 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -1405,15 +1445,15 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 0, 0)
                     if v.Name=="Flower1" then 
-                        name.Text=("Blue Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        name.Text=("Blue Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         name.TextColor3=Color3.fromRGB(0, 0, 255)
                     end
                     if v.Name=="Flower2" then
-                        name.Text=("Red Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        name.Text=("Red Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         name.TextColor3=Color3.fromRGB(255, 0, 0)
                     end
                 else
-                    v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                    v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             else
                 if v:FindFirstChild('NameEsp'..Number) then
@@ -1437,16 +1477,16 @@ for i,v in pairs(game.Workspace.AppleSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(255, 0, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1467,16 +1507,16 @@ for i,v in pairs(game.Workspace.PineappleSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(255, 174, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1497,16 +1537,16 @@ for i,v in pairs(game.Workspace.BananaSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(251, 255, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1530,7 +1570,7 @@ function UpdateIslandESP()
                         bill.AlwaysOnTop=true
                         local name = Instance.new('TextLabel',bill)
                         name.Font="GothamBold"
-                        name.FontSize="Size14"
+                        name.FontSize="Size10"
                         name.TextWrapped=true
                         name.Size=UDim2.new(1,0,1,0)
                         name.TextYAlignment='Top'
@@ -1538,7 +1578,7 @@ function UpdateIslandESP()
                         name.TextStrokeTransparency=0.5
                         name.TextColor3=Color3.fromRGB(7, 236, 240)
                     else
-                        v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     end
                 end
             else
@@ -1570,9 +1610,9 @@ for i,v in pairs(game:GetService'Players':GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
-                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Character.Head.Position).Magnitude/3) ..' Distance')
+                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Character.Head.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
@@ -1609,7 +1649,7 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                         bill.AlwaysOnTop=true
                         local name = Instance.new('TextLabel',bill)
                         name.Font=Enum.Font.GothamSemibold
-                        name.FontSize="Size14"
+                        name.FontSize="Size10"
                         name.TextWrapped=true
                         name.Size=UDim2.new(1,0,1,0)
                         name.TextYAlignment='Top'
@@ -1617,18 +1657,18 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                         name.TextStrokeTransparency=0.5
                         if v.Name=="Chest1" then
                             name.TextColor3=Color3.fromRGB(109, 109, 109)
-                            name.Text=("Chest 1" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 1" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                         if v.Name=="Chest2" then
                             name.TextColor3=Color3.fromRGB(173, 158, 21)
-                            name.Text=("Chest 2" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 2" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                         if v.Name=="Chest3" then
                             name.TextColor3=Color3.fromRGB(85, 255, 255)
-                            name.Text=("Chest 3" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                            name.Text=("Chest 3" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         end
                     else
-                        v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                     end
                 end
             else
@@ -1654,16 +1694,16 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 255, 255)
-                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                    name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 else
-                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -1688,7 +1728,7 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -1696,15 +1736,15 @@ for i,v in pairs(game.Workspace:GetChildren()) do
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 0, 0)
                     if v.Name=="Flower1" then 
-                        name.Text=("Blue Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        name.Text=("Blue Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         name.TextColor3=Color3.fromRGB(0, 0, 255)
                     end
                     if v.Name=="Flower2" then
-                        name.Text=("Red Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                        name.Text=("Red Flower" ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                         name.TextColor3=Color3.fromRGB(255, 0, 0)
                     end
                 else
-                    v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' Distance')
+                    v['NameEsp'..Number].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             else
                 if v:FindFirstChild('NameEsp'..Number) then
@@ -1728,16 +1768,16 @@ for i,v in pairs(game.Workspace.AppleSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(255, 0, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1758,16 +1798,16 @@ for i,v in pairs(game.Workspace.PineappleSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(255, 174, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1788,16 +1828,16 @@ for i,v in pairs(game.Workspace.BananaSpawner:GetChildren()) do
                 bill.AlwaysOnTop=true
                 local name = Instance.new('TextLabel',bill)
                 name.Font=Enum.Font.GothamSemibold
-                name.FontSize="Size14"
+                name.FontSize="Size10"
                 name.TextWrapped=true
                 name.Size=UDim2.new(1,0,1,0)
                 name.TextYAlignment='Top'
                 name.BackgroundTransparency=1
                 name.TextStrokeTransparency=0.5
                 name.TextColor3=Color3.fromRGB(251, 255, 0)
-                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                name.Text=(v.Name ..' \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             else
-                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..' Distance')
+                v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name ..' '.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
             end
         else
             if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -1945,7 +1985,7 @@ for i,v in pairs(game:GetService("Workspace")["_WorldOrigin"].Locations:GetChild
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font="Code"
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -1953,7 +1993,7 @@ for i,v in pairs(game:GetService("Workspace")["_WorldOrigin"].Locations:GetChild
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(80, 245, 245)
                 else
-                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' M')
+                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -1978,7 +2018,7 @@ for i,v in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font="Code"
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -1986,7 +2026,7 @@ for i,v in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(80, 245, 245)
                 else
-                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' M')
+                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -2011,7 +2051,7 @@ for i,v in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font="Code"
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -2019,7 +2059,7 @@ for i,v in pairs(game:GetService("Workspace").NPCs:GetChildren()) do
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(80, 245, 245)
                 else
-                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' M')
+                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -2044,7 +2084,7 @@ for i,v in pairs(game:GetService("Workspace").Map.MysticIsland:GetChildren()) do
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel',bill)
                     name.Font="Code"
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1,0,1,0)
                     name.TextYAlignment='Top'
@@ -2052,7 +2092,7 @@ for i,v in pairs(game:GetService("Workspace").Map.MysticIsland:GetChildren()) do
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(80, 245, 245)
                 else
-                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..' M')
+                    v['NameEsp'].TextLabel.Text=(v.Name ..'   \n'.. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) ..name.TextColor3=Color3.fromRGB)
                 end
             end
         else
@@ -2307,20 +2347,107 @@ local existingGui = playerGui:FindFirstChild("CustomScreenGui")
 if existingGui then
     existingGui:Destroy()
 end
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local ContentProvider = game:GetService("ContentProvider")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CustomScreenGui"
 ScreenGui.Parent = playerGui
+
 local Button = Instance.new("ImageButton")
 Button.Name = "CustomButton"
 Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 50, 0, 50)
+Button.Size = UDim2.new(0, 40, 0, 40)
 Button.Position = UDim2.new(0.015, 0, 0.02, 20)
 Button.BackgroundTransparency = 1
-Button.Image = "rbxassetid://91347148253026"
-local UICorner = Instance.new("UICorner")
+Button.Image = "rbxassetid://96179526758636"
 
-UICorner.CornerRadius = UDim.new(1, 0)
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.3, 0)  -- Bo góc nhẹ, 1 thì tròn hết
 UICorner.Parent = Button
+
+-- Tạo viền rainbow
+local stroke = Instance.new("UIStroke")
+stroke.Parent = Button
+stroke.Thickness = 3
+stroke.Transparency = 0
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+local function HSVtoRGB(h, s, v)
+    local r, g, b
+
+    local i = math.floor(h * 6)
+    local f = h * 6 - i
+    local p = v * (1 - s)
+    local q = v * (1 - f * s)
+    local t = v * (1 - (1 - f) * s)
+    i = i % 6
+
+    if i == 0 then r, g, b = v, t, p
+    elseif i == 1 then r, g, b = q, v, p
+    elseif i == 2 then r, g, b = p, v, t
+    elseif i == 3 then r, g, b = p, q, v
+    elseif i == 4 then r, g, b = t, p, v
+    elseif i == 5 then r, g, b = v, p, q
+    end
+
+    return Color3.new(r, g, b)
+end
+
+local hue = 0
+local saturation = 1
+local value = 1
+
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    stroke.Color = HSVtoRGB(hue, saturation, value)
+end)
+
+-- Kéo thả nút
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function updatePosition(input)
+    local delta = input.Position - dragStart
+    Button.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Button.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Button.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Button.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updatePosition(input)
+    end
+end)
+
+-- Load ảnh
 local imageLoaded = false
 ContentProvider:PreloadAsync({Button.Image}, function()
     imageLoaded = true
@@ -2353,29 +2480,16 @@ task.defer(function()
 end)
 wait(1.0)
 Tabs.Info:AddButton({
-        Title="Ten Hub",
+        Title=" lỗi gì thì vào đây help để ad update",
         Description="Discord",
         Callback=function()
-            setclipboard(tostring("https://discord.gg/tenhub")) 
+            setclipboard(tostring("https://discord.gg/YBrWARHugC")) 
         end
 })
-Tabs.Info:AddButton({
-    Title="Ten Nguoi Lam",
-    Description="Youtube",
-    Callback=function()
-        setclipboard(tostring("https://www.youtube.com/"))
-    end
-})
-Tabs.Info:AddButton({
-    Title="Fb Nguoi Lam",
-    Description="Facebook",
-    Callback=function()
-        setclipboard(tostring("https://www.facebook.com/"))
-    end
-})
+
 Tabs.Info:AddParagraph({
-    Title="Nguoi Lam",
-    Content="Credits"
+    Title="PHUCMAX",
+    Content="đẹp zai"
 })
 local executorName
 if identifyexecutor then
@@ -2390,16 +2504,12 @@ if executorName then
     })
 end
 Tabs.Info:AddParagraph({
-    Title="Update",
-    Content="Script supports pc and pe"
+    Title="cặc",
+    Content="script hỗ trợ cả pe và pc"
 })
 Tabs.Info:AddParagraph({
-    Title="All Clients Android Supported",
-    Content=""
-})
-Tabs.Info:AddParagraph({
-    Title="All Clients PC Supported",
-    Content=""
+    Title="lồn",
+    Content=" chạy được all clinet oke"
 })
 _G.FastAttackVxeze_Mode="Super Fast Attack"
 spawn(function()
@@ -2413,7 +2523,7 @@ spawn(function()
         end
     end
 end)
-local AutoFram = Tabs.Main:AddSection("Auto Fram")
+local AutoFram = Tabs.Main:AddSection("tự động cày")
 local DropdownSelectWeapon = Tabs.Main:AddDropdown("DropdownSelectWeapon", {
     Title = "chọn Weapon",
     Description = "",
@@ -2457,7 +2567,7 @@ task.spawn(function()
     end
 end)
     local ToggleLevel = Tabs.Main:AddToggle("ToggleLevel", {
-        Title="tự động cày Level",
+        Title="tự động cày level",
         Description="",
         Default=false })
     ToggleLevel:OnChanged(function(Value)
@@ -2710,7 +2820,7 @@ spawn(function()
                 local CFrameTarget = CFrame.new(BushPosition)
                 Tween2(CFrameTarget)
                 Fluent:Notify({
-                    Title = "Ten Hub",
+                    Title = "PHUCMAX ",
                     Content = "Find Berry: " .. tostring(BerryName),
                     Duration = 10
                 })
@@ -2720,7 +2830,7 @@ spawn(function()
         end
     end
 end)
-local Mastery = Tabs.Main:AddSection("Auto Fram Mastery")
+local Mastery = Tabs.Main:AddSection("tự động cày Mastery")
 local DropdownMastery = Tabs.Main:AddDropdown("DropdownMastery", {
     Title = "chọn kiểu Fram",
     Description = "",
@@ -3434,7 +3544,7 @@ spawn(function()
     end)
 end)
 if Sea3 then
-local MiscFarm = Tabs.Main:AddSection("Fram Bone")
+local MiscFarm = Tabs.Main:AddSection("cày Bone")
 local StatusBone = Tabs.Main:AddParagraph({
     Title="Trạng thái Bone",
     Content=""
@@ -3756,7 +3866,7 @@ spawn(function()
   end
 end)
     if Sea2 then
-    local MiscFarm = Tabs.Main:AddSection("Ectoplasm Farm")
+    local MiscFarm = Tabs.Main:AddSection("cày Ectoplasm ")
     local ToggleVatChatKiDi = Tabs.Main:AddToggle("ToggleVatChatKiDi", {
         Title="tự động  Farm Ectoplasm",
         Description="", 
@@ -3803,7 +3913,7 @@ end)
         end
     end)
 end
-local boss = Tabs.Main:AddSection("Fram Boss")
+local boss = Tabs.Main:AddSection("đánh Boss")
     if Sea1 then
         tableBoss={"The Gorilla King","Bobby","Yeti","Mob Leader","Vice Admiral","Warden","Chief Warden","Swan","Magma Admiral","Fishman Lord","Wysper","Thunder God","Cyborg","Saber Expert"}
     elseif Sea2 then
@@ -3940,7 +4050,7 @@ local boss = Tabs.Main:AddSection("Fram Boss")
 if Sea3 then
 local RoughSea = Tabs.Sea:AddSection("Kitsune Island")
 local StatusKitsune = Tabs.Sea:AddParagraph({
-    Title = "Status Kitsune Island",
+    Title = "trạng thái  Kitsune Island",
     Content = ""
 })
 function UpdateKitsune()
@@ -4004,7 +4114,7 @@ Tabs.Sea:AddButton({
         game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/KitsuneStatuePray"):InvokeServer()
     end
 })
-local RoughSea = Tabs.Sea:AddSection("Sea")
+local RoughSea = Tabs.Sea:AddSection("biển")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
@@ -4105,7 +4215,7 @@ local function createToggle(title, toggleKey, islands, islandName, notification)
             _G[toggleKey] = false
             if not notified then
                 Fluent:Notify({
-                    Title = "Ten Hub",
+                    Title = "PHUCMAX ",
                     Content = notification,
                     Duration = 10
                 })
@@ -4194,7 +4304,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 Tabs.Sea:AddButton({
-    Title="dịch chuyển  Sea Hunting",
+    Title="dịch chuyển đến   Sea Hunting",
     Description="",
     Callback=function()
         Tween2(CFrame.new(-16917.154296875, 7.757596015930176, 511.8203125))
@@ -4252,7 +4362,7 @@ Tabs.Sea:AddButton({
     end
 })
 Tabs.Sea:AddButton({
-    Title="dịch chuyển  Boat",
+    Title="dịch chuyển đến   Boat",
     Description="",
     Callback=function()
         tpToMyBoat()
@@ -4635,7 +4745,7 @@ spawn(function()
        end)
     end
 if Sea3 then
-    local AutoMysticIsland = Tabs.Sea:AddSection("Auto Mystic Island")
+    local AutoMysticIsland = Tabs.Sea:AddSection("tự động Mystic Island")
     local StatusMirage = Tabs.Sea:AddParagraph({
         Title="Trạng thái",
         Content=""
@@ -4679,7 +4789,7 @@ if Sea3 then
         end)
     end)
     Tabs.Sea:AddButton({
-        Title="dịch chuyển  To HighestPoint",
+        Title="dịch chuyển đến   To HighestPoint",
         Description="",
         Callback=function()
             TweenToHighestPoint()
@@ -4705,7 +4815,7 @@ if Sea3 then
     end
 end
 local ToggleTpAdvanced = Tabs.Sea:AddToggle("ToggleTpAdvanced", {
-    Title="dịch chuyển  To Advanced Fruit Dealer", 
+    Title="dịch chuyển đến   To Advanced Fruit Dealer", 
     Description="", 
     Default=false
 })
@@ -4725,7 +4835,7 @@ spawn(function()
         end
     end
 end)
-local ToggleTweenGear = Tabs.Sea:AddToggle("ToggleTweenGear", {Title="dịch chuyển  To Gear",Description="", Default=false })
+local ToggleTweenGear = Tabs.Sea:AddToggle("ToggleTweenGear", {Title="dịch chuyển đến   To Gear",Description="", Default=false })
 ToggleTweenGear:OnChanged(function(Value)
     _G.TweenToGear=Value
 end) 
@@ -6269,7 +6379,7 @@ if Sea2 then
         end)
     end)
 end
-local ToggleAutoT = Tabs.Misc:AddToggle("ToggleAutoT", {Title="tự động  On V3", Description="", Default=false })
+local ToggleAutoT = Tabs.Misc:AddToggle("ToggleAutoT", {Title="tự động  bật V3", Description="", Default=false })
 ToggleAutoT:OnChanged(function(Value)
     _G.AutoT=Value
     end)
@@ -6283,7 +6393,7 @@ ToggleAutoT:OnChanged(function(Value)
         end)
     end
     end)
-local ToggleAutoY = Tabs.Misc:AddToggle("ToggleAutoY", {Title="tự động  On V4", Description="", Default=false })
+local ToggleAutoY = Tabs.Misc:AddToggle("ToggleAutoY", {Title="tự động  bật V4", Description="", Default=false })
 ToggleAutoY:OnChanged(function(Value)
     _G.AutoY=Value
 end)
@@ -6342,7 +6452,7 @@ spawn(function()
     end
 end)
 Tabs.Misc:AddButton({
-    Title = "Fps Boost",
+    Title = "fix lag nhẹ",
     Description = "",
     Callback = function()
         local a = false
@@ -6453,7 +6563,7 @@ ToggleRemoveNotify:OnChanged(function(Value)
             end
         end)
         Options.ToggleWhite:SetValue(false)
-        local SKill = Tabs.Misc:AddSection("Mastery Skill")
+        local SKill = Tabs.Misc:AddSection("Mastery chiêu")
 local ToggleZ = Tabs.Misc:AddToggle("ToggleZ", {Title="chiêu Z",Description="", Default=true })
 ToggleZ:OnChanged(function(Value)
     SkillZ=Value
@@ -6481,17 +6591,17 @@ ToggleF:OnChanged(function(Value)
 Options.ToggleF:SetValue(true)
 local Usser = Tabs.Info:AddParagraph({
     Title="Trạng thái",
-    Content="â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"..
-        "Name : "..game.Players.LocalPlayer.DisplayName.." (@"..game.Players.LocalPlayer.Name..")\n"..
-        "Levels : "..game:GetService("Players").LocalPlayer.Data.Level.Value.."\n"..
-        "Money : "..game:GetService("Players").LocalPlayer.Data.Beli.Value.."\n"..
-        "Point F : "..game:GetService("Players").LocalPlayer.Data.Fragments.Value.."\n"..
-        "Bounty : "..game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value.."\n"..
-        "Health : "..game.Players.LocalPlayer.Character.Humanoid.Health.."/"..game.Players.LocalPlayer.Character.Humanoid.MaxHealth.."\n"..
-        "Energy : "..game.Players.LocalPlayer.Character.Energy.Value.."/"..game.Players.LocalPlayer.Character.Energy.MaxValue.."\n"..
-        "Race : "..game:GetService("Players").LocalPlayer.Data.Race.Value.."\n"..
-        "Devil Fruit : "..game:GetService("Players").LocalPlayer.Data.DevilFruit.Value.."\n"..
-        "â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”"
+    Content=""..
+        "tên : "..game.Players.LocalPlayer.DisplayName.." (@"..game.Players.LocalPlayer.Name..")\n"..
+        "cấp độ: "..game:GetService("Players").LocalPlayer.Data.Level.Value.."\n"..
+        "tiền : "..game:GetService("Players").LocalPlayer.Data.Beli.Value.."\n"..
+        "điểm F : "..game:GetService("Players").LocalPlayer.Data.Fragments.Value.."\n"..
+        "tiền thưởng: "..game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value.."\n"..
+        "máu : "..game.Players.LocalPlayer.Character.Humanoid.Health.."/"..game.Players.LocalPlayer.Character.Humanoid.MaxHealth.."\n"..
+        "Năng lượng : "..game.Players.LocalPlayer.Character.Energy.Value.."/"..game.Players.LocalPlayer.Character.Energy.MaxValue.."\n"..
+        "tộc : "..game:GetService("Players").LocalPlayer.Data.Race.Value.."\n"..
+        "trái : "..game:GetService("Players").LocalPlayer.Data.DevilFruit.Value.."\n"..
+        ""
 })
 local Time = Tabs.Status:AddParagraph({
     Title="Thời gian ",
@@ -6546,9 +6656,9 @@ spawn(function()
 pcall(function()
     while wait() do
         if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
-            FrozenIsland:SetDesc('âœ…')
+            FrozenIsland:SetDesc(' có ')
         else
-            FrozenIsland:SetDesc('âŒ')
+            FrozenIsland:SetDesc(' không ')
         end
     end
 end)
@@ -6564,7 +6674,7 @@ local Input = Tabs.Status:AddInput("Input", {
         end
     })
     Tabs.Status:AddButton({
-        Title="Join Job ID",
+        Title="Tham gia Job ID",
         Description="",
         Callback=function()
             game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId,_G.Job, game.Players.LocalPlayer)
@@ -6588,27 +6698,27 @@ game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId,_G.Job, 
 end
 end
 end)
-local ToggleMelee = Tabs.Stats:AddToggle("ToggleMelee", {Title="Add Melee",Description="", Default=false })
+local ToggleMelee = Tabs.Stats:AddToggle("ToggleMelee", {Title="nâng chỉ số  Melee",Description="", Default=false })
 ToggleMelee:OnChanged(function(Value)
     _G.Auto_Stats_Melee=Value
     end)
 Options.ToggleMelee:SetValue(false)
-local ToggleDe = Tabs.Stats:AddToggle("ToggleDe", {Title="Add Default",Description="", Default=false })
+local ToggleDe = Tabs.Stats:AddToggle("ToggleDe", {Title="nâng chỉ số  Default",Description="", Default=false })
 ToggleDe:OnChanged(function(Value)
     _G.Auto_Stats_Defense=Value
     end)
 Options.ToggleDe:SetValue(false)
-local ToggleSword = Tabs.Stats:AddToggle("ToggleSword", {Title="Add Sword",Description="", Default=false })
+local ToggleSword = Tabs.Stats:AddToggle("ToggleSword", {Title="nâng chỉ số  Sword",Description="", Default=false })
 ToggleSword:OnChanged(function(Value)
     _G.Auto_Stats_Sword=Value
     end)
 Options.ToggleSword:SetValue(false)
-local ToggleGun = Tabs.Stats:AddToggle("ToggleGun", {Title="Add Gun", Description="",Default=false })
+local ToggleGun = Tabs.Stats:AddToggle("ToggleGun", {Title="nâng chỉ số  Gun", Description="",Default=false })
 ToggleGun:OnChanged(function(Value)
     _G.Auto_Stats_Gun=Value
     end)
 Options.ToggleGun:SetValue(false)
-local ToggleFruit = Tabs.Stats:AddToggle("ToggleFruit", {Title="Add Fruit",Description="", Default=false })
+local ToggleFruit = Tabs.Stats:AddToggle("ToggleFruit", {Title="nâng chỉ số  Fruit",Description="", Default=false })
 ToggleFruit:OnChanged(function(Value)
     _G.Auto_Stats_Devil_Fruit=Value
     end)
@@ -6678,7 +6788,7 @@ for i,v in pairs(game:GetService("Players"):GetChildren()) do
     table.insert(Playerslist,v.Name)
 end
 local SelectedPly = Tabs.Player:AddDropdown("SelectedPly", {
-    Title="chọn Player",
+    Title="chọn người chơi",
     Description="",
     Values=Playerslist,
     Multi=false,
@@ -6689,7 +6799,7 @@ SelectedPly:OnChanged(function(Value)
     _G.SelectPly=Value
 end)
 Tabs.Player:AddButton({
-    Title="ReLoad Player",
+    Title="làm mới người chơi",
     Description="",
     Callback=function()
         table.clear(Playerslist)
@@ -6698,7 +6808,7 @@ Tabs.Player:AddButton({
         end
     end
 })
-local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển  Player", Description="",Default=false })
+local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển đến   Player", Description="",Default=false })
 ToggleTeleport:OnChanged(function(Value)
     _G.TeleportPly=Value
     if Value==false then
@@ -6961,7 +7071,7 @@ Tabs.Teleport:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("TravelZou")
     end
 })
-local Mastery = Tabs.Teleport:AddSection("Island")
+local Mastery = Tabs.Teleport:AddSection("đảo")
 if Sea1 then
  IslandList={
                 "WindMill",
@@ -7021,7 +7131,7 @@ elseif Sea3 then
        }
     end
 local DropdownIsland = Tabs.Teleport:AddDropdown("DropdownIsland",{
-    Title="chọn Island",
+    Title="chọn đảo",
     Description="",
     Values=IslandList,
     Multi=false,
@@ -7032,7 +7142,7 @@ DropdownIsland:OnChanged(function(Value)
     _G.SelectIsland=Value
 end)
 Tabs.Teleport:AddButton({
-    Title="dịch chuyển  Island",
+    Title="dịch chuyển đến đảo",
     Description="",
     Callback=function()
             if _G.SelectIsland=="WindMill" then
@@ -7191,7 +7301,7 @@ DropdownPermanentFruit:OnChanged(function(Value)
     _G.PermanentFruit=Value
 end)
 local TogglePermanentFruit = Tabs.Fruit:AddToggle("TogglePermanentFruit", {
-    Title="Trade Permanent Fruit",
+    Title="đổi Permanent Fruit",
     Description="",
     Default=false 
 })
@@ -7209,7 +7319,7 @@ TogglePermanentFruit:OnChanged(function(Value)
     end
 end)
 Options.TogglePermanentFruit:SetValue(false)
-local ToggleStore = Tabs.Fruit:AddToggle("ToggleStore", {Title="Store Fruit",Description="", Default=false })
+local ToggleStore = Tabs.Fruit:AddToggle("ToggleStore", {Title="cất trái",Description="", Default=false })
 ToggleStore:OnChanged(function(Value)
     _G.AutoStoreFruit=Value
 end)
@@ -7327,7 +7437,7 @@ spawn(function()
         wait()
     end
     end)
-local ToggleRandomFruit = Tabs.Fruit:AddToggle("ToggleRandomFruit", {Title="Random Fruit",Description="", Default=false })
+local ToggleRandomFruit = Tabs.Fruit:AddToggle("ToggleRandomFruit", {Title="Random trái",Description="", Default=false })
 ToggleRandomFruit:OnChanged(function(Value)
     _G.Random_Auto=Value
 end)
@@ -7341,7 +7451,7 @@ spawn(function()
         end
     end)
 end)
-local ToggleCollectTP = Tabs.Fruit:AddToggle("ToggleCollectTP", {Title="dịch chuyển  Fruit",Description="", Default=false })
+local ToggleCollectTP = Tabs.Fruit:AddToggle("ToggleCollectTP", {Title="dịch chuyển đến  Fruit",Description="", Default=false })
 ToggleCollectTP:OnChanged(function(Value)
     _G.CollectFruitTP=Value
 end)
@@ -7357,7 +7467,7 @@ spawn(function()
                 end
             end
        end)
-local ToggleCollect = Tabs.Fruit:AddToggle("ToggleCollect", {Title="lụm Fruit",Description="", Default=false })
+local ToggleCollect = Tabs.Fruit:AddToggle("ToggleCollect", {Title="nhặt trái",Description="", Default=false })
 ToggleCollect:OnChanged(function(Value)
     _G.Tweenfruit=Value
 end)
@@ -7373,14 +7483,14 @@ spawn(function()
         end
 end
 end)
-local Mastery = Tabs.Fruit:AddSection("Esp")
-local ToggleEspPlayer = Tabs.Fruit:AddToggle("ToggleEspPlayer", {Title="Player",Description="", Default=false })
+local Mastery = Tabs.Fruit:AddSection("esp")
+local ToggleEspPlayer = Tabs.Fruit:AddToggle("ToggleEspPlayer", {Title="người chơi",Description="", Default=false })
 ToggleEspPlayer:OnChanged(function(Value)
     ESPPlayer=Value
     UpdatePlayerChams()
 end)
 Options.ToggleEspPlayer:SetValue(false)
-local ToggleEspFruit = Tabs.Fruit:AddToggle("ToggleEspFruit", {Title="Fruit",Description="", Default=false })
+local ToggleEspFruit = Tabs.Fruit:AddToggle("ToggleEspFruit", {Title="trái",Description="", Default=false })
 ToggleEspFruit:OnChanged(function(Value)
     DevilFruitESP=Value
     while DevilFruitESP do wait()
@@ -7388,7 +7498,7 @@ ToggleEspFruit:OnChanged(function(Value)
     end
 end)
 Options.ToggleEspFruit:SetValue(false)
-local ToggleEspIsland = Tabs.Fruit:AddToggle("ToggleEspIsland", {Title="Island",Description="", Default=false })
+local ToggleEspIsland = Tabs.Fruit:AddToggle("ToggleEspIsland", {Title="đảo",Description="", Default=false })
 ToggleEspIsland:OnChanged(function(Value)
     IslandESP=Value
     while IslandESP do wait()
@@ -7396,7 +7506,7 @@ ToggleEspIsland:OnChanged(function(Value)
     end
 end)
 Options.ToggleEspIsland:SetValue(false)
-local ToggleEspFlower = Tabs.Fruit:AddToggle("ToggleEspFlower", {Title="Flower",Description="", Default=false })
+local ToggleEspFlower = Tabs.Fruit:AddToggle("ToggleEspFlower", {Title="hoa",Description="", Default=false })
 ToggleEspFlower:OnChanged(function(Value)
     FlowerESP=Value
     UpdateFlowerChams() 
@@ -7421,7 +7531,7 @@ spawn(function()
         end
     end
 end)
-local ToggleEspRealFruit = Tabs.Fruit:AddToggle("ToggleEspRealFruit", {Title="Real Fruit", Description="", Default=false })
+local ToggleEspRealFruit = Tabs.Fruit:AddToggle("ToggleEspRealFruit", {Title="trái thật", Description="", Default=false })
 ToggleEspRealFruit:OnChanged(function(Value)
     RealFruitEsp=Value
     while RealFruitEsp do 
@@ -7443,16 +7553,16 @@ function UpdateRealFruitEsp()
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel', bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1, 0, 1, 0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 0, 0)
-                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 else
-                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 end
             else
                 if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -7473,16 +7583,16 @@ function UpdateRealFruitEsp()
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel', bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1, 0, 1, 0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(255, 174, 0)
-                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 else
-                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 end
             else
                 if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -7503,16 +7613,16 @@ function UpdateRealFruitEsp()
                     bill.AlwaysOnTop=true
                     local name = Instance.new('TextLabel', bill)
                     name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
+                    name.FontSize="Size10"
                     name.TextWrapped=true
                     name.Size=UDim2.new(1, 0, 1, 0)
                     name.TextYAlignment='Top'
                     name.BackgroundTransparency=1
                     name.TextStrokeTransparency=0.5
                     name.TextColor3=Color3.fromRGB(251, 255, 0)
-                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 else
-                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                    v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' m')
                 end
             else
                 if v.Handle:FindFirstChild('NameEsp'..Number) then
@@ -7522,7 +7632,7 @@ function UpdateRealFruitEsp()
         end
     end
 end
-local ToggleIslandMirageEsp = Tabs.Fruit:AddToggle("ToggleIslandMirageEsp", {Title="Mirage", Description="", Default=false })
+local ToggleIslandMirageEsp = Tabs.Fruit:AddToggle("ToggleIslandMirageEsp", {Title="đảo bí ẩn", Description="", Default=false })
 ToggleIslandMirageEsp:OnChanged(function(Value)
     IslandMirageEsp=Value
     while IslandMirageEsp do 
@@ -7552,15 +7662,15 @@ function UpdateIslandMirageEsp()
                         bill.AlwaysOnTop=true
                         local name = Instance.new('TextLabel', bill)
                         name.Font=Enum.Font.Code
-                        name.FontSize=Enum.FontSize.Size14
+                        name.FontSize=Enum.FontSize.Size10
                         name.TextWrapped=true
                         name.Size=UDim2.new(1, 0, 1, 0)
                         name.TextYAlignment=Enum.TextYAlignment.Top
                         name.BackgroundTransparency=1
                         name.TextStrokeTransparency=0.5
-                        name.TextColor3=Color3.fromRGB(80, 245, 245)
+                        name.TextColor3 = Color3.fromRGB(64, 224, 208)
                     else
-                        v['NameEsp'].TextLabel.Text=(v.Name .. '   \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) .. ' M')
+                        v['NameEsp'].TextLabel.Text=(v.Name .. '   \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Position).Magnitude/3) .. ' m')
                     end
                 end
             else
@@ -7695,7 +7805,7 @@ spawn(function()
         end
     end
 end)
-local ToggleAwake = Tabs.Raid:AddToggle("ToggleAwake", {Title="Thá»©c Tá»‰nh",Description="", Default=false })
+local ToggleAwake = Tabs.Raid:AddToggle("ToggleAwake", {Title="thức tỉnh",Description="", Default=false })
 ToggleAwake:OnChanged(function(Value)
     AutoAwakenAbilities=Value
 end)
@@ -7808,7 +7918,7 @@ end
 end)
 if Sea2 then
 Tabs.Main:AddButton({
-    Title="dịch chuyển  Raid Sea 2",
+    Title="dịch chuyển đến   Raid Sea 2",
     Description="",
     Callback=function()
      Tween2(CFrame.new(-6438.73535, 250.645355,-4501.50684))
@@ -7816,7 +7926,7 @@ end
 })
 elseif Sea3 then
     Tabs.Main:AddButton({
-        Title="dịch chuyển  Raid Sea 3",
+        Title="dịch chuyển đến   Raid Sea 3",
         Description="",
         Callback=function()
          game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(-5075.50927734375, 314.5155029296875,-3150.0224609375))
@@ -7824,7 +7934,7 @@ elseif Sea3 then
         end
         })
 end
-local Mastery = Tabs.Raid:AddSection("Teleport Raid Law")
+local Mastery = Tabs.Raid:AddSection(" Raid Law")
 local ToggleLaw = Tabs.Raid:AddToggle("ToggleLaw", {Title="tự động  Raid Law",Description="", Default=false })
 ToggleLaw:OnChanged(function(Value)
     Auto_Law=Value
@@ -7874,16 +7984,16 @@ spawn(function()
         end
     end)
 end)
-local Mastery = Tabs.Race:AddSection("Race v4")
+local Mastery = Tabs.Race:AddSection("tộc v4")
 Tabs.Race:AddButton({
-    Title="Temple of Time",
+    Title="Ngôi đền thời gian",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
     end
 })
 Tabs.Race:AddButton({
-    Title="Pull Lever",
+    Title="Pull cấp",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -7900,7 +8010,7 @@ Tabs.Race:AddButton({
 })
 local Mastery = Tabs.Race:AddSection("Race")
 Tabs.Race:AddButton({
-    Title="dịch chuyển  Door Race",
+    Title="dịch chuyển đến  Door Race",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -8109,7 +8219,7 @@ ToggleUpgrade:OnChanged(function(Value)
     end
 end)
 Options.ToggleUpgrade:SetValue(false)
-local Mastery = Tabs.Shop:AddSection("Ability")
+local Mastery = Tabs.Shop:AddSection("Khả năng")
 Tabs.Shop:AddButton({
     Title="Geppo",
     Description="",
@@ -8138,7 +8248,7 @@ Tabs.Shop:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KenTalk","Buy")
     end
 })
-local Mastery = Tabs.Shop:AddSection("Sword")
+local Mastery = Tabs.Shop:AddSection("kiếm")
 Tabs.Shop:AddButton({
     Title="Cutlass",
     Description="",
@@ -8209,7 +8319,7 @@ Tabs.Shop:AddButton({
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("ThunderGodTalk")
     end
 })
-local Mastery = Tabs.Shop:AddSection("Gun")
+local Mastery = Tabs.Shop:AddSection("súng")
 Tabs.Shop:AddButton({
     Title="Musket",
     Description="",
@@ -8259,7 +8369,7 @@ Tabs.Shop:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward","Slingshot","2")
     end
 })
-local Mastery = Tabs.Shop:AddSection("Accessory")
+local Mastery = Tabs.Shop:AddSection("Phụ kiện")
 Tabs.Shop:AddButton({
     Title="Black Cape",
     Description="",
@@ -8281,7 +8391,7 @@ Tabs.Shop:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuyItem","Tomoe Ring")
     end
 })
-local Mastery = Tabs.Shop:AddSection("Melee")
+local Mastery = Tabs.Shop:AddSection("cận chiến")
 Tabs.Shop:AddButton({
     Title="Black Leg",
     Description="",
@@ -8361,9 +8471,9 @@ Tabs.Shop:AddButton({
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BuySanguineArt")
     end
 })
-local Mastery = Tabs.Shop:AddSection("Misc")
+local Mastery = Tabs.Shop:AddSection("linh tinh")
 Tabs.Shop:AddButton({
-    Title="Reset Start",
+    Title="hoàn lại chỉ số",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward","Refund","1")
@@ -8371,7 +8481,7 @@ Tabs.Shop:AddButton({
     end
 })
 Tabs.Shop:AddButton({
-    Title="Trade Race",
+    Title="đổi tộc",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BlackbeardReward", "Reroll", "1")
@@ -8379,7 +8489,7 @@ Tabs.Shop:AddButton({
     end
 })
 Tabs.Shop:AddButton({
-    Title="Race Ghoul",
+    Title="tộc Ghoul",
     Description="",
     Callback=function()
         local args = {
@@ -8391,7 +8501,7 @@ Tabs.Shop:AddButton({
     end
 })
 Tabs.Shop:AddButton({
-    Title="Race Cyborg",
+    Title="tộc Cyborg",
     Description="",
     Callback=function()
         local args = {
@@ -8402,7 +8512,7 @@ Tabs.Shop:AddButton({
     end
 })
 Tabs.Shop:AddButton({
-    Title="Race Draco",
+    Title="tộc Draco",
     Description="Sea 3",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5661.5322265625, 1013.0907592773438,-334.9649963378906))
@@ -8423,14 +8533,14 @@ Tabs.Shop:AddButton({
     end
 })
 Tabs.Misc:AddButton({
-    Title="Join Server",
+    Title="Tham gia Server",
     Description="",
     Callback=function()
         game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
     end
 })
 Tabs.Misc:AddButton({
-    Title="Rejoin Server",
+    Title="vào lại Server",
     Description="",
     Callback=function()
         Hop()
@@ -8497,25 +8607,25 @@ function Hop()
     end
     Teleport()
 end      
-local Mastery = Tabs.Misc:AddSection("Team")
+local Mastery = Tabs.Misc:AddSection("phe")
 Tabs.Misc:AddButton({
-    Title="Pirate",
+    Title="hải tặt",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam","Pirates") 
     end
 })
 Tabs.Misc:AddButton({
-    Title="Marine",
+    Title="hải quân",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam","Marines") 
     end
 })
-local Mastery = Tabs.Misc:AddSection("RedeemCode")
+local Mastery = Tabs.Misc:AddSection("nhập code")
 local codes = {"KITT_RESET", "Sub2UncleKizaru", "SUB2GAMERROBOT_RESET1", "Sub2Fer999", "Enyu_is_Pro", "JCWK", "StarcodeHEO", "MagicBus", "KittGaming", "Sub2CaptainMaui", "Sub2OfficalNoobie", "TheGreatAce", "Sub2NoobMaster123", "Sub2Daigrock", "Axiore", "StrawHatMaine", "TantaiGaming", "Bluxxy", "SUB2GAMERROBOT_EXP1", "Chandler", "NOMOREHACK", "BANEXPLOIT", "WildDares", "BossBuild", "GetPranked", "EARN_FRUITS", "FIGHT4FRUIT", "NOEXPLOITER", "NOOB2ADMIN", "CODESLIDE", "ADMINHACKED", "ADMINDARES", "fruitconcepts", "krazydares", "TRIPLEABUSE", "SEATROLLING", "24NOADMIN", "REWARDFUN", "NEWTROLL", "fudd10_v2", "Fudd10", "Bignews", "SECRET_ADMIN"}
 Tabs.Misc:AddButton({
-    Title="Redeem All",
+    Title="nhập tất cả",
     Description="",
     Callback=function()
         for _, code in ipairs(codes) do
@@ -8538,16 +8648,16 @@ Tabs.Misc:AddButton({
         game.Players.localPlayer.PlayerGui.Main.Titles.Visible=true
     end
 })
-local Mastery = Tabs.Misc:AddSection("Awakening")  
+local Mastery = Tabs.Misc:AddSection(" thức tỉnh")  
 Tabs.Misc:AddButton({
-    Title="Open Awakening",
+    Title="Mở Awakening",
     Description="",
     Callback=function()
         game:GetService("Players").LocalPlayer.PlayerGui.Main.AwakeningToggler.Visible=true
     end
 })
-local Mastery = Tabs.Misc:AddSection("Misc")
-local ToggleRejoin = Tabs.Misc:AddToggle("ToggleRejoin", {Title="Rejoin Server", Description="",Default=true })
+local Mastery = Tabs.Misc:AddSection("linh tinh")
+local ToggleRejoin = Tabs.Misc:AddToggle("ToggleRejoin", {Title="vào lại Server", Description="",Default=true })
 ToggleRejoin:OnChanged(function(Value)
     _G.AutoRejoin=Value
 end)
@@ -8563,7 +8673,7 @@ spawn(function()
             end
         end
     end)
-local Mastery = Tabs.Misc:AddSection("No Fog")
+local Mastery = Tabs.Misc:AddSection("Không có sương mù")
 local function NoFog()
     local lighting = game:GetService("Lighting")
     if lighting:FindFirstChild("BaseAtmosphere") then
@@ -8584,14 +8694,14 @@ local function NoFog()
     lighting.FogEnd=100000
 end
 Tabs.Misc:AddButton({
-    Title="Delete Fog",
+    Title="Xóa sương mù",
     Description="",
     Callback=function()
         NoFog()
     end
 })
 local ToggleAntiBand = Tabs.Misc:AddToggle("ToggleAntiBand", {
-    Title="Anti Band",
+    Title="đổi sever khi có admin vô sever",
     Description="",
     Default=true
 })
@@ -8619,7 +8729,7 @@ Tabs.Sea:AddButton({
     end
 })
 local ToggleTPFrozenDimension = Tabs.Sea:AddToggle("ToggleTPFrozenDimension", {
-    Title="dịch chuyển  Leviathan Island", 
+    Title="dịch chuyển đến   Leviathan Island", 
     Description="", 
     Default=false 
 })
@@ -8722,7 +8832,7 @@ spawn(function()
     end
 end)
 local ToggleReceiveQuest = Tabs.Main:AddToggle("ToggleReceiveQuest", {
-    Title="Receive Quest", 
+    Title="Nhận Quest", 
     Description="On/Off To 1-2", 
     Default=false
 })
@@ -8835,7 +8945,7 @@ spawn(function()
     end
 end)
 Tabs.Main:AddButton({
-    Title="Telepor Dragon Dojo",
+    Title="dịch chuyển đến   Dragon Dojo",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5661.5322265625, 1013.0907592773438,-334.9649963378906))
@@ -8843,8 +8953,8 @@ Tabs.Main:AddButton({
     end
 })
 Tabs.Main:AddButton({
-    Title="Craft Volcanic Magnet",
-    Description="Need 15 Blaze Ember + 10 Iron",
+    Title="chế tạo Volcanic Magnet",
+    Description="",
     Callback=function()
         local args = {
             [1]="CraftItem",
@@ -8855,8 +8965,8 @@ Tabs.Main:AddButton({
     end
 })
 Tabs.Main:AddButton({
-    Title = "Craft Dino Hood",
-    Description = "Need 25 Dinosaur Bones + 10 Mini Tusk",
+    Title = "chế tạo Dino Hood",
+    Description = "",
     Callback = function()
         local args = {
             [1] = "CraftItem",
@@ -8867,8 +8977,8 @@ Tabs.Main:AddButton({
     end
 })
 Tabs.Main:AddButton({
-    Title = "Craft T-Rex Skull",
-    Description = "Need 8 Dinosaur Bones + 5 Dragon Scale",
+    Title = "chế tạo T-Rex Skull",
+    Description = "",
     Callback = function()
         local args = {
             [1] = "CraftItem",
@@ -8943,7 +9053,7 @@ local DracoV4 = Tabs.Sea:AddParagraph({
     Content="Comning Soon"
 })
 local ToggleTrialTeleport = Tabs.Sea:AddToggle("ToggleTrialTeleport", {
-    Title="dịch chuyển  Trial Race Draco", 
+    Title="dịch chuyển đến   Trial Race Draco", 
     Description="", 
     Default=false
 })
@@ -8981,7 +9091,7 @@ spawn(function()
     end)
 end)
 local ToggleTPVolcano = Tabs.Sea:AddToggle("ToggleTPVolcano", { 
-    Title="dịch chuyển  Volcano Island", 
+    Title="dịch chuyển đến   Volcano Island", 
     Description="", 
     Default=false 
 })
@@ -9241,9 +9351,9 @@ local notificationCooldown = 10
 local currentTime = tick()
 if currentTime - lastNotificationTime >= notificationCooldown then
     game.StarterGui:SetCore("SendNotification", {
-        Title = "Ten Hub",
-        Text = "Successfully",
-        Duration = 1
+        Title = "PHUCMAX ",
+        Text = "chào bạn nha",
+        Duration = 3
     })
     lastNotificationTime = currentTime
 end
