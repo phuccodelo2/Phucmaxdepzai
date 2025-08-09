@@ -2365,7 +2365,7 @@ Button.Parent = ScreenGui
 Button.Size = UDim2.new(0, 50, 0, 50)
 Button.Position = UDim2.new(0.015, 0, 0.02, 20)
 Button.BackgroundTransparency = 1
-Button.Image = "rbxassetid://127114352687058"
+Button.Image = "rbxassetid://113632547593752"
 
 -- Bo góc vuông tròn (vừa phải, radius 10 pixels)
 local UICorner = Instance.new("UICorner")
