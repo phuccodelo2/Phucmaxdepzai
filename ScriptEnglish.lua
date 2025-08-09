@@ -223,15 +223,19 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Đợi một chút cho UI load xong
-task.defer(function()
-    -- Tìm label Title trong window
-    local titleLabel = Window.MainFrame:FindFirstChildWhichIsA("TextLabel")
-    if titleLabel then
-        titleLabel.TextColor3 = Color3.fromRGB(0, 255, 200)  -- Màu xanh ngọc bích
-    else
-        warn("Không tìm thấy label Title để đổi màu!")
+local function setTextLabelsColorToGreenJade(parent)
+    for _, child in pairs(parent:GetChildren()) do
+        if child:IsA("TextLabel") then
+            child.TextColor3 = Color3.fromRGB(0, 255, 200) -- màu xanh ngọc bích
+        end
+        -- Đệ quy kiểm tra con của child
+        setTextLabelsColorToGreenJade(child)
     end
+end
+
+-- Gọi hàm đổi màu cho toàn bộ UI Fluent
+task.defer(function()
+    setTextLabelsColorToGreenJade(Window.MainFrame)
 end)
 
 local Tabs = {
