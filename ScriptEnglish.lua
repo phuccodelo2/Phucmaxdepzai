@@ -2321,14 +2321,14 @@ ScreenGui.Parent = playerGui
 local Button = Instance.new("ImageButton")
 Button.Name = "CustomButton"
 Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 150, 0, 50)  -- chữ nhật rộng 150, cao 50
-Button.Position = UDim2.new(0.5, -75, 0, 10) -- chính giữa trên màn hình (cộng trừ 1 nửa width)
-Button.BackgroundTransparency = 0.3  -- hơi trong suốt
-Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  -- màu nền tối
-Button.Image = ""  -- bỏ ảnh
+Button.Size = UDim2.new(0, 180, 0, 60)  -- rộng chữ nhật
+Button.Position = UDim2.new(0.5, -90, 0, 10) -- trên cùng chính giữa
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  -- nền tối
+Button.BackgroundTransparency = 0
+Button.Image = ""
 
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)  -- bo góc 12 px
+UICorner.CornerRadius = UDim.new(0, 14)
 UICorner.Parent = Button
 
 local UIStroke = Instance.new("UIStroke")
@@ -2337,13 +2337,26 @@ UIStroke.Thickness = 3
 UIStroke.LineJoinMode = Enum.LineJoinMode.Round
 UIStroke.Transparency = 0
 
--- Hàm chuyển hue sang màu RGB (rainbow)
+-- Text label chữ "phucmax"
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Parent = Button
+TextLabel.Size = UDim2.new(1, 0, 1, 0)
+TextLabel.BackgroundTransparency = 1
+TextLabel.Text = "phucmax"
+TextLabel.Font = Enum.Font.GothamBold
+TextLabel.TextSize = 28
+TextLabel.TextStrokeTransparency = 0.6
+TextLabel.TextWrapped = false
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+-- Hàm chuyển hue sang RGB
 local function ColorFromHue(hue)
     local r, g, b
     local i = math.floor(hue * 6)
     local f = hue * 6 - i
     local q = 1 - f
-
     i = i % 6
     if i == 0 then r, g, b = 1, f, 0
     elseif i == 1 then r, g, b = q, 1, 0
@@ -2352,14 +2365,50 @@ local function ColorFromHue(hue)
     elseif i == 4 then r, g, b = f, 0, 1
     elseif i == 5 then r, g, b = 1, 0, q
     end
-
     return Color3.new(r, g, b)
 end
 
 local hue = 0
-RunService.RenderStepped:Connect(function()
+local textHueOffset = 0
+
+-- Viền rainbow đổi màu liên tục
+RunService.RenderStepped:Connect(function(dt)
     hue = (hue + 0.005) % 1
     UIStroke.Color = ColorFromHue(hue)
+    
+    -- Hiệu ứng rainbow chữ chạy sóng "rợn sống"
+    textHueOffset = (textHueOffset + 0.015) % 1
+    
+    -- Tạo màu theo từng ký tự (tạo sóng chạy)
+    local txt = TextLabel.Text
+    local newText = ""
+    for i = 1, #txt do
+        local c = txt:sub(i,i)
+        local charHue = (textHueOffset + i * 0.08) % 1
+        local color = ColorFromHue(charHue)
+        -- Mỗi ký tự đổi màu theo màu sắc HSV (đổi màu kí tự từng cái)
+        newText = newText..'<font color="rgb('..math.floor(color.R*255)..','..math.floor(color.G*255)..','..math.floor(color.B*255)..')">'..c..'</font>'
+    end
+    TextLabel.Text = newText
+    TextLabel.RichText = true
+end)
+
+-- Toggle trạng thái nút (màu nền thay đổi)
+local toggled = false
+local function updateButtonUI()
+    if toggled then
+        Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255) -- màu xanh bật
+    else
+        Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- màu nền tắt
+    end
+end
+updateButtonUI()
+
+Button.MouseButton1Click:Connect(function()
+    toggled = not toggled
+    updateButtonUI()
+    print("Toggle state:", toggled)
+    -- Ở đây bạn có thể thêm callback bật tắt UI hoặc chức năng khác
 end)
 Button.MouseButton1Click:Connect(function()
     if not imageLoaded then
