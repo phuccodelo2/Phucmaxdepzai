@@ -180,7 +180,7 @@ local Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits",
     TabWidth = 155,
-    Theme = "cyan",
+    Theme = "darker",
     Acrylic = false,
     Size = UDim2.fromOffset(520, 280),
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -197,7 +197,7 @@ Main1=Window:AddTab({ Title="Tab phụ" }),
     Stats=Window:AddTab({ Title="Tab chỉ số" }),
     Player=Window:AddTab({ Title="Tab pvp" }),
     Teleport=Window:AddTab({ Title="Tab dịch chuyển" }),
-    Fruit=Window:AddTab({ Title="Tab trái" }),
+    
     Raid=Window:AddTab({ Title="Tab Raid" }),
     Race=Window:AddTab({ Title="Tab tộc" }),
     Shop=Window:AddTab({ Title="Tab cửa hàng" }),
