@@ -185,19 +185,19 @@ Window = Fluent:CreateWindow({
 })
 local Tabs = {
 
-Info=Window:AddTab({ Title="Tab help script lỗi", Icon="alert" }),
-Main=Window:AddTab({ Title="Tab chính", Icon="home" }),
-Sea=Window:AddTab({ Title="Tab sự kiện biển", Icon="waves" }),
-Item=Window:AddTab({ Title="Tab cày item", Icon="bag" }),
-Status=Window:AddTab({ Title="Tab trạng thái", Icon="info-circle" }),
-Stats=Window:AddTab({ Title="Tab chỉ số", Icon="chart-bar" }),
-Player=Window:AddTab({ Title="Tab người chơi", Icon="user" }),
-Teleport=Window:AddTab({ Title="Tab dịch chuyển", Icon="location-arrow" }),
-Fruit=Window:AddTab({ Title="Tab trái", Icon="apple-alt" }),
-Raid=Window:AddTab({ Title="Tab Raid", Icon="crosshairs" }),
-Race=Window:AddTab({ Title="Tab tộc", Icon="flag" }),
-Shop=Window:AddTab({ Title="Tab cửa hàng", Icon="shopping-cart" }),
-Misc=Window:AddTab({ Title="Tab linh tinh", Icon="cogs" }),
+Info=Window:AddTab({ Title="Tab help script lỗi" }),
+    Main=Window:AddTab({ Title="Tab chính" }),
+    Sea=Window:AddTab({ Title="Tab sự kiện biển" }),
+    Item=Window:AddTab({ Title="Tab cày item" }),
+    Status=Window:AddTab({ Title="Tab trạng thái" }),
+    Stats=Window:AddTab({ Title="Tab chỉ số" }),
+    Player=Window:AddTab({ Title="Tab người chơi" }),
+    Teleport=Window:AddTab({ Title="Tab dịch chuyển" }),
+    Fruit=Window:AddTab({ Title="Tab trái" }),
+    Raid=Window:AddTab({ Title="Tab Raid" }),
+    Race=Window:AddTab({ Title="Tab tộc" }),
+    Shop=Window:AddTab({ Title="Tab cửa hàng" }),
+    Misc=Window:AddTab({ Title="Tab linh tinh" }),
 }
 local Options = Fluent.Options
 local id = game.PlaceId
