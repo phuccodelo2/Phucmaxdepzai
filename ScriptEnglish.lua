@@ -374,29 +374,33 @@ logo.MouseButton1Click:Connect(function()
 	end
 end)
 
-local Window = {}
+-- API Window giống UI cũ
+Window = {}
 function Window:AddTab(info)
     return createTabWithAPI(info.Title)
 end
 
--- Tạo các tab như bạn muốn
-local Info     = Window:AddTab({ Title = "Tab Info" })
-local Main     = Window:AddTab({ Title = "Tab Fram" })
-local Main1    = Window:AddTab({ Title = "Tab Fram Other" })
-local Sea      = Window:AddTab({ Title = "Tab Sea Event" })
-local Item     = Window:AddTab({ Title = "Tab Stack Fram" })
-local Setting  = Window:AddTab({ Title = "Tab Setting" })
-local Status   = Window:AddTab({ Title = "Tab Status" })
-local Stats    = Window:AddTab({ Title = "Tab Stats" })
-local Player   = Window:AddTab({ Title = "Tab Player" })
-local Teleport = Window:AddTab({ Title = "Tab Teleport" })
-local Visual   = Window:AddTab({ Title = "Tab Visual" })
-local Fruit    = Window:AddTab({ Title = "Tab Fruit" })
-local Raid     = Window:AddTab({ Title = "Tab Raid" })
-local Race     = Window:AddTab({ Title = "Tab Race" })
-local Shop     = Window:AddTab({ Title = "Tab Shop" })
-local Misc     = Window:AddTab({ Title = "Tab Misc" })
-})
+-- Tạo tất cả tab như UI cũ
+Info = Window:AddTab({ Title = "Tab Info" })
+Main = Window:AddTab({ Title = "Tab Fram" })
+Main1 = Window:AddTab({ Title = "Tab Fram Other" })
+Sea = Window:AddTab({ Title = "Tab Sea Event" })
+Item = Window:AddTab({ Title = "Tab Stack Fram" })
+Setting = Window:AddTab({ Title = "Tab Setting" })
+Status = Window:AddTab({ Title = "Tab Status" })
+Stats = Window:AddTab({ Title = "Tab Stats" })
+Player = Window:AddTab({ Title = "Tab Player" })
+Teleport = Window:AddTab({ Title = "Tab Teleport" })
+Visual = Window:AddTab({ Title = "Tab Visual" })
+Fruit = Window:AddTab({ Title = "Tab Fruit" })
+Raid = Window:AddTab({ Title = "Tab Raid" })
+Race = Window:AddTab({ Title = "Tab Race" })
+Shop = Window:AddTab({ Title = "Tab Shop" })
+Misc = Window:AddTab({ Title = "Tab Misc" })
+
+-- Mở UI khi load
+toggleMenu()
+
 local Options = Fluent.Options
 local id = game.PlaceId
 if id==2753915549 then Sea1=true; elseif id==4442272183 then Sea2=true; elseif id==7449423635 then Sea3=true; else game:Shutdown() end;
