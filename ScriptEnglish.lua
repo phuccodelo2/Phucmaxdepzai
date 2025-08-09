@@ -184,16 +184,14 @@ Window = Fluent:CreateWindow({
     Acrylic = false,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
-    local mainFrame = Window.MainFrame or Window.Frame or Window
-
+})
+local mainFrame = Window.MainFrame or Window.Frame or Window
 local uiStroke = Instance.new("UIStroke")
 uiStroke.Parent = mainFrame
 uiStroke.Thickness = 3
 uiStroke.Color = Color3.fromRGB(0, 255, 200)  -- màu xanh ngọc bích
 uiStroke.LineJoinMode = Enum.LineJoinMode.Round
 uiStroke.Transparency = 0
-})
-
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab Info" }),
