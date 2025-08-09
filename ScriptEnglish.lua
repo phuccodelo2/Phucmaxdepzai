@@ -2305,16 +2305,13 @@ function to(p)
     end
 wait(2.0)
 local Players = game:GetService("Players")
-local ContentProvider = game:GetService("ContentProvider")
-local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
 local existingGui = playerGui:FindFirstChild("CustomScreenGui")
 if existingGui then
     existingGui:Destroy()
 end
-local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-local RunService = game:GetService("RunService")
-local ContentProvider = game:GetService("ContentProvider")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CustomScreenGui"
@@ -2352,6 +2349,8 @@ TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 TextLabel.TextYAlignment = Enum.TextYAlignment.Center
 TextLabel.RichText = true
 
+local RunService = game:GetService("RunService")
+
 local function ColorFromHue(hue)
     local r, g, b
     local i = math.floor(hue * 6)
@@ -2375,10 +2374,9 @@ RunService.RenderStepped:Connect(function(dt)
     hue = (hue + 0.005) % 1
     UIStroke.Color = ColorFromHue(hue)
     
-    textHueOffset = (textHueOffset + 0.015) % 1
-    local txt = TextLabel.Text
-    local newText = ""
     local plainText = "phucmax"
+    local newText = ""
+    textHueOffset = (textHueOffset + 0.015) % 1
     for i = 1, #plainText do
         local c = plainText:sub(i,i)
         local charHue = (textHueOffset + i * 0.08) % 1
@@ -2388,29 +2386,13 @@ RunService.RenderStepped:Connect(function(dt)
     TextLabel.Text = newText
 end)
 
-local imageLoaded = true -- không dùng ảnh nên luôn true
-
 Button.MouseButton1Click:Connect(function()
     if not imageLoaded then
         return
     end
+    local VirtualInputManager = game:GetService("VirtualInputManager")
     if VirtualInputManager then
         task.defer(function()
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
-        end)
-    end
-end)
-local toggled = false
-
-Button.MouseButton1Click:Connect(function()
-    if not imageLoaded then
-        return
-    end
-    if VirtualInputManager then
-        toggled = not toggled -- đảo trạng thái bật/tắt
-        task.defer(function()
-            -- gửi phím LeftControl để toggle UI
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
         end)
