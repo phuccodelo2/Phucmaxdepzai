@@ -173,21 +173,21 @@ repeat
 until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
+local RunService = game:GetService("RunService")
+
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-Window = Fluent:CreateWindow({
+local Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
-    SubTitle="Blox Fruits", 
-    TabWidth=155, 
-    Theme="cyan",
-    Acrylic=false,
-    Size=UDim2.fromOffset(520, 280), 
+    SubTitle = "Blox Fruits",
+    TabWidth = 155,
+    Theme = "cyan",
+    Acrylic = false,
+    Size = UDim2.fromOffset(520, 280),
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local RunService = game:GetService("RunService")
-
--- Giả sử Window.MainFrame là Frame chính của cửa sổ UI
-local mainFrame = Window.MainFrame or Window.Frame or Window -- chỉnh lại theo đúng object Frame của Fluent UI
+-- Lấy frame chính UI của Fluent
+local mainFrame = Window.MainFrame or Window.Frame or Window
 
 -- Tạo UIStroke viền rainbow
 local stroke = Instance.new("UIStroke")
@@ -218,7 +218,7 @@ end
 -- Biến trạng thái hue
 local hue = 0
 
--- Animate đổi màu viền rainbow
+-- Animate đổi màu viền rainbow mỗi frame
 RunService.RenderStepped:Connect(function()
     hue = (hue + 0.002) % 1
     stroke.Color = ColorFromHue(hue)
