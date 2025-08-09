@@ -174,17 +174,15 @@ until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-
-local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX ",
-    SubTitle = "Blox Fruits",
-    TabWidth = 165,
-    Theme = "Darker",
-    Acrylic = false,
-    Size = UDim2.fromOffset(500, 320),
+Window = Fluent:CreateWindow({
+    Title = "phucmax",
+    SubTitle="Blox Fruits", 
+    TabWidth=155, 
+    Theme="Darker",
+    Acrylic=false,
+    Size=UDim2.fromOffset(555, 320), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab help script lỗi" }),
