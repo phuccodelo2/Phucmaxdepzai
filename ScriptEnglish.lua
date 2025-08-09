@@ -7579,56 +7579,23 @@ function UpdateRealFruitEsp()
         if v:IsA("Tool") then
             if RealFruitEsp then 
                 if not v.Handle:FindFirstChild('NameEsp'..Number) then
-                    local RunService = game:GetService("RunService")
-
-local bill = Instance.new('BillboardGui', v.Handle)
-bill.Name = 'NameEsp' .. Number
-bill.ExtentsOffset = Vector3.new(0, 1, 0)
-bill.Size = UDim2.new(1, 200, 1, 30)
-bill.Adornee = v.Handle
-bill.AlwaysOnTop = true
-
-local name = Instance.new('TextLabel', bill)
-name.Font = Enum.Font.GothamSemibold
-name.FontSize = Enum.FontSize.Size14
-name.TextWrapped = true
-name.Size = UDim2.new(1, 0, 1, 0)
-name.TextYAlignment = Enum.TextYAlignment.Top
-name.BackgroundTransparency = 1
-name.TextStrokeTransparency = 0.5
-name.TextColor3 = Color3.fromRGB(255, 174, 0)
-name.Text = (v.Name .. ' \n' .. math.round((game:GetService('Players').LocalPlayer.Character.Head.Position - v.Handle.Position).Magnitude / 3) .. ' Distance')
-
--- Hàm tạo chuỗi màu rainbow (theo hue 0-1)
-local function ColorFromHue(hue)
-    local r, g, b
-    local i = math.floor(hue * 6)
-    local f = hue * 6 - i
-    local q = 1 - f
-
-    i = i % 6
-    if i == 0 then r, g, b = 1, f, 0
-    elseif i == 1 then r, g, b = q, 1, 0
-    elseif i == 2 then r, g, b = 0, 1, f
-    elseif i == 3 then r, g, b = 0, q, 1
-    elseif i == 4 then r, g, b = f, 0, 1
-    elseif i == 5 then r, g, b = 1, 0, q
-    end
-
-    return Color3.new(r, g, b)
-end
-
--- Biến trạng thái để tăng hue liên tục
-local hue = 0
-
--- Chạy đổi màu mỗi 1.5 giây
-spawn(function()
-    while true do
-        hue = (hue + 0.1) % 1
-        name.TextColor3 = ColorFromHue(hue)
-        wait(1.5)
-    end
-end)
+                    local bill = Instance.new('BillboardGui', v.Handle)
+                    bill.Name='NameEsp'..Number
+                    bill.ExtentsOffset=Vector3.new(0, 1, 0)
+                    bill.Size=UDim2.new(1, 200, 1, 30)
+                    bill.Adornee=v.Handle
+                    bill.AlwaysOnTop=true
+                    local name = Instance.new('TextLabel', bill)
+                    name.Font=Enum.Font.GothamSemibold
+                    name.FontSize="Size14"
+                    name.TextWrapped=true
+                    name.Size=UDim2.new(1, 0, 1, 0)
+                    name.TextYAlignment='Top'
+                    name.BackgroundTransparency=1
+                    name.TextStrokeTransparency=0.5
+                    name.TextColor3=Color3.fromRGB(255, 174, 0)
+                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
+                else
                     v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
                 end
             else
@@ -7669,7 +7636,7 @@ end)
         end
     end
 end
-local ToggleIslandMirageEsp = Tabs.Fruit:AddToggle("ToggleIslandMirageEsp", {Title="đảo bí ẩn", Description="", Default=false })
+local ToggleIslandMirageEsp = Tabs.Fruit:AddToggle("ToggleIslandMirageEsp", {Title="Mirage", Description="", Default=false })
 ToggleIslandMirageEsp:OnChanged(function(Value)
     IslandMirageEsp=Value
     while IslandMirageEsp do 
