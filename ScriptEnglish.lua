@@ -2330,43 +2330,6 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0.3, 0)  -- Bo góc nhẹ, 1 thì tròn hết
 UICorner.Parent = Button
 
--- Tạo viền rainbow
-local stroke = Instance.new("UIStroke")
-stroke.Parent = Button
-stroke.Thickness = 3
-stroke.Transparency = 0
-stroke.LineJoinMode = Enum.LineJoinMode.Round
-
-local function HSVtoRGB(h, s, v)
-    local r, g, b
-
-    local i = math.floor(h * 6)
-    local f = h * 6 - i
-    local p = v * (1 - s)
-    local q = v * (1 - f * s)
-    local t = v * (1 - (1 - f) * s)
-    i = i % 6
-
-    if i == 0 then r, g, b = v, t, p
-    elseif i == 1 then r, g, b = q, v, p
-    elseif i == 2 then r, g, b = p, v, t
-    elseif i == 3 then r, g, b = p, q, v
-    elseif i == 4 then r, g, b = t, p, v
-    elseif i == 5 then r, g, b = v, p, q
-    end
-
-    return Color3.new(r, g, b)
-end
-
-local hue = 0
-local saturation = 1
-local value = 1
-
-RunService.RenderStepped:Connect(function()
-    hue = (hue + 0.005) % 1
-    stroke.Color = HSVtoRGB(hue, saturation, value)
-end)
-
 -- Kéo thả nút
 local dragging = false
 local dragInput
