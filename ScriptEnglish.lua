@@ -183,6 +183,47 @@ Window = Fluent:CreateWindow({
     Size=UDim2.fromOffset(520, 280), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+local RunService = game:GetService("RunService")
+
+-- Giả sử Window.MainFrame là Frame chính của cửa sổ UI
+local mainFrame = Window.MainFrame or Window.Frame or Window -- chỉnh lại theo đúng object Frame của Fluent UI
+
+-- Tạo UIStroke viền rainbow
+local stroke = Instance.new("UIStroke")
+stroke.Parent = mainFrame
+stroke.Thickness = 3
+stroke.Transparency = 0
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+
+-- Hàm tạo màu rainbow theo hue
+local function ColorFromHue(hue)
+    local r, g, b
+    local i = math.floor(hue * 6)
+    local f = hue * 6 - i
+    local q = 1 - f
+
+    i = i % 6
+    if i == 0 then r, g, b = 1, f, 0
+    elseif i == 1 then r, g, b = q, 1, 0
+    elseif i == 2 then r, g, b = 0, 1, f
+    elseif i == 3 then r, g, b = 0, q, 1
+    elseif i == 4 then r, g, b = f, 0, 1
+    elseif i == 5 then r, g, b = 1, 0, q
+    end
+
+    return Color3.new(r, g, b)
+end
+
+-- Biến trạng thái hue
+local hue = 0
+
+-- Animate đổi màu viền rainbow
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.002) % 1
+    stroke.Color = ColorFromHue(hue)
+end)
+
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab thông tin" }),
@@ -4267,7 +4308,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 Tabs.Sea:AddButton({
-    Title="Dịch chuyển  Sea Hunting",
+    Title="dịch chuyển đến  Sea Hunting",
     Description="",
     Callback=function()
         Tween2(CFrame.new(-16917.154296875, 7.757596015930176, 511.8203125))
@@ -4325,7 +4366,7 @@ Tabs.Sea:AddButton({
     end
 })
 Tabs.Sea:AddButton({
-    Title="dịch chuyển đến thuyền",
+    Title="dịch chuyển  đến thuyền",
     Description="",
     Callback=function()
         tpToMyBoat()
@@ -4752,7 +4793,7 @@ if Sea3 then
         end)
     end)
     Tabs.Sea:AddButton({
-        Title="dịch chuyển tới Điểm cao nhất",
+        Title="dịch chuyển đến tới Điểm cao nhất",
         Description="",
         Callback=function()
             TweenToHighestPoint()
@@ -4778,7 +4819,7 @@ if Sea3 then
     end
 end
 local ToggleTpAdvanced = Tabs.Sea:AddToggle("ToggleTpAdvanced", {
-    Title="Dịch chuyển đến NPC bán trái  nâng cao", 
+    Title="dịch chuyển  đến NPC bán trái  nâng cao", 
     Description="", 
     Default=false
 })
@@ -6342,7 +6383,7 @@ if Sea2 then
         end)
     end)
 end
-local ToggleAutoT = Tabs.Setting:AddToggle("ToggleAutoT", {Title="Auto On V3", Description="", Default=false })
+local ToggleAutoT = Tabs.Setting:AddToggle("ToggleAutoT", {Title="tự động bật V3", Description="", Default=false })
 ToggleAutoT:OnChanged(function(Value)
     _G.AutoT=Value
     end)
@@ -6356,7 +6397,7 @@ ToggleAutoT:OnChanged(function(Value)
         end)
     end
     end)
-local ToggleAutoY = Tabs.Setting:AddToggle("ToggleAutoY", {Title="Auto On V4", Description="", Default=false })
+local ToggleAutoY = Tabs.Setting:AddToggle("ToggleAutoY", {Title="tự động bật V4", Description="", Default=false })
 ToggleAutoY:OnChanged(function(Value)
     _G.AutoY=Value
 end)
@@ -6372,7 +6413,7 @@ spawn(function()
         end)
     end
 end)
-local ToggleAutoKen = Tabs.Setting:AddToggle("ToggleAutoKen", {Title="Auto Ken", Description="", Default=false })
+local ToggleAutoKen = Tabs.Setting:AddToggle("ToggleAutoKen", {Title="tự động Ken", Description="", Default=false })
 ToggleAutoKen:OnChanged(function(Value)
     _G.AutoKen=Value
     if Value then
@@ -6391,7 +6432,7 @@ spawn(function()
         end)
     end
 end)
-local ToggleSaveSpawn = Tabs.Setting:AddToggle("ToggleSaveSpawn", {Title="Save Set Spawn", Description="", Default=false })
+local ToggleSaveSpawn = Tabs.Setting:AddToggle("ToggleSaveSpawn", {Title="Lưu chỗ Spawn", Description="", Default=false })
 ToggleSaveSpawn:OnChanged(function(Value)
     _G.SaveSpawn=Value
     if Value then
@@ -6415,7 +6456,7 @@ spawn(function()
     end
 end)
 Tabs.Setting:AddButton({
-    Title = "Fps Boost",
+    Title = "fix lag",
     Description = "",
     Callback = function()
         local a = false
@@ -6457,7 +6498,7 @@ Tabs.Setting:AddButton({
         end
     end
 })
-local ToggleBringMob = Tabs.Setting:AddToggle("ToggleBringMob", {Title="Bring Mob",Description="", Default=true})
+local ToggleBringMob = Tabs.Setting:AddToggle("ToggleBringMob", {Title="gom quái",Description="", Default=true})
 ToggleBringMob:OnChanged(function(Value)
     _G.BringMob = Value
 end)
@@ -6502,7 +6543,7 @@ spawn(function()
         end)
     end
 end)
-local ToggleRemoveNotify = Tabs.Setting:AddToggle("ToggleRemoveNotify", {Title="Remove Notify",Description="", Default=false })
+local ToggleRemoveNotify = Tabs.Setting:AddToggle("ToggleRemoveNotify", {Title="Xóa thông báo",Description="", Default=false })
 ToggleRemoveNotify:OnChanged(function(Value)
     RemoveNotify=Value
     end)
@@ -6516,7 +6557,7 @@ ToggleRemoveNotify:OnChanged(function(Value)
             end
         end
     end)
-    local ToggleWhite = Tabs.Setting:AddToggle("ToggleWhite", {Title="Remove White",Description="", Default=false })
+    local ToggleWhite = Tabs.Setting:AddToggle("ToggleWhite", {Title="Xóa màu trắng",Description="", Default=false })
     ToggleWhite:OnChanged(function(Value)
        _G.WhiteScreen=Value
        if _G.WhiteScreen==true then
@@ -6553,7 +6594,7 @@ ToggleF:OnChanged(function(Value)
     end)
 Options.ToggleF:SetValue(true)
 local Usser = Tabs.Info:AddParagraph({
-    Title="Status",
+    Title="trạng thái",
     Content="â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n"..
         "Name : "..game.Players.LocalPlayer.DisplayName.." (@"..game.Players.LocalPlayer.Name..")\n"..
         "Levels : "..game:GetService("Players").LocalPlayer.Data.Level.Value.."\n"..
@@ -6596,7 +6637,7 @@ spawn(function()
     end
 end)
 local ServerTime = Tabs.Status:AddParagraph({
-    Title="Servers Time",
+    Title="thời gian máy chủ",
     Content=""
 })
 local function UpdateServerTime()
@@ -6644,7 +6685,7 @@ local Input = Tabs.Status:AddInput("Input", {
         end
     })
     Tabs.Status:AddButton({
-        Title="Copy Job ID",
+        Title="sao chép Job ID",
         Description="",
         Callback=function()
             setclipboard(tostring(game.JobId))
@@ -6661,27 +6702,27 @@ game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId,_G.Job, 
 end
 end
 end)
-local ToggleMelee = Tabs.Stats:AddToggle("ToggleMelee", {Title="Thêm vào Melee",Description="", Default=false })
+local ToggleMelee = Tabs.Stats:AddToggle("ToggleMelee", {Title="cộng vào điểm Melee",Description="", Default=false })
 ToggleMelee:OnChanged(function(Value)
     _G.Auto_Stats_Melee=Value
     end)
 Options.ToggleMelee:SetValue(false)
-local ToggleDe = Tabs.Stats:AddToggle("ToggleDe", {Title="Thêm vào Default",Description="", Default=false })
+local ToggleDe = Tabs.Stats:AddToggle("ToggleDe", {Title="cộng vào điểm Default",Description="", Default=false })
 ToggleDe:OnChanged(function(Value)
     _G.Auto_Stats_Defense=Value
     end)
 Options.ToggleDe:SetValue(false)
-local ToggleSword = Tabs.Stats:AddToggle("ToggleSword", {Title="Thêm vào Sword",Description="", Default=false })
+local ToggleSword = Tabs.Stats:AddToggle("ToggleSword", {Title="cộng vào điểm Sword",Description="", Default=false })
 ToggleSword:OnChanged(function(Value)
     _G.Auto_Stats_Sword=Value
     end)
 Options.ToggleSword:SetValue(false)
-local ToggleGun = Tabs.Stats:AddToggle("ToggleGun", {Title="Thêm vào Gun", Description="",Default=false })
+local ToggleGun = Tabs.Stats:AddToggle("ToggleGun", {Title="cộng vào điểm Gun", Description="",Default=false })
 ToggleGun:OnChanged(function(Value)
     _G.Auto_Stats_Gun=Value
     end)
 Options.ToggleGun:SetValue(false)
-local ToggleFruit = Tabs.Stats:AddToggle("ToggleFruit", {Title="Thêm vào Fruit",Description="", Default=false })
+local ToggleFruit = Tabs.Stats:AddToggle("ToggleFruit", {Title="cộng vào điểm Fruit",Description="", Default=false })
 ToggleFruit:OnChanged(function(Value)
     _G.Auto_Stats_Devil_Fruit=Value
     end)
@@ -6771,7 +6812,7 @@ Tabs.Player:AddButton({
         end
     end
 })
-local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển đến người chơi", Description="",Default=false })
+local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển  đến người chơi", Description="",Default=false })
 ToggleTeleport:OnChanged(function(Value)
     _G.TeleportPly=Value
     if Value==false then
@@ -7414,7 +7455,7 @@ spawn(function()
         end
     end)
 end)
-local ToggleCollectTP = Tabs.Fruit:AddToggle("ToggleCollectTP", {Title="dịch chuyển đến trái",Description="", Default=false })
+local ToggleCollectTP = Tabs.Fruit:AddToggle("ToggleCollectTP", {Title="dịch chuyển  đến trái",Description="", Default=false })
 ToggleCollectTP:OnChanged(function(Value)
     _G.CollectFruitTP=Value
 end)
@@ -7430,7 +7471,7 @@ spawn(function()
                 end
             end
        end)
-local ToggleCollect = Tabs.Fruit:AddToggle("ToggleCollect", {Title="Collect Fruit",Description="", Default=false })
+local ToggleCollect = Tabs.Fruit:AddToggle("ToggleCollect", {Title="lưu Fruit",Description="", Default=false })
 ToggleCollect:OnChanged(function(Value)
     _G.Tweenfruit=Value
 end)
@@ -7538,23 +7579,56 @@ function UpdateRealFruitEsp()
         if v:IsA("Tool") then
             if RealFruitEsp then 
                 if not v.Handle:FindFirstChild('NameEsp'..Number) then
-                    local bill = Instance.new('BillboardGui', v.Handle)
-                    bill.Name='NameEsp'..Number
-                    bill.ExtentsOffset=Vector3.new(0, 1, 0)
-                    bill.Size=UDim2.new(1, 200, 1, 30)
-                    bill.Adornee=v.Handle
-                    bill.AlwaysOnTop=true
-                    local name = Instance.new('TextLabel', bill)
-                    name.Font=Enum.Font.GothamSemibold
-                    name.FontSize="Size14"
-                    name.TextWrapped=true
-                    name.Size=UDim2.new(1, 0, 1, 0)
-                    name.TextYAlignment='Top'
-                    name.BackgroundTransparency=1
-                    name.TextStrokeTransparency=0.5
-                    name.TextColor3=Color3.fromRGB(255, 174, 0)
-                    name.Text=(v.Name .. ' \n' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
-                else
+                    local RunService = game:GetService("RunService")
+
+local bill = Instance.new('BillboardGui', v.Handle)
+bill.Name = 'NameEsp' .. Number
+bill.ExtentsOffset = Vector3.new(0, 1, 0)
+bill.Size = UDim2.new(1, 200, 1, 30)
+bill.Adornee = v.Handle
+bill.AlwaysOnTop = true
+
+local name = Instance.new('TextLabel', bill)
+name.Font = Enum.Font.GothamSemibold
+name.FontSize = Enum.FontSize.Size14
+name.TextWrapped = true
+name.Size = UDim2.new(1, 0, 1, 0)
+name.TextYAlignment = Enum.TextYAlignment.Top
+name.BackgroundTransparency = 1
+name.TextStrokeTransparency = 0.5
+name.TextColor3 = Color3.fromRGB(255, 174, 0)
+name.Text = (v.Name .. ' \n' .. math.round((game:GetService('Players').LocalPlayer.Character.Head.Position - v.Handle.Position).Magnitude / 3) .. ' Distance')
+
+-- Hàm tạo chuỗi màu rainbow (theo hue 0-1)
+local function ColorFromHue(hue)
+    local r, g, b
+    local i = math.floor(hue * 6)
+    local f = hue * 6 - i
+    local q = 1 - f
+
+    i = i % 6
+    if i == 0 then r, g, b = 1, f, 0
+    elseif i == 1 then r, g, b = q, 1, 0
+    elseif i == 2 then r, g, b = 0, 1, f
+    elseif i == 3 then r, g, b = 0, q, 1
+    elseif i == 4 then r, g, b = f, 0, 1
+    elseif i == 5 then r, g, b = 1, 0, q
+    end
+
+    return Color3.new(r, g, b)
+end
+
+-- Biến trạng thái để tăng hue liên tục
+local hue = 0
+
+-- Chạy đổi màu mỗi 1.5 giây
+spawn(function()
+    while true do
+        hue = (hue + 0.1) % 1
+        name.TextColor3 = ColorFromHue(hue)
+        wait(1.5)
+    end
+end)
                     v.Handle['NameEsp'..Number].TextLabel.Text=(v.Name .. ' ' .. round((game:GetService('Players').LocalPlayer.Character.Head.Position-v.Handle.Position).Magnitude/3) .. ' Distance')
                 end
             else
@@ -7881,7 +7955,7 @@ end
 end)
 if Sea2 then
 Tabs.Main1:AddButton({
-    Title="dịch chuyển Raid biển 2",
+    Title="dịch chuyển đến Raid biển 2",
     Description="",
     Callback=function()
      Tween2(CFrame.new(-6438.73535, 250.645355,-4501.50684))
@@ -7889,7 +7963,7 @@ end
 })
 elseif Sea3 then
     Tabs.Main1:AddButton({
-        Title="dịch chuyển Raid biển 3",
+        Title="dịch chuyển đến Raid biển 3",
         Description="",
         Callback=function()
          game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(-5075.50927734375, 314.5155029296875,-3150.0224609375))
@@ -7898,7 +7972,7 @@ elseif Sea3 then
         })
 end
 local Mastery = Tabs.Raid:AddSection("Teleport Raid Law")
-local ToggleLaw = Tabs.Raid:AddToggle("ToggleLaw", {Title="Auto Raid Law",Description="", Default=false })
+local ToggleLaw = Tabs.Raid:AddToggle("ToggleLaw", {Title="tự động Raid Law",Description="", Default=false })
 ToggleLaw:OnChanged(function(Value)
     Auto_Law=Value
 end)
@@ -7973,7 +8047,7 @@ Tabs.Race:AddButton({
 })
 local Mastery = Tabs.Race:AddSection("Race")
 Tabs.Race:AddButton({
-    Title="dịch chuyển Door Race",
+    Title="dịch chuyển đến Door Race",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
@@ -8692,7 +8766,7 @@ Tabs.Sea:AddButton({
     end
 })
 local ToggleTPFrozenDimension = Tabs.Sea:AddToggle("ToggleTPFrozenDimension", {
-    Title="dịch chuyển Leviathan Island", 
+    Title="dịch chuyển đến Leviathan Island", 
     Description="", 
     Default=false 
 })
@@ -8908,7 +8982,7 @@ spawn(function()
     end
 end)
 Tabs.Main1:AddButton({
-    Title="dịch chuyển Dragon Dojo",
+    Title="dịch chuyển đến Dragon Dojo",
     Description="",
     Callback=function()
         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(5661.5322265625, 1013.0907592773438,-334.9649963378906))
@@ -9016,7 +9090,7 @@ local DracoV4 = Tabs.Sea:AddParagraph({
     Content="Comning Soon"
 })
 local ToggleTrialTeleport = Tabs.Sea:AddToggle("ToggleTrialTeleport", {
-    Title="dịch chuyển Trial Race Draco", 
+    Title="dịch chuyển đến Trial Race Draco", 
     Description="", 
     Default=false
 })
@@ -9054,7 +9128,7 @@ spawn(function()
     end)
 end)
 local ToggleTPVolcano = Tabs.Sea:AddToggle("ToggleTPVolcano", { 
-    Title="dịch chuyển đến Volcano Island", 
+    Title="dịch chuyển  đến Volcano Island", 
     Description="", 
     Default=false 
 })
