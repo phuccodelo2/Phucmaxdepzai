@@ -185,44 +185,6 @@ local Window = Fluent:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
-local RunService = game:GetService("RunService")
-
--- Lấy Frame chính của window Fluent (cái có thể gắn UIStroke)
-local mainFrame = Window.MainFrame or Window.Frame or Window -- tùy Fluent version
-
--- Tạo UIStroke viền rainbow
-local stroke = Instance.new("UIStroke")
-stroke.Parent = mainFrame
-stroke.Thickness = 3
-stroke.Transparency = 0
-stroke.LineJoinMode = Enum.LineJoinMode.Round
-
--- Hàm chuyển hue sang màu RGB
-local function ColorFromHue(hue)
-    local r, g, b
-    local i = math.floor(hue * 6)
-    local f = hue * 6 - i
-    local q = 1 - f
-
-    i = i % 6
-    if i == 0 then r, g, b = 1, f, 0
-    elseif i == 1 then r, g, b = q, 1, 0
-    elseif i == 2 then r, g, b = 0, 1, f
-    elseif i == 3 then r, g, b = 0, q, 1
-    elseif i == 4 then r, g, b = f, 0, 1
-    elseif i == 5 then r, g, b = 1, 0, q
-    end
-
-    return Color3.new(r, g, b)
-end
-
-local hue = 0
-
--- Kết nối sự kiện RenderStepped để cập nhật màu
-RunService.RenderStepped:Connect(function()
-    hue = (hue + 0.005) % 1
-    stroke.Color = ColorFromHue(hue)
-end)
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab help script lỗi" }),
