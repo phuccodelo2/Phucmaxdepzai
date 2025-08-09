@@ -2386,33 +2386,31 @@ RunService.RenderStepped:Connect(function(dt)
     TextLabel.Text = newText
 end)
 
+local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local toggled = true
+
 Button.MouseButton1Click:Connect(function()
-    if not imageLoaded then
-        return
-    end
-    local VirtualInputManager = game:GetService("VirtualInputManager")
+    if not imageLoaded then return end
+
     if VirtualInputManager then
+        -- PC: giả lập phím LeftControl
+        toggled = not toggled
         task.defer(function()
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
         end)
-    end
-end)
-task.defer(function()
-    if game:GetService("ReplicatedStorage"):FindFirstChild("Effect") 
-        and game:GetService("ReplicatedStorage").Effect:FindFirstChild("Container") 
-        and game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Death") then
-        local DeathEffect = require(game:GetService("ReplicatedStorage").Effect.Container.Death)
-        local CameraShaker = require(game:GetService("ReplicatedStorage").Util.CameraShaker)
-        if CameraShaker then
-            CameraShaker:Stop()
-        end
-        if hookfunction then
-            hookfunction(DeathEffect, function(...) return ... end)
+    else
+        -- Mobile: đổi trực tiếp Visible của UI Fluent
+        if Window and Window.MainFrame then
+            toggled = not toggled
+            Window.MainFrame.Visible = toggled
+        else
+            warn("Không tìm thấy UI Fluent để toggle!")
         end
     end
 end)
-wait(1.0)
 Tabs.Info:AddButton({
         Title="Ten Hub",
         Description="Discord",
