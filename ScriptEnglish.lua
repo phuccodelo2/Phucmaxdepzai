@@ -173,83 +173,32 @@ repeat
 until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX",
-    SubTitle="[VIP]", 
-    TabWidth=155, 
-    Theme="Acrylic",
-    Acrylic=false,
-    Size=UDim2.fromOffset(450, 320), 
-    MinimizeKey = Enum.KeyCode.LeftControl
+-- Tải Rayfield UI
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Tạo cửa sổ Rayfield
+local Window = Rayfield:CreateWindow({
+    Name = "PHUCMAX",
+    LoadingTitle = "PHUCMAX",
+    LoadingSubtitle = "Blox Fruits",
+    ConfigurationSaving = {
+       Enabled = false
+    },
+    Discord = {
+       Enabled = false
+    },
+    KeySystem = false -- Không dùng key
 })
 
--- Tạo viền rainbow cho Frame chính Window.Main (frame chính của Fluent Window)
-local function createRainbowStroke(frame)
-    local stroke = Instance.new("UIStroke", frame)
-    stroke.Thickness = 3
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Transparency = 0.5
-    stroke.Color = Color3.fromRGB(255, 0, 0)
-    stroke.Name = "RainbowStroke"
-    
-    -- Rainbow đổi màu liên tục
-    coroutine.wrap(function()
-        local hue = 0
-        while frame and frame.Parent do
-            hue = (hue + 1) % 360
-            stroke.Color = Color3.fromHSV(hue / 360, 1, 1)
-            task.wait(0.03)
-        end
-    end)()
-end
-
-createRainbowStroke(Window.Main) -- Window.Main là frame chính của UI Fluent
-
--- Tạo nút bật tắt UI (hình vuông bo góc có logo)
-local gui = Window.Main.Parent -- Gui chứa window
-local button = Instance.new("ImageButton")
-button.Size = UDim2.new(0, 48, 0, 48)
-button.Position = UDim2.new(0, 10, 0, 10)
-button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-button.Image = "rbxassetid://113632547593752" -- thay bằng logo ID anh muốn
-button.Parent = gui
-button.Name = "ToggleUIButton"
-button.AutoButtonColor = false
-button.AnchorPoint = Vector2.new(0, 0)
-button.ZIndex = 1000
-button.Modal = true
-button.Draggable = true
-button.Rotation = 0
-
-local UICorner = Instance.new("UICorner", button)
-UICorner.CornerRadius = UDim.new(0, 10)
-
--- Viền rainbow ảo cho nút toggle (dùng UIStroke + đổi màu)
-local strokeToggle = Instance.new("UIStroke", button)
-strokeToggle.Thickness = 2
-strokeToggle.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-strokeToggle.Color = Color3.fromRGB(255, 0, 0)
-strokeToggle.Transparency = 0.6
-
-coroutine.wrap(function()
-    local hue = 0
-    while button and button.Parent do
-        hue = (hue + 2) % 360
-        strokeToggle.Color = Color3.fromHSV(hue / 360, 1, 1)
-        task.wait(0.03)
-    end
-end)()
-
--- Hàm bật tắt UI
-local uiVisible = true
-button.MouseButton1Click:Connect(function()
-    uiVisible = not uiVisible
-    Window.Main.Visible = uiVisible
+-- Rainbow cho chữ "PHUCMAX" ở tiêu đề
+local RunService = game:GetService("RunService")
+local hue = 0
+RunService.RenderStepped:Connect(function(deltaTime)
+    hue = (hue + deltaTime * 0.5) % 1
+    pcall(function()
+        Window.Title.TextColor3 = Color3.fromHSV(hue, 1, 1)
+    end)
 end)
-
--- Ban đầu UI hiện sẵn
-Window.Main.Visible = true
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab Info" }),
@@ -2381,21 +2330,6 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CustomScreenGui"
 ScreenGui.Parent = playerGui
-local Button = Instance.new("ImageButton")
-Button.Name = "CustomButton"
-Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 50, 0, 50)
-Button.Position = UDim2.new(0.015, 0, 0.02, 20)
-Button.BackgroundTransparency = 1
-Button.Image = "rbxassetid://91347148253026"
-local UICorner = Instance.new("UICorner")
-
-UICorner.CornerRadius = UDim.new(1, 0)
-UICorner.Parent = Button
-local imageLoaded = false
-ContentProvider:PreloadAsync({Button.Image}, function()
-    imageLoaded = true
-end)
 Button.MouseButton1Click:Connect(function()
     if not imageLoaded then
         return
@@ -2424,7 +2358,7 @@ task.defer(function()
 end)
 wait(1.0)
 Tabs.Info:AddButton({
-        Title="PHUCMAX ",
+        Title="Ten Hub",
         Description="Discord",
         Callback=function()
             setclipboard(tostring("https://discord.gg/tenhub")) 
@@ -2781,7 +2715,7 @@ spawn(function()
                 local CFrameTarget = CFrame.new(BushPosition)
                 Tween2(CFrameTarget)
                 Fluent:Notify({
-                    Title = "PHUCMAX ",
+                    Title = "Ten Hub",
                     Content = "Find Berry: " .. tostring(BerryName),
                     Duration = 10
                 })
@@ -4176,7 +4110,7 @@ local function createToggle(title, toggleKey, islands, islandName, notification)
             _G[toggleKey] = false
             if not notified then
                 Fluent:Notify({
-                    Title = "PHUCMAX ",
+                    Title = "Ten Hub",
                     Content = notification,
                     Duration = 10
                 })
@@ -9290,66 +9224,25 @@ spawn(function()
         end
     end
 end)
-
--- Toggle KillAura
-local ToggleKillAura = Tabs.Sea:AddToggle("ToggleKillAura", {Title="Auto Kill Golems", Description="", Default=false})
-ToggleKillAura:OnChanged(function(value)
-    KillAura = value
+local ToggleKillAura = Tabs.Sea:AddToggle("ToggleKillAura", {Title="Auto Kill Golems",Description="", Default=false })
+ToggleKillAura:OnChanged(function(Value)
+    KillAura=Value
 end)
 Options.ToggleKillAura:SetValue(false)
-
 spawn(function()
     while wait() do
         if KillAura then
             pcall(function()
-                local enemies = {}
-                -- Lấy danh sách quái còn sống
-                for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                        table.insert(enemies, v)
+                for i,v in pairs(game.Workspace.Enemies:GetDescendants()) do
+                    if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health>0 then
+                        repeat task.wait()
+                            sethiddenproperty(game:GetService('Players').LocalPlayer,"SimulationRadius",math.huge)
+                            v.Humanoid.Health=0
+                            v.HumanoidRootPart.CanCollide=false
+                        until not KillAura or not v.Parent or v.Humanoid.Health<=0
                     end
-                end
-
-                if #enemies > 0 then
-                    local target = enemies[1] -- chọn 1 con quái đầu tiên để làm trung tâm
-                    local targetHRP = target:FindFirstChild("HumanoidRootPart")
-                    local targetHum = target:FindFirstChild("Humanoid")
-
-                    -- Bay lên trên đầu con quái (ví dụ cao hơn 5 units)
-                    local flyHeight = 5
-
-                    -- Bay nhân vật lên trên đầu quái
-                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = targetHRP.CFrame + Vector3.new(0, flyHeight, 0)
-                    end
-
-                    -- Gom các quái lại chỗ con quái trung tâm
-                    for _, enemy in pairs(enemies) do
-                        if enemy ~= target then
-                            local hrp = enemy:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                hrp.CFrame = targetHRP.CFrame + Vector3.new(math.random(-2, 2), 0, math.random(-2, 2)) 
-                                -- thêm offset nhỏ tránh quái chồng lên nhau hoàn toàn
-                            end
-                        end
-                    end
-
-                    -- Kill con quái trung tâm
-                    repeat
-                        task.wait()
-                        sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
-                        if targetHum and targetHum.Health > 0 then
-                            targetHum.Health = 0
-                        else
-                            break -- con quái chết, thoát vòng lặp
-                        end
-                    until not KillAura or not target.Parent or (targetHum and targetHum.Health <= 0)
-                else
-                    wait(1) -- không có quái thì đợi 1 giây rồi tiếp tục
                 end
             end)
-        else
-            wait(1)
         end
     end
 end)
@@ -9437,9 +9330,9 @@ local notificationCooldown = 10
 local currentTime = tick()
 if currentTime - lastNotificationTime >= notificationCooldown then
     game.StarterGui:SetCore("SendNotification", {
-        Title = "phucmax",
-        Text = "chào chú em nha",
-        Duration = 3
+        Title = "Ten Hub",
+        Text = "Successfully",
+        Duration = 1
     })
     lastNotificationTime = currentTime
 end
