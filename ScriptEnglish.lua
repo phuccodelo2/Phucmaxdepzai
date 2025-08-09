@@ -174,15 +174,66 @@ until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local RunService = game:GetService("RunService")
+
 Window = Fluent:CreateWindow({
-    Title = "Ten Hub",
-    SubTitle="Blox Fruits", 
-    TabWidth=155, 
-    Theme="Darker",
-    Acrylic=false,
-    Size=UDim2.fromOffset(555, 320), 
+    Title = "PHUCMAX ",
+    SubTitle = "Blox Fruits", 
+    TabWidth = 155, 
+    Theme = "Darker",
+    Acrylic = false,
+    Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
+
+-- Hàm chuyển hue sang màu RGB
+local function ColorFromHue(hue)
+    local r, g, b
+    local i = math.floor(hue * 6)
+    local f = hue * 6 - i
+    local q = 1 - f
+    i = i % 6
+    if i == 0 then r, g, b = 1, f, 0
+    elseif i == 1 then r, g, b = q, 1, 0
+    elseif i == 2 then r, g, b = 0, 1, f
+    elseif i == 3 then r, g, b = 0, q, 1
+    elseif i == 4 then r, g, b = f, 0, 1
+    elseif i == 5 then r, g, b = 1, 0, q
+    end
+    return Color3.new(r, g, b)
+end
+
+local hue = 0
+
+-- Lấy Label Title và SubTitle trong Fluent UI
+local titleLabel = Window.TitleLabel -- Fluent UI thường có trường này
+local subTitleLabel = Window.SubTitleLabel
+
+-- Nếu không có sẵn, bạn có thể dùng cách duyệt con để tìm Label trong Window.Frame
+
+RunService.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    local rainbowColor = ColorFromHue(hue)
+    
+    if titleLabel then
+        titleLabel.TextColor3 = rainbowColor
+    end
+    if subTitleLabel then
+        subTitleLabel.TextColor3 = rainbowColor
+    end
+end)
+
+-- Đợi một chút cho UI load xong
+task.defer(function()
+    -- Tìm label Title trong window
+    local titleLabel = Window.MainFrame:FindFirstChildWhichIsA("TextLabel")
+    if titleLabel then
+        titleLabel.TextColor3 = Color3.fromRGB(0, 255, 200)  -- Màu xanh ngọc bích
+    else
+        warn("Không tìm thấy label Title để đổi màu!")
+    end
+end)
+
 local Tabs = {
 
 Info=Window:AddTab({ Title="Tab Info" }),
@@ -2321,7 +2372,7 @@ local Button = Instance.new("ImageButton")
 Button.Name = "CustomButton"
 Button.Parent = ScreenGui
 Button.Size = UDim2.new(0, 180, 0, 60)  -- chữ nhật
-Button.Position = UDim2.new(0.5, -90, 0, 10) -- trên cùng giữa màn hình
+Button.Position = UDim2.new(0.5, -90, 0, 1) -- trên cùng giữa màn hình
 Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Button.BackgroundTransparency = 0
 Button.Image = "" -- không dùng ảnh
@@ -2409,7 +2460,7 @@ Button.MouseButton1Click:Connect(function()
     end
 end)
 Tabs.Info:AddButton({
-        Title="Ten Hub",
+        Title="PHUCMAX ",
         Description="Discord",
         Callback=function()
             setclipboard(tostring("https://discord.gg/tenhub")) 
@@ -2766,7 +2817,7 @@ spawn(function()
                 local CFrameTarget = CFrame.new(BushPosition)
                 Tween2(CFrameTarget)
                 Fluent:Notify({
-                    Title = "Ten Hub",
+                    Title = "PHUCMAX ",
                     Content = "Find Berry: " .. tostring(BerryName),
                     Duration = 10
                 })
@@ -4161,7 +4212,7 @@ local function createToggle(title, toggleKey, islands, islandName, notification)
             _G[toggleKey] = false
             if not notified then
                 Fluent:Notify({
-                    Title = "Ten Hub",
+                    Title = "PHUCMAX ",
                     Content = notification,
                     Duration = 10
                 })
@@ -9381,9 +9432,9 @@ local notificationCooldown = 10
 local currentTime = tick()
 if currentTime - lastNotificationTime >= notificationCooldown then
     game.StarterGui:SetCore("SendNotification", {
-        Title = "Ten Hub",
-        Text = "Successfully",
-        Duration = 1
+        Title = "PHUCMAX ",
+        Text = "chào bạn nha",
+        Duration = 3
     })
     lastNotificationTime = currentTime
 end
