@@ -188,7 +188,7 @@ local Tabs = {
 
 Info=Window:AddTab({ Title="Tab help script lỗi" }),
     Main=Window:AddTab({ Title="Tab chính" }),
-    Music=Window:AddTab({ Title="nhạc" }),
+    Music=Window:AddTab({ Title="Tab nhạc" }),
     Item=Window:AddTab({ Title="Tab vật phẩm" }),
     Sea=Window:AddTab({ Title="Tab sự kiện biển" }),
     Status=Window:AddTab({ Title="Tab trạng thái" }),
@@ -208,7 +208,7 @@ local SoundService = game:GetService("SoundService")
 local bgMusic = Instance.new("Sound")
 bgMusic.Name = "CustomMusic"
 bgMusic.Looped = true
-bgMusic.Volume = 1
+bgMusic.Volume = 3
 bgMusic.Parent = SoundService
 
 -- Hàm phát bài
@@ -224,7 +224,7 @@ Tabs.Music:AddButton({
     end
 })
 
--- Nút phát từng bài
+
 Tabs.Music:AddButton({
     Title = "chào cờ chào",
     Callback = function()
@@ -233,9 +233,177 @@ Tabs.Music:AddButton({
 })
 
 Tabs.Music:AddButton({
-    Title = "2phút hơn",
+    Title = "trình con cặc",
     Callback = function()
-        playSong("rbxassetid://115091532639966")
+        playSong("rbxassetid://74086571833039")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "làm chút nhạc Thái:)",
+    Callback = function()
+        playSong("rbxassetid://112225048096779")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "nhạc hay:)",
+    Callback = function()
+        playSong("rbxassetid://17647322226")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "nhạc lấy từ tiktok",
+    Callback = function()
+        playSong("rbxassetid://10493038468")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "không biết tên;)",
+    Callback = function()
+        playSong("rbxassetid://75918642767991")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 1",
+    Callback = function()
+        playSong("rbxassetid://5410080926")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 2",
+    Callback = function()
+        playSong("rbxassetid://7028977687")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 3",
+    Callback = function()
+        playSong("rbxassetid://7024332460")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 4",
+    Callback = function()
+        playSong("rbxassetid://7028856935")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 5",
+    Callback = function()
+        playSong("rbxassetid://5410080857")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 6",
+    Callback = function()
+        playSong("rbxassetid://7023771708")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 7",
+    Callback = function()
+        playSong("rbxassetid://7029011778")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 8",
+    Callback = function()
+        playSong("rbxassetid://7023598688")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 9",
+    Callback = function()
+        playSong("rbxassetid://5410083912")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 10",
+    Callback = function()
+        playSong("rbxassetid://5410083549")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 11",
+    Callback = function()
+        playSong("rbxassetid://5410085863")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 12",
+    Callback = function()
+        playSong("rbxassetid://5410082879")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 13",
+    Callback = function()
+        playSong("rbxassetid://7029005367")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 14",
+    Callback = function()
+        playSong("rbxassetid://7028913008")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 15",
+    Callback = function()
+        playSong("rbxassetid://5410080475")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 16",
+    Callback = function()
+        playSong("rbxassetid://7024254685")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 17",
+    Callback = function()
+        playSong("rbxassetid://7028557220")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 18",
+    Callback = function()
+        playSong("rbxassetid://5410080771")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 19",
+    Callback = function()
+        playSong("rbxassetid://5410082097")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "bài 20",
+    Callback = function()
+        playSong("rbxassetid://7024035759")
     end
 })
 
