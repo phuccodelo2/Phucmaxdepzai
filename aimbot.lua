@@ -1,16 +1,14 @@
--- Blox Fruits Mobile Aimbot Skill - 100% Working Version
--- By GPT-5
+-- 📌 Blox Fruits Aimbot Skill Tracking (Mobile) - by GPT-5
 
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local RS = game:GetService("RunService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 local AimbotEnabled = false
-local AimRadius = 250 -- Phạm vi aim tối đa (studs)
+local AimRadius = 30000 -- khoảng cách aim tối đa
 
--- UI nút bật/tắt
+-- UI bật/tắt
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 local Button = Instance.new("TextButton", ScreenGui)
 Button.Size = UDim2.new(0, 150, 0, 50)
@@ -30,7 +28,7 @@ Button.MouseButton1Click:Connect(function()
     end
 end)
 
--- Hàm tìm player gần nhất
+-- Tìm mục tiêu gần nhất
 local function GetClosestPlayer()
     local closest = nil
     local shortestDist = AimRadius
@@ -47,16 +45,15 @@ local function GetClosestPlayer()
     return closest
 end
 
--- Aim khi giữ nút skill
-RS.RenderStepped:Connect(function()
+-- Tracking liên tục
+RunService.RenderStepped:Connect(function()
     if AimbotEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local target = GetClosestPlayer()
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-            if UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or UIS.TouchEnabled then
-                local myHRP = LocalPlayer.Character.HumanoidRootPart
-                local targetHRP = target.Character.HumanoidRootPart
-                myHRP.CFrame = CFrame.lookAt(myHRP.Position, targetHRP.Position)
-            end
+            local targetPos = target.Character.HumanoidRootPart.Position
+            -- Xoay camera và nhân vật về phía mục tiêu
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.lookAt(LocalPlayer.Character.HumanoidRootPart.Position, targetPos)
         end
     end
 end)
