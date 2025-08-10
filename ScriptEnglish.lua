@@ -179,7 +179,7 @@ Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
-    Theme = "blue",
+    Theme = "darker",
     Acrylic = false,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -6582,9 +6582,9 @@ spawn(function()
 pcall(function()
     while wait() do
         if game:GetService("Workspace").Map:FindFirstChild("FrozenDimension") then
-            FrozenIsland:SetDesc('âœ…')
+            FrozenIsland:SetDesc(' có ')
         else
-            FrozenIsland:SetDesc('âŒ')
+            FrozenIsland:SetDesc(' không ')
         end
     end
 end)
@@ -8878,8 +8878,8 @@ end)
     end
 })
  Tabs.Item:AddButton({
-    Title="Craft Volcanic Magnet",
-    Description="Need 15 Blaze Ember + 10 Iron",
+    Title="chế tạo Volcanic Magnet",
+    Description="",
     Callback=function()
         local args = {
             [1]="CraftItem",
@@ -8890,8 +8890,8 @@ end)
     end
 })
  Tabs.Item:AddButton({
-    Title = "Craft Dino Hood",
-    Description = "Need 25 Dinosaur Bones + 10 Mini Tusk",
+    Title = "chế tạo Dino Hood",
+    Description = "",
     Callback = function()
         local args = {
             [1] = "CraftItem",
@@ -8902,8 +8902,8 @@ end)
     end
 })
  Tabs.Item:AddButton({
-    Title = "Craft T-Rex Skull",
-    Description = "Need 8 Dinosaur Bones + 5 Dragon Scale",
+    Title = "chế tạo T-Rex Skull",
+    Description = "",
     Callback = function()
         local args = {
             [1] = "CraftItem",
@@ -8914,7 +8914,7 @@ end)
     end
 })
 local ToggleCollectFireFlowers =  Tabs.Item:AddToggle("ToggleCollectFireFlowers", {
-    Title="nhặt Blaze Ember", 
+    Title="nhặt Ngọn lửa ", 
     Description="", 
     Default=false
 })
