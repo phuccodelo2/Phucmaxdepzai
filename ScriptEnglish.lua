@@ -179,7 +179,7 @@ Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
-    Theme = "darker",
+    Theme = "Darker",
     Acrylic = false,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -188,6 +188,7 @@ local Tabs = {
 
 Info=Window:AddTab({ Title="Tab help script lỗi" }),
     Main=Window:AddTab({ Title="Tab chính" }),
+    Music=Window:AddTab({ Title="nhạc" }),
     Item=Window:AddTab({ Title="Tab vật phẩm" }),
     Sea=Window:AddTab({ Title="Tab sự kiện biển" }),
     Status=Window:AddTab({ Title="Tab trạng thái" }),
@@ -200,6 +201,51 @@ Info=Window:AddTab({ Title="Tab help script lỗi" }),
     Shop=Window:AddTab({ Title="Tab cửa hàng" }),
     Misc=Window:AddTab({ Title="Tab linh tinh" }),
 }
+
+local SoundService = game:GetService("SoundService")
+
+-- Tạo Sound
+local bgMusic = Instance.new("Sound")
+bgMusic.Name = "CustomMusic"
+bgMusic.Looped = true
+bgMusic.Volume = 1
+bgMusic.Parent = SoundService
+
+-- Hàm phát bài
+local function playSong(id)
+    bgMusic.SoundId = id
+    bgMusic:Play()
+end
+
+Tabs.Music:AddButton({
+    Title = "Tắt nhạc",
+    Callback = function()
+        bgMusic:Stop()
+    end
+})
+
+-- Nút phát từng bài
+Tabs.Music:AddButton({
+    Title = "chào cờ chào",
+    Callback = function()
+        playSong("rbxassetid://1845922899")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "2phút hơn",
+    Callback = function()
+        playSong("rbxassetid://115091532639966")
+    end
+})
+
+Tabs.Music:AddButton({
+    Title = "tao giàu mày nghèo:)",
+    Callback = function()
+        playSong("rbxassetid://128061122320000")
+    end
+})
+
 local Options = Fluent.Options
 local id = game.PlaceId
 if id==2753915549 then Sea1=true; elseif id==4442272183 then Sea2=true; elseif id==7449423635 then Sea3=true; else game:Shutdown() end;
