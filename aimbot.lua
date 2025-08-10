@@ -1,32 +1,4 @@
--- 📌 Blox Fruits Aimbot Skill Tracking (Mobile) - by GPT-5
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
-local AimbotEnabled = false
-local AimRadius = 30000 -- khoảng cách aim tối đa
-
--- UI bật/tắt
-local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-local Button = Instance.new("TextButton", ScreenGui)
-Button.Size = UDim2.new(0, 150, 0, 50)
-Button.Position = UDim2.new(0.5, -75, 0.85, 0)
-Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-Button.Text = "Aimbot: OFF"
-Button.TextScaled = true
-
-Button.MouseButton1Click:Connect(function()
-    AimbotEnabled = not AimbotEnabled
-    if AimbotEnabled then
-        Button.Text = "Aimbot: ON"
-        Button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-    else
-        Button.Text = "Aimbot: OFF"
-        Button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    end
-end)
 
 -- BloxF-Aimbot v1 (safer, per-tool filtering + projectile tracking)
 -- Ghi chú: chạy trong executor (Fluxus/Delta/...) - test kĩ trước khi dùng
@@ -39,8 +11,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Cấu hình
 local CONFIG = {
-    AimRadius = 300,                -- phạm vi mục tiêu
-    ProjectileCheckRadius = 350,    -- kiểm tra projectile quanh người chơi
+    AimRadius = 30000,                -- phạm vi mục tiêu
+    ProjectileCheckRadius = 3550,    -- kiểm tra projectile quanh người chơi
     RemoteNamePatterns = {          -- chỉ hook remote có tên/parent match 1 trong này
         "Shoot", "Fire", "Cast", "Skill", "Activate", "Use", "Remote", "Hit", "Attack"
     },
