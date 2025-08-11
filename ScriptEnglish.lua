@@ -3283,7 +3283,7 @@ spawn(function()
             end
         end
     end
-end)
+end
 spawn(function()
     while wait() do
         if AutoFarmMasDevilFruit and TypeMastery == 'Bone' then
