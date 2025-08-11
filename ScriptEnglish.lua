@@ -9505,11 +9505,12 @@ local function setTextColorToIvory(parent)
     end
 end
 
--- Lặp lại mỗi 0.5s để nếu UI thêm chữ mới cũng đổi luôn
 task.spawn(function()
     while task.wait(0.5) do
-        if game.CoreGui:FindFirstChild("Fluent") then
-            setTextColorToIvory(game.CoreGui.Fluent)
+        for _, gui in ipairs(game.CoreGui:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui:FindFirstChildWhichIsA("Frame", true) then
+                setTextColorToIvory(gui)
+            end
         end
     end
 end)
