@@ -179,27 +179,27 @@ Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
-    Theme = "Red",
+    Theme = "Aqua",
     Acrylic = false,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 local Tabs = {
 
-Info=Window:AddTab({ Title="Tab help script lỗi" }),
-    Main=Window:AddTab({ Title="Tab chính" }),
-    Music=Window:AddTab({ Title="Tab nhạc" }),
-    Item=Window:AddTab({ Title="Tab vật phẩm" }),
-    Sea=Window:AddTab({ Title="Tab sự kiện biển" }),
-    Status=Window:AddTab({ Title="Tab trạng thái" }),
-    Stats=Window:AddTab({ Title="Tab chỉ số" }),
-    Player=Window:AddTab({ Title="Tab người chơi" }),
-    Teleport=Window:AddTab({ Title="Tab dịch chuyển" }),
-    Raid=Window:AddTab({ Title="Tab Raid" }),
-    Race=Window:AddTab({ Title="Tab tộc" }),
-    Fruit=Window:AddTab({ Title="Tab trái" }),
-    Shop=Window:AddTab({ Title="Tab cửa hàng" }),
-    Misc=Window:AddTab({ Title="Tab linh tinh" }),
+Info=Window:AddTab({ Title=" help script lỗi" }),
+    Main=Window:AddTab({ Title=" chính" }),
+    Music=Window:AddTab({ Title=" nhạc" }),
+    Item=Window:AddTab({ Title=" vật phẩm" }),
+    Sea=Window:AddTab({ Title=" sự kiện biển" }),
+    Status=Window:AddTab({ Title=" trạng thái" }),
+    Stats=Window:AddTab({ Title=" chỉ số" }),
+    Player=Window:AddTab({ Title=" người chơi" }),
+    Teleport=Window:AddTab({ Title=" dịch chuyển" }),
+    Raid=Window:AddTab({ Title=" Raid" }),
+    Race=Window:AddTab({ Title=" tộc" }),
+    Fruit=Window:AddTab({ Title=" trái" }),
+    Shop=Window:AddTab({ Title=" cửa hàng" }),
+    Misc=Window:AddTab({ Title=" linh tinh" }),
 }
 
 local SoundService = game:GetService("SoundService")
