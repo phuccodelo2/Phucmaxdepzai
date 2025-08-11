@@ -1064,7 +1064,7 @@ QuestLv=1
 NameMon="Serpent Hunter"
 CFrameQ=CFrame.new(-16665.19140625, 104.59640502929688, 1579.6943359375)
 CFrameMon=CFrame.new(-16621.4140625, 121.40631103515625, 1290.6881103515625)
-elseif Lv==2575 or Lv<=2599 or SelectMonster=="Skull Slayer" or Lv==2600 then
+elseif Lv==2575 or Lv<=2599 or SelectMonster=="Skull Slayer" or Lv==2650 then
 Ms="Skull Slayer"
 NameQuest="TikiQuest3"
 QuestLv=2
