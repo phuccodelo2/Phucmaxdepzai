@@ -2531,7 +2531,7 @@ ScreenGui.Parent = playerGui
 local Button = Instance.new("ImageButton")
 Button.Name = "CustomButton"
 Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 150, 0, 40)  -- chữ nhật
+Button.Size = UDim2.new(0, 125, 0, 35)  -- chữ nhật
 Button.Position = UDim2.new(0.5, -90, 0, 0.5) -- trên cùng giữa màn hình
 Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Button.BackgroundTransparency = 0
@@ -2770,7 +2770,7 @@ end)
         end
         end)        
     local ToggleMobAura = Tabs.Main:AddToggle("ToggleMobAura", {
-        Title="tự động  Mob Aura",
+        Title="tự động gom quái",
         Description="",
         Default=false })
     ToggleMobAura:OnChanged(function(Value)
@@ -2813,7 +2813,7 @@ end)
         end
         end
       end)
-local AutoFram =  Tabs.Item:AddSection("cuộc đột kích pháo đài")
+local AutoFram =  Tabs.Main:AddSection("cuộc đột kích pháo đài")
     local ToggleCastleRaid =  Tabs.Item:AddToggle("ToggleCastleRaid", {
         Title="tự động Cuộc đột kích pháo đài",
         Description="", 
@@ -6309,7 +6309,7 @@ spawn(function()
         end
     end)
 if Sea2 then
-        local ToggleFactory =  Tabs.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
+        local ToggleFactory =  Main.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
         ToggleFactory:OnChanged(function(Value)
             _G.Factory=Value
         end)
@@ -6735,17 +6735,15 @@ ToggleF:OnChanged(function(Value)
     end)
 Options.ToggleF:SetValue(true)
 local Usser = Tabs.Info:AddParagraph({
-    Title="thông tin",
+    Title="thông tin người chơi",
     Content=""..
-        "Name : "..game.Players.LocalPlayer.DisplayName.." (@"..game.Players.LocalPlayer.Name..")\n"..
-        "Levels : "..game:GetService("Players").LocalPlayer.Data.Level.Value.."\n"..
-        "Money : "..game:GetService("Players").LocalPlayer.Data.Beli.Value.."\n"..
-        "Point F : "..game:GetService("Players").LocalPlayer.Data.Fragments.Value.."\n"..
-        "Bounty : "..game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value.."\n"..
-        "Health : "..game.Players.LocalPlayer.Character.Humanoid.Health.."/"..game.Players.LocalPlayer.Character.Humanoid.MaxHealth.."\n"..
-        "Energy : "..game.Players.LocalPlayer.Character.Energy.Value.."/"..game.Players.LocalPlayer.Character.Energy.MaxValue.."\n"..
-        "Race : "..game:GetService("Players").LocalPlayer.Data.Race.Value.."\n"..
-        "Devil Fruit : "..game:GetService("Players").LocalPlayer.Data.DevilFruit.Value.."\n"..
+        "tên : "..game.Players.LocalPlayer.DisplayName.." (@"..game.Players.LocalPlayer.Name..")\n"..
+        "cấp độ: "..game:GetService("Players").LocalPlayer.Data.Level.Value.."\n"..
+        "$ : "..game:GetService("Players").LocalPlayer.Data.Beli.Value.."\n"..
+        "điểm F : "..game:GetService("Players").LocalPlayer.Data.Fragments.Value.."\n"..
+        "tiền thưởng: "..game:GetService("Players").LocalPlayer.leaderstats["Bounty/Honor"].Value.."\n"..
+        "tộc : "..game:GetService("Players").LocalPlayer.Data.Race.Value.."\n"..
+        "trái : "..game:GetService("Players").LocalPlayer.Data.DevilFruit.Value.."\n"..
         ""
 })
 local Time = Tabs.Status:AddParagraph({
@@ -6953,7 +6951,7 @@ Tabs.Player:AddButton({
         end
     end
 })
-local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="Teleport Player", Description="",Default=false })
+local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển đến người chơi", Description="",Default=false })
 ToggleTeleport:OnChanged(function(Value)
     _G.TeleportPly=Value
     if Value==false then
@@ -6975,7 +6973,7 @@ spawn(function()
         end
     end
 end)
-local ToggleWalkonWater = Tabs.Player:AddToggle("ToggleWalkonWater", {Title="Walk on Water",Description="", Default=true })
+local ToggleWalkonWater = Tabs.Player:AddToggle("ToggleWalkonWater", {Title="Đi bộ trên mặt nước",Description="", Default=true })
 ToggleWalkonWater:OnChanged(function(Value)
   _G.WalkonWater=Value
 end)
@@ -6991,7 +6989,7 @@ spawn(function()
     end)
   end
 end)
-local ToggleSpeedRun = Tabs.Player:AddToggle("ToggleSpeedRun", {Title = "Speed Run",Description = "", Default = true })
+local ToggleSpeedRun = Tabs.Player:AddToggle("ToggleSpeedRun", {Title = "chạy nhanh",Description = "", Default = true })
 ToggleSpeedRun:OnChanged(function(Value)
     InfAbility = Value
     if Value == false then
@@ -7042,7 +7040,7 @@ function InfAb()
         end
     end
 end
-local ToggleNoClip = Tabs.Player:AddToggle("ToggleNoClip", {Title = "No Clip",Description = "", Default = true })
+local ToggleNoClip = Tabs.Player:AddToggle("ToggleNoClip", {Title = "đi xuyên tường",Description = "", Default = true })
 ToggleNoClip:OnChanged(function(value)
     _G.LOf = value
 end)
@@ -7060,7 +7058,7 @@ spawn(function()
         end)
     end)
 end)
-local ToggleEnablePvp = Tabs.Player:AddToggle("ToggleEnablePvp", {Title="Enable PVP", Description="",Default=false })
+local ToggleEnablePvp = Tabs.Player:AddToggle("ToggleEnablePvp", {Title="Cho phép PVP", Description="",Default=false })
 ToggleEnablePvp:OnChanged(function(Value)
   _G.EnabledPvP=Value
 end)
