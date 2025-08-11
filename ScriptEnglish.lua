@@ -179,7 +179,7 @@ Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
-    Theme = "Darker",
+    Theme = "Red",
     Acrylic = false,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -9496,3 +9496,20 @@ if currentTime - lastNotificationTime >= notificationCooldown then
     })
     lastNotificationTime = currentTime
 end
+
+local function setTextColorToIvory(parent)
+    for _, obj in ipairs(parent:GetDescendants()) do
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+            obj.TextColor3 = Color3.fromRGB(255, 255, 240) -- trắng ngà
+        end
+    end
+end
+
+-- Lặp lại mỗi 0.5s để nếu UI thêm chữ mới cũng đổi luôn
+task.spawn(function()
+    while task.wait(0.5) do
+        if game.CoreGui:FindFirstChild("Fluent") then
+            setTextColorToIvory(game.CoreGui.Fluent)
+        end
+    end
+end)
