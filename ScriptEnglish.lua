@@ -3694,134 +3694,120 @@ local StatusBone = Tabs.Main:AddParagraph({
     Title="trạng thái xương",
     Content=""
 })
--- Giả sử bạn đã có 'Tabs' (từ UI framework bạn dùng) và các hàm hỗ trợ (Tween, EquipTool...) defined rồi
--- Nếu chưa có, mình sẽ viết ví dụ đơn giản bên dưới
-
--- ==== CẤU HÌNH BAN ĐẦU ====
-
-_G.AutoBone = false
-_G.Fast_Delay = 0.1  -- Thời gian delay giữa các bước farm, chỉnh cho phù hợp
-
-local SelectWeapon = "Sword"  -- Thay tên vũ khí bạn muốn dùng ở đây
-local Pos = CFrame.new(0, 0, 0)  -- Offset khi dịch chuyển tới mob
-
-local bringmob = false
-local FarmPos = nil
-local MonFarm = nil
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-
-local player = Players.LocalPlayer
-
--- ==== HÀM HỖ TRỢ ====
-
--- Ví dụ hàm Tween di chuyển mượt tới vị trí (bạn có thể thay thế bằng hàm Tween riêng)
-local Tween
-do
-    local TweenService = game:GetService("TweenService")
-    Tween = function(targetCFrame)
-        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
-        local hrp = player.Character.HumanoidRootPart
-        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear)
-        local tween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
-        tween:Play()
-        tween.Completed:Wait()
+local ToggleBone = Tabs.Main:AddToggle("ToggleBone", {
+    Title="Auto Fram Bone",
+    Description="", 
+    Default=false })
+ToggleBone:OnChanged(function(Value)
+    _G.AutoBone=Value
+    if Value==false then
+        wait()
+        Tween(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+        wait()
     end
-end
-
--- Giả lập hàm EquipTool (bạn thay bằng hàm thật game)
-function EquipTool(toolName)
-    -- Ví dụ: tự động equip tool tên toolName trong backpack hoặc character
-    local char = player.Character
-    if not char then return end
-    local backpack = player:FindFirstChildOfClass("Backpack")
-    if not backpack then return end
-
-    local tool = char:FindFirstChild(toolName) or backpack:FindFirstChild(toolName)
-    if tool and tool:IsA("Tool") then
-        tool.Parent = char
+end)
+Options.ToggleBone:SetValue(false)
+local BoneCFrame = CFrame.new(-9515.75, 174.8521728515625, 6079.40625)
+spawn(function()
+    while wait() do
+        if _G.AutoBone then
+            pcall(function()
+                local QuestTitle = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+                if not string.find(QuestTitle, "Demonic Soul") then
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                end
+                if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible==false then
+                 Tween(BoneCFrame)
+                if (BoneCFrame.Position-game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude<=3 then    
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest","HauntedQuest2",1)
+                    end
+                elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible==true then
+                    if game:GetService("Workspace").Enemies:FindFirstChild("Reborn Skeleton") or game:GetService("Workspace").Enemies:FindFirstChild("Living Zombie") or game:GetService("Workspace").Enemies:FindFirstChild("Demonic Soul") or game:GetService("Workspace").Enemies:FindFirstChild("Posessed Mummy") then
+                        for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                            if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health>0 then
+                                if v.Name=="Reborn Skeleton" or v.Name=="Living Zombie" or v.Name=="Demonic Soul" or v.Name=="Posessed Mummy" then
+                                    if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Demonic Soul") then
+                                        repeat wait(_G.Fast_Delay)
+                                            AttackNoCoolDown()
+                                            AutoHaki()
+                                            bringmob=true
+                                            EquipTool(SelectWeapon)
+                                            Tween(v.HumanoidRootPart.CFrame*Pos)
+                                            v.HumanoidRootPart.Size=Vector3.new(60, 60, 60)
+                                            v.HumanoidRootPart.Transparency=1
+                                            v.Humanoid.JumpPower=0
+                                            v.Humanoid.WalkSpeed=0
+                                            v.HumanoidRootPart.CanCollide=false
+                                            FarmPos=v.HumanoidRootPart.CFrame
+                                            MonFarm=v.Name
+                                        until not _G.AutoBone or v.Humanoid.Health<=0 or not v.Parent or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible==false
+                                    else
+                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                        bringmob=false
+                                    end
+                                end
+                            end
+                        end
+                    else
+                    end
+                end
+            end)
+        end
     end
-end
-
--- Giả lập hàm AutoHaki (thay bằng chức năng thật của bạn)
-function AutoHaki()
-    -- Ví dụ: bật skill haki tự động, để trống nếu không dùng
-end
-
--- Giả lập hàm AttackNoCoolDown (thay bằng chức năng thật của bạn)
-function AttackNoCoolDown()
-    -- Ví dụ: gọi attack, nhấn nút hoặc phát remote event tấn công
-end
-
--- ==== VỊ TRÍ QUEST BONE ====
-
-local BoneCFrame = CFrame.new(-9515.75, 174.85, 6079.40)
-
--- ==== VÒNG LẶP AUTO FARM BONE ====
-
+end)
+local BoneNoQuest = CFrame.new(-9515.75, 174.8521728515625, 6079.40625)
 spawn(function()
     while wait() do
         if _G.AutoBone then
             local success, err = pcall(function()
-                local gui = player.PlayerGui
-                local questGui = gui:FindFirstChild("Main")
-                if not questGui then return end
-                local quest = questGui:FindFirstChild("Quest")
-                if not quest then return end
-                local container = quest:FindFirstChild("Container")
-                if not container then return end
-                local questTitleGui = container:FindFirstChild("QuestTitle")
-                if not questTitleGui then return end
-                local title = questTitleGui:FindFirstChild("Title")
-                if not title or not title:IsA("TextLabel") then return end
-                local QuestTitle = title.Text or ""
+                local player = game:GetService("Players").LocalPlayer
+                local questGui = player.PlayerGui.Main:FindFirstChild("Quest")
+                local container = questGui and questGui:FindFirstChild("Container")
+                local questTitleGui = container and container:FindFirstChild("QuestTitle")
+                local title = questTitleGui and questTitleGui:FindFirstChild("Title")
+                local QuestTitle = (title and title.Text) or ""
 
                 if not string.find(QuestTitle, "Demonic Soul") then
-                    ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                 end
 
-                if not quest.Visible then
+                if questGui and not questGui.Visible then
                     Tween(BoneCFrame)
                     local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp and (hrp.Position - BoneCFrame.Position).Magnitude <= 3 then
-                        ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", "HauntedQuest2", 1)
+                    if hrp and (hrp.Position - BoneCFrame.Position).Magnitude <= 3 then    
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest","HauntedQuest2",1)
                     end
-                else
-                    local enemiesFolder = Workspace:FindFirstChild("Enemies")
-                    if not enemiesFolder then return end
+                elseif questGui and questGui.Visible then
+                    local enemies = game:GetService("Workspace"):FindFirstChild("Enemies")
+                    if enemies then
+                        for _, mob in pairs(enemies:GetChildren()) do
+                            if not _G.AutoBone then break end -- Dừng vòng lặp nếu tắt AutoBone
 
-                    local validMobs = {
-                        ["Reborn Skeleton"] = true,
-                        ["Living Zombie"] = true,
-                        ["Demonic Soul"] = true,
-                        ["Posessed Mummy"] = true,
-                    }
+                            if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                                if mob.Name == "Reborn Skeleton" or mob.Name == "Living Zombie" or mob.Name == "Demonic Soul" or mob.Name == "Posessed Mummy" then
+                                    if string.find(QuestTitle, "Demonic Soul") then
+                                        repeat
+                                            wait(_G.Fast_Delay)
+                                            if not _G.AutoBone then break end -- Dừng repeat nếu tắt AutoBone
 
-                    for _, mob in pairs(enemiesFolder:GetChildren()) do
-                        if mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChild("Humanoid") then
-                            if validMobs[mob.Name] and mob.Humanoid.Health > 0 then
-                                if string.find(QuestTitle, "Demonic Soul") then
-                                    repeat
-                                        wait(_G.Fast_Delay)
-                                        AttackNoCoolDown()
-                                        AutoHaki()
-                                        bringmob = true
-                                        EquipTool(SelectWeapon)
-                                        Tween(mob.HumanoidRootPart.CFrame * Pos)
-                                        mob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                        mob.HumanoidRootPart.Transparency = 1
-                                        mob.Humanoid.JumpPower = 0
-                                        mob.Humanoid.WalkSpeed = 0
-                                        mob.HumanoidRootPart.CanCollide = false
-                                        FarmPos = mob.HumanoidRootPart.CFrame
-                                        MonFarm = mob.Name
-                                    until not _G.AutoBone or mob.Humanoid.Health <= 0 or not mob.Parent or not quest.Visible
-                                    bringmob = false
-                                else
-                                    ReplicatedStorage.Remotes.CommF_:InvokeServer("AbandonQuest")
-                                    bringmob = false
+                                            AttackNoCoolDown()
+                                            AutoHaki()
+                                            bringmob = true
+                                            EquipTool(SelectWeapon)
+                                            Tween(mob.HumanoidRootPart.CFrame * Pos)
+                                            mob.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                            mob.HumanoidRootPart.Transparency = 1
+                                            mob.Humanoid.JumpPower = 0
+                                            mob.Humanoid.WalkSpeed = 0
+                                            mob.HumanoidRootPart.CanCollide = false
+                                            FarmPos = mob.HumanoidRootPart.CFrame
+                                            MonFarm = mob.Name
+                                        until not _G.AutoBone or mob.Humanoid.Health <= 0 or not mob.Parent or not questGui.Visible
+                                        bringmob = false
+                                    else
+                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                                        bringmob = false
+                                    end
                                 end
                             end
                         end
@@ -3829,21 +3815,14 @@ spawn(function()
                 end
             end)
             if not success then
-                warn("[AutoBone] Lỗi xảy ra:", err)
+                warn("[AutoBone] Lỗi:", err)
             end
         else
+            -- Khi _G.AutoBone == false thì có thể đứng yên hoặc làm gì đó
             wait(0.5)
         end
     end
 end)
-
--- ==== NÚT TOGGLE UI ====
-
-local ToggleBone = Tabs.Main:AddToggle("ToggleBone", {
-    Title = "tự động cày xương",
-    Description = "",
-    Default = false
-})
 
 ToggleBone:OnChanged(function(Value)
     _G.AutoBone = Value
