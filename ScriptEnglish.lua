@@ -3253,35 +3253,32 @@ spawn(function()
                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, QuestLv)
                 end
             end)
-            if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameMon) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
-                if game:GetService("Workspace").Enemies:FindFirstChild(Ms) then
-                    for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
-                            if v.Name == Ms then
-                                repeat wait(_G.Fast_Delay)
-                                    if v.Humanoid.Health <= v.Humanoid.MaxHealth * KillPercent / 100 then
-                                        _G.UseSkill = true
-                                    else
-                                        _G.UseSkill = false
-                                        AutoHaki()
-                                        bringmob = true
-                                        EquipTool(SelectWeapon)
-                                        Tween(v.HumanoidRootPart.CFrame * Pos)
-                                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                        v.HumanoidRootPart.Transparency = 1
-                                        v.Humanoid.JumpPower = 0
-                                        v.Humanoid.WalkSpeed = 0
-                                        v.HumanoidRootPart.CanCollide = false
-                                        FarmPos = v.HumanoidRootPart.CFrame
-                                        MonFarm = v.Name
-                                        AttackNoCoolDown()
-                                    end
-                                until not AutoFarmMasDevilFruit or not MasteryType == 'Level' or not v.Parent or v.Humanoid.Health == 0 or not TypeMastery == 'Level'
-                                bringmob = false
-                                _G.UseSkill = false
-                            end
+            if string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameMon) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+    if game.Workspace.Enemies:FindFirstChild(Ms) then
+        for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
+            if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                if v.Name == Ms then
+                    repeat wait(_G.Fast_Delay)
+                        if v.Humanoid.Health <= v.Humanoid.MaxHealth * KillPercent / 100 then
+                            _G.UseSkill = true
+                        else
+                            _G.UseSkill = false
+                            AutoHaki()
+                            bringmob = true
+                            EquipTool(SelectWeapon)
+                            Tween(v.HumanoidRootPart.CFrame * Pos)
+                            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                            v.HumanoidRootPart.Transparency = 1
+                            v.Humanoid.JumpPower = 0
+                            v.Humanoid.WalkSpeed = 0
+                            v.HumanoidRootPart.CanCollide = false
+                            FarmPos = v.HumanoidRootPart.CFrame
+                            MonFarm = v.Name
+                            AttackNoCoolDown()
                         end
-                    end
+                    until not AutoFarmMasDevilFruit or MasteryType ~= 'Level' or not v.Parent or v.Humanoid.Health == 0 or TypeMastery ~= 'Level'
+                    bringmob = false
+                    _G.UseSkill = false
                 end
             end
         end
