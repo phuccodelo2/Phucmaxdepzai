@@ -2813,7 +2813,7 @@ end)
         end
         end
       end)
-local AutoFram =  Tabs.Main:AddSection("cuộc đột kích pháo đài")
+local AutoFram =  Tabs.Item:AddSection("cuộc đột kích pháo đài")
     local ToggleCastleRaid =  Tabs.Item:AddToggle("ToggleCastleRaid", {
         Title="tự động Cuộc đột kích pháo đài",
         Description="", 
@@ -6309,7 +6309,7 @@ spawn(function()
         end
     end)
 if Sea2 then
-        local ToggleFactory =  Main.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
+        local ToggleFactory =  Item.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
         ToggleFactory:OnChanged(function(Value)
             _G.Factory=Value
         end)
