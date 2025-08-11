@@ -6309,7 +6309,7 @@ spawn(function()
         end
     end)
 if Sea2 then
-        local ToggleFactory =  Item.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
+        local ToggleFactory =  Tabs.Item:AddToggle("ToggleFactory", {Title="tự động đánh  nhà máy",Description="", Default=false })
         ToggleFactory:OnChanged(function(Value)
             _G.Factory=Value
         end)
