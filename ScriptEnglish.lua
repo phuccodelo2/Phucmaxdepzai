@@ -2712,67 +2712,117 @@ task.spawn(function()
     end
 end)
     local ToggleLevel = Tabs.Main:AddToggle("ToggleLevel", {
-        Title="tự động cày cấp",
-        Description="",
-        Default=false })
-    ToggleLevel:OnChanged(function(Value)
-        _G.AutoLevel=Value
-        if Value==false then
-            wait()
-            Tween(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
-            wait()
+    Title="tự động cày cấp",
+    Description="",
+    Default=false
+})
+
+ToggleLevel:OnChanged(function(Value)
+    _G.AutoLevel = Value
+    if Value == false then
+        wait()
+        if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            Tween(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame)
         end
-    end)
-    Options.ToggleLevel:SetValue(false)
-    spawn(function()
-        while task.wait() do
+        wait()
+    end
+end)
+
+Options.ToggleLevel:SetValue(false)
+
+spawn(function()
+    while task.wait() do
         if _G.AutoLevel then
-        pcall(function()
-          CheckLevel()
-          if not string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameMon) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible==false then
-          game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
-          Tween(CFrameQ)
-          if (CFrameQ.Position-game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude<=5 then
-          game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest",NameQuest,QuestLv)
-          end
-          elseif string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameMon) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible==true then
-          for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-          if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health>0 then
-          if v.Name==Ms then
-          repeat wait(_G.Fast_Delay)
-          AttackNoCoolDown()
-          bringmob=true
-          AutoHaki()
-          EquipTool(SelectWeapon)
-          Tween(v.HumanoidRootPart.CFrame*Pos)
-          v.HumanoidRootPart.Size=Vector3.new(60, 60, 60)
-          v.HumanoidRootPart.Transparency=1
-          v.Humanoid.JumpPower=0
-          v.Humanoid.WalkSpeed=0
-          v.HumanoidRootPart.CanCollide=false
-          FarmPos=v.HumanoidRootPart.CFrame
-          MonFarm=v.Name
-          until not _G.AutoLevel or not v.Parent or v.Humanoid.Health<=0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible==false
-          bringmob=false
-        end   
-          end
-          end
-          for i,v in pairs(game:GetService("Workspace")["_WorldOrigin"].EnemySpawns:GetChildren()) do
-          if string.find(v.Name,NameMon) then
-          if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position-v.Position).Magnitude>=10 then
-            Tween(v.HumanoidRootPart.CFrame*Pos)
-          end
-          end
-          end
-          end
-          end)
+            local success, err = pcall(function()
+                CheckLevel() -- hàm bạn tự định nghĩa ngoài
+                local playerGui = game.Players.LocalPlayer.PlayerGui
+                local mainGui = playerGui:FindFirstChild("Main")
+                if not mainGui then return end
+                local questGui = mainGui:FindFirstChild("Quest")
+                if not questGui then return end
+                local container = questGui:FindFirstChild("Container")
+                local questTitle = container and container:FindFirstChild("QuestTitle")
+                local titleText = questTitle and questTitle:FindFirstChild("Title")
+                local QuestTitleText = titleText and titleText.Text or ""
+
+                -- Nếu không có quest hoặc quest khác thì bỏ quest và nhận lại
+                if not string.find(QuestTitleText, NameMon) or questGui.Visible == false then
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
+                    Tween(CFrameQ)
+                    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp and (CFrameQ.Position - hrp.Position).Magnitude <= 5 then
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, QuestLv)
+                    end
+                else
+                    -- Quest active thì farm
+                    local enemies = game.Workspace:FindFirstChild("Enemies")
+                    if enemies then
+                        for _, v in pairs(enemies:GetChildren()) do
+                            if not _G.AutoLevel then break end -- Dừng farm ngay nếu tắt
+
+                            if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                                if v.Name == Ms then
+                                    repeat
+                                        wait(_G.Fast_Delay)
+                                        if not _G.AutoLevel then break end
+
+                                        AttackNoCoolDown()
+                                        bringmob = true
+                                        AutoHaki()
+                                        EquipTool(SelectWeapon)
+
+                                        -- Tween tới gần mob, cộng offset nếu cần
+                                        local targetCFrame = v.HumanoidRootPart.CFrame
+                                        if Pos then
+                                            Tween(targetCFrame * Pos)
+                                        else
+                                            Tween(targetCFrame)
+                                        end
+
+                                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                        v.HumanoidRootPart.Transparency = 1
+                                        v.Humanoid.JumpPower = 0
+                                        v.Humanoid.WalkSpeed = 0
+                                        v.HumanoidRootPart.CanCollide = false
+                                        FarmPos = v.HumanoidRootPart.CFrame
+                                        MonFarm = v.Name
+                                    until not _G.AutoLevel or v.Humanoid.Health <= 0 or not v.Parent or not game.Workspace.Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                    bringmob = false
+                                end
+                            end
+                        end
+                    end
+
+                    -- Dịch chuyển đến Enemy Spawn nếu xa mob
+                    local enemySpawns = game.Workspace:FindFirstChild("_WorldOrigin") and game.Workspace._WorldOrigin:FindFirstChild("EnemySpawns")
+                    if enemySpawns then
+                        for _, spawn in pairs(enemySpawns:GetChildren()) do
+                            if string.find(spawn.Name, NameMon) then
+                                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                if hrp and (hrp.Position - spawn.Position).Magnitude >= 10 then
+                                    if spawn:FindFirstChild("HumanoidRootPart") then
+                                        Tween(spawn.HumanoidRootPart.CFrame * (Pos or CFrame.new()))
+                                    else
+                                        Tween(CFrame.new(spawn.Position) * (Pos or CFrame.new()))
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            if not success then
+                warn("[AutoLevel] Error:", err)
+            end
+        else
+            wait(0.5)
         end
-        end
-        end)        
+    end
+end)
     local ToggleMobAura = Tabs.Main:AddToggle("ToggleMobAura", {
         Title="tự động gom quái",
         Description="",
-        Default=false })
+        Default=true })
     ToggleMobAura:OnChanged(function(Value)
         _G.AutoNear=Value
         if Value==false then
