@@ -173,14 +173,14 @@ repeat
 until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/release.lua"))()
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local RunService = game:GetService("RunService")
 Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
     Theme = "Aqua",
-    Acrylic = false,
+    Acrylic = true,
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
@@ -9500,7 +9500,7 @@ end
 local function setTextColorToIvory(parent)
     for _, obj in ipairs(parent:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-            obj.TextColor3 = Color3.fromRGB(255, 255, 240) -- trắng ngà
+            obj.TextColor3 = Color3.fromRGB(255, 223, 128) -- trắng ngà
         end
     end
 end
