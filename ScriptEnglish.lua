@@ -8761,7 +8761,7 @@ Tabs.Misc:AddButton({
     Title="Hải quân",
     Description="",
     Callback=function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam","Marines") 
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam","Marines")
     end
 })
 local Mastery = Tabs.Misc:AddSection("nhập Code")
