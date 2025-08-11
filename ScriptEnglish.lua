@@ -9497,29 +9497,49 @@ if currentTime - lastNotificationTime >= notificationCooldown then
     lastNotificationTime = currentTime
 end
 
-local function setTextColorToIvory(parent)
+local RunService = game:GetService("RunService")
+
+-- Hàm chuyển Hue → Color3
+local function ColorFromHue(hue)
+    local r, g, b
+    local i = math.floor(hue * 6)
+    local f = hue * 6 - i
+    local q = 1 - f
+    i = i % 6
+    if i == 0 then r, g, b = 1, f, 0
+    elseif i == 1 then r, g, b = q, 1, 0
+    elseif i == 2 then r, g, b = 0, 1, f
+    elseif i == 3 then r, g, b = 0, q, 1
+    elseif i == 4 then r, g, b = f, 0, 1
+    elseif i == 5 then r, g, b = 1, 0, q
+    end
+    return Color3.new(r, g, b)
+end
+
+-- Đổi màu chữ tất cả Text object
+local function setTextRainbow(parent, hue)
     for _, obj in ipairs(parent:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-            obj.TextColor3 = Color3.fromRGB(255, 223, 128) -- trắng ngà
+            obj.TextColor3 = ColorFromHue(hue)
         end
     end
 end
 
-task.spawn(function()
-    while task.wait(0.5) do
-        -- Quét CoreGui
-        for _, gui in ipairs(game.CoreGui:GetChildren()) do
-            if gui:IsA("ScreenGui") then
-                setTextColorToIvory(gui)
-            end
+local hue = 0
+RunService.RenderStepped:Connect(function(dt)
+    hue = (hue + 0.003) % 1 -- tốc độ đổi màu
+    -- Quét CoreGui
+    for _, gui in ipairs(game.CoreGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            setTextRainbow(gui, hue)
         end
-        -- Quét PlayerGui
-        local player = game.Players.LocalPlayer
-        if player and player:FindFirstChild("PlayerGui") then
-            for _, gui in ipairs(player.PlayerGui:GetChildren()) do
-                if gui:IsA("ScreenGui") then
-                    setTextColorToIvory(gui)
-                end
+    end
+    -- Quét PlayerGui
+    local player = game.Players.LocalPlayer
+    if player and player:FindFirstChild("PlayerGui") then
+        for _, gui in ipairs(player.PlayerGui:GetChildren()) do
+            if gui:IsA("ScreenGui") then
+                setTextRainbow(gui, hue)
             end
         end
     end
