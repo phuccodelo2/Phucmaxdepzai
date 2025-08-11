@@ -9507,9 +9507,19 @@ end
 
 task.spawn(function()
     while task.wait(0.5) do
+        -- Quét CoreGui
         for _, gui in ipairs(game.CoreGui:GetChildren()) do
-            if gui:IsA("ScreenGui") and gui:FindFirstChildWhichIsA("Frame", true) then
+            if gui:IsA("ScreenGui") then
                 setTextColorToIvory(gui)
+            end
+        end
+        -- Quét PlayerGui
+        local player = game.Players.LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            for _, gui in ipairs(player.PlayerGui:GetChildren()) do
+                if gui:IsA("ScreenGui") then
+                    setTextColorToIvory(gui)
+                end
             end
         end
     end
