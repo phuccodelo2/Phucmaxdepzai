@@ -175,7 +175,7 @@ hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local RunService = game:GetService("RunService")
-Window = Fluent:CreateWindow({
+local Window = Fluent:CreateWindow({
     Title = "PHUCMAX ",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
@@ -184,9 +184,9 @@ Window = Fluent:CreateWindow({
     Size = UDim2.fromOffset(520, 300), 
     MinimizeKey = Enum.KeyCode.LeftControl
 })
-local Tabs = {
 
-Info=Window:AddTab({ Title=" help script lỗi" }),
+local Tabs = {
+    Info=Window:AddTab({ Title=" help script lỗi" }),
     Main=Window:AddTab({ Title=" chính" }),
     Music=Window:AddTab({ Title=" nhạc" }),
     Item=Window:AddTab({ Title=" vật phẩm" }),
@@ -201,6 +201,51 @@ Info=Window:AddTab({ Title=" help script lỗi" }),
     Shop=Window:AddTab({ Title=" cửa hàng" }),
     Misc=Window:AddTab({ Title=" linh tinh" }),
 }
+
+-- Ảnh banner và ảnh nền
+local bannerImageID = "rbxassetid://127114352687058" -- Thay ID ảnh banner
+local backgroundImageID = "rbxassetid://127114352687058" -- Thay ID ảnh nền lớn
+
+task.spawn(function()
+    wait(1) -- Đợi UI load xong
+
+    local gui = game:GetService("CoreGui"):FindFirstChild("Fluent")
+
+    if gui then
+        -- Thêm banner ảnh trên đầu Tabs
+        local banner = Instance.new("ImageLabel")
+        banner.Name = "BannerImage"
+        banner.Parent = gui
+        banner.Size = UDim2.new(0, 520, 0, 100) -- Ngang bằng menu, cao 100px
+        banner.Position = UDim2.new(0, 0, 0, -100) -- Đặt ngay trên Tabs
+        banner.BackgroundTransparency = 1
+        banner.Image = bannerImageID
+        banner.ImageTransparency = 0.1
+        banner.ScaleType = Enum.ScaleType.Crop
+
+        -- Làm cạnh ảnh mờ
+        local bannerUICorner = Instance.new("UICorner", banner)
+        bannerUICorner.CornerRadius = UDim.new(0, 15)
+
+        -- Thêm ảnh nền lớn trong menu
+        local bg = Instance.new("ImageLabel")
+        bg.Name = "BackgroundImage"
+        bg.Parent = gui
+        bg.Size = UDim2.new(1, 0, 1, 0)
+        bg.Position = UDim2.new(0, 0, 0, 0)
+        bg.BackgroundTransparency = 1
+        bg.Image = backgroundImageID
+        bg.ImageTransparency = 0.3
+        bg.ScaleType = Enum.ScaleType.Crop
+
+        -- Làm cạnh ảnh nền mờ
+        local bgUICorner = Instance.new("UICorner", bg)
+        bgUICorner.CornerRadius = UDim.new(0, 20)
+
+        -- Đưa ảnh nền ra phía sau cùng
+        bg.ZIndex = 0
+    end
+end)
 
 local SoundService = game:GetService("SoundService")
 
@@ -2672,7 +2717,7 @@ local AutoFram = Tabs.Main:AddSection("cày")
 local DropdownSelectWeapon = Tabs.Main:AddDropdown("DropdownSelectWeapon", {
     Title = "chọn Vũ khí",
     Description = "",
-    Values = {'Melee', 'Sword', 'Blox Fruit'},
+    Values = {'cận chiến  ', ' kiếm ', ' trái '},
     Multi = false,
     Default = 1,
 })
@@ -2683,7 +2728,7 @@ end)
 task.spawn(function()
     while wait() do
         pcall(function()
-            if ChooseWeapon == "Melee" then
+            if ChooseWeapon == "cận chiến" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Melee" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
@@ -2691,7 +2736,7 @@ task.spawn(function()
                         end
                     end
                 end
-            elseif ChooseWeapon == "Sword" then
+            elseif ChooseWeapon == "kiếm" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Sword" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
@@ -2699,7 +2744,7 @@ task.spawn(function()
                         end
                     end
                 end
-            elseif ChooseWeapon == "Blox Fruit" then
+            elseif ChooseWeapon == "trái" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Blox Fruit" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
@@ -2820,7 +2865,7 @@ spawn(function()
     end
 end)
     local ToggleMobAura = Tabs.Main:AddToggle("ToggleMobAura", {
-        Title="tự động gom quái",
+        Title="tự cày quái gần",
         Description="",
         Default=true })
     ToggleMobAura:OnChanged(function(Value)
@@ -2984,7 +3029,7 @@ spawn(function()
     end
 end)
 local ToggleCollectBerry =  Tabs.Item:AddToggle("ToggleCollectBerry", {
-    Title = "tự động  Berry vs đổi sever",
+    Title = "tự động nhặt Berry vs đổi sever",
     Description = "",
     Default = false
 })
@@ -3745,7 +3790,7 @@ local StatusBone = Tabs.Main:AddParagraph({
     Content=""
 })
 local ToggleBone = Tabs.Main:AddToggle("ToggleBone", {
-    Title="Auto Fram Bone",
+    Title=" tự động cày xương",
     Description="", 
     Default=false })
 ToggleBone:OnChanged(function(Value)
@@ -4282,7 +4327,7 @@ local boss = Tabs.Main:AddSection("trùm")
         end
       end)
 if Sea3 then
-local RoughSea = Tabs.Sea:AddSection("Kitsune Island")
+local RoughSea = Tabs.Sea:AddSection("Kitsune ")
 local StatusKitsune = Tabs.Sea:AddParagraph({
     Title = "trạng thái đảo Kitsune ",
     Content = ""
@@ -4538,7 +4583,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 Tabs.Sea:AddButton({
-   Title="dịch chuyển đến Sea Hunting",
+   Title="dịch chuyển đến biển sa",
     Description="",
     Callback=function()
         Tween2(CFrame.new(-16917.154296875, 7.757596015930176, 511.8203125))
@@ -4602,7 +4647,7 @@ Tabs.Sea:AddButton({
         tpToMyBoat()
     end
 })
-local ToggleTerrorshark = Tabs.Sea:AddToggle("ToggleTerrorshark", {Title="tự động  Terror Shark", Description="", Default=false})
+local ToggleTerrorshark = Tabs.Sea:AddToggle("ToggleTerrorshark", {Title="tự động đánh Terror Shark", Description="", Default=false})
 ToggleTerrorshark:OnChanged(function(Value)
     _G.AutoTerrorshark = Value
 end)
@@ -4655,7 +4700,7 @@ spawn(function()
         end
     end
 end)
-     local TogglePiranha = Tabs.Sea:AddToggle("TogglePiranha", {Title="tự động  Piranha",Description="", Default=false })
+     local TogglePiranha = Tabs.Sea:AddToggle("TogglePiranha", {Title="tự động đánh  Piranha",Description="", Default=false })
      TogglePiranha:OnChanged(function(Value)
         _G.farmpiranya=Value
      end)
@@ -4690,7 +4735,7 @@ end)
             end
         end
      end)
-     local ToggleShark = Tabs.Sea:AddToggle("ToggleShark", {Title="tự động  Shark",Description="", Default=false })
+     local ToggleShark = Tabs.Sea:AddToggle("ToggleShark", {Title="tự động đánh  Shark",Description="", Default=false })
      ToggleShark:OnChanged(function(Value)
         _G.AutoShark=Value
      end)
@@ -4727,7 +4772,7 @@ end)
             end
         end
     end)
-    local ToggleFishCrew = Tabs.Sea:AddToggle("ToggleFishCrew", {Title="tự động  FishCrew",Description="", Default=false })
+    local ToggleFishCrew = Tabs.Sea:AddToggle("ToggleFishCrew", {Title="tự động đánh  FishCrew",Description="", Default=false })
     ToggleFishCrew:OnChanged(function(Value)
        _G.AutoFishCrew=Value
     end)
@@ -4800,7 +4845,7 @@ while wait() do
     end
 end
 end)
-    local ToggleGhostShip = Tabs.Sea:AddToggle("ToggleGhostShip", {Title="tự động  GhostShip",Description="",Default=false })
+    local ToggleGhostShip = Tabs.Sea:AddToggle("ToggleGhostShip", {Title="tự động đánh  GhostShip",Description="",Default=false })
     ToggleGhostShip:OnChanged(function(Value)
         _G.GhostShip=Value
        end)
@@ -4979,7 +5024,7 @@ spawn(function()
        end)
     end
 if Sea3 then
-    local AutoMysticIsland = Tabs.Sea:AddSection("tự động Mystic Island")
+    local AutoMysticIsland = Tabs.Sea:AddSection("tự động đảo bí ẩn")
     local StatusMirage = Tabs.Sea:AddParagraph({
         Title="trạng thái ",
         Content=""
@@ -5023,7 +5068,7 @@ if Sea3 then
         end)
     end)
     Tabs.Sea:AddButton({
-      Title="dịch chuyển đến đến Điểm cao nhất",
+      Title=" đến Điểm cao nhất của đảo bí ẩn",
         Description="",
         Callback=function()
             TweenToHighestPoint()
@@ -5049,7 +5094,7 @@ if Sea3 then
     end
 end
 local ToggleTpAdvanced = Tabs.Sea:AddToggle("ToggleTpAdvanced", {
-  Title="dịch chuyển đến đến Người bán trái cây cao cấp", 
+  Title="dịch chuyển đến đến Người bán trái cây ", 
     Description="", 
     Default=false
 })
@@ -5069,7 +5114,7 @@ spawn(function()
         end
     end
 end)
-local ToggleTweenGear = Tabs.Sea:AddToggle("ToggleTweenGear", {Title="dịch chuyển đến tới Gear",Description="", Default=false })
+local ToggleTweenGear = Tabs.Sea:AddToggle("ToggleTweenGear", {Title="dịch chuyển đến tới bánh răng",Description="", Default=false })
 ToggleTweenGear:OnChanged(function(Value)
     _G.TweenToGear=Value
 end) 
@@ -5374,7 +5419,7 @@ spawn(function()
     end
 end)
 if Sea3 then
-    local ToggleHallow = Tabs.Item:AddToggle("ToggleHallow", {Title="tự động cày Hallow",Description="", Default=false })
+    local ToggleHallow = Tabs.Item:AddToggle("ToggleHallow", {Title="tự động lấy Hallow",Description="", Default=false })
     ToggleHallow:OnChanged(function(Value)
         AutoHallowSycthe=Value
     end)
@@ -5424,7 +5469,7 @@ if Sea3 then
            end
            end
            end)       
-           local ToggleYama =  Tabs.Item:AddToggle("ToggleYama", {Title="tự động cày Yama",Description="", Default=false })
+           local ToggleYama =  Tabs.Item:AddToggle("ToggleYama", {Title="tự động lấy Yama",Description="", Default=false })
            ToggleYama:OnChanged(function(Value)
             _G.AutoYama=Value
            end)
@@ -5440,7 +5485,7 @@ if Sea3 then
                 end
             end
         end)
-        local ToggleTushita =  Tabs.Item:AddToggle("ToggleTushita", {Title="tự động cày  Tushita",Description="", Default=false })
+        local ToggleTushita =  Tabs.Item:AddToggle("ToggleTushita", {Title="tự động lấy  Tushita",Description="", Default=false })
         ToggleTushita:OnChanged(function(Value)
             AutoTushita=Value
         end)
@@ -5474,7 +5519,7 @@ if Sea3 then
                                end
                            end
                    end)
-                   local ToggleHoly =  Tabs.Item:AddToggle("ToggleHoly", {Title="tự động cày Holy",Description="", Default=false })
+                   local ToggleHoly =  Tabs.Item:AddToggle("ToggleHoly", {Title="tự động lấy Holy",Description="", Default=false })
                    ToggleHoly:OnChanged(function(Value)
                     _G.Auto_Holy_Torch=Value
                    end)
@@ -9476,7 +9521,7 @@ spawn(function()
         end
     end
 end)
-local ToggleKillAura = Tabs.Sea:AddToggle("ToggleKillAura", {Title="tự động  Kill Golems",Description="", Default=false })
+local ToggleKillAura = Tabs.Sea:AddToggle("ToggleKillAura", {Title="tự động đánh Golems",Description="", Default=false })
 ToggleKillAura:OnChanged(function(Value)
     KillAura=Value
 end)
