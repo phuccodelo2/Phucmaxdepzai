@@ -1,0 +1,250 @@
+-- Safe NPC Inspector UI (an toàn, KHÔNG hook remote)
+-- Tính năng: scan NPC gần LocalPlayer, show list, copy info (clipboard nếu setclipboard có sẵn)
+
+local PLAYERS = game:GetService("Players")
+local RUNSERVICE = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = PLAYERS.LocalPlayer
+
+-- Cấu hình
+local SCAN_RADIUS = 40 -- studs
+local UPDATE_INTERVAL = 0.5 -- giây
+
+-- Xóa UI cũ nếu có
+pcall(function()
+    local existed = game.CoreGui:FindFirstChild("SafeNPCSpyGUI")
+    if existed then existed:Destroy() end
+end)
+
+-- Tạo UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SafeNPCSpyGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.CoreGui
+
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.new(0, 360, 0, 420)
+main.Position = UDim2.new(0.5, -180, 0.5, -210)
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.BackgroundColor3 = Color3.fromRGB(25,25,25)
+main.BorderSizePixel = 0
+main.Parent = screenGui
+main.Active = true
+main.Draggable = true
+
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 10)
+
+-- Rainbow stroke
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 3
+task.spawn(function()
+    while main and main.Parent do
+        local t = tick()
+        local hue = (t % 5) / 5
+        stroke.Color = Color3.fromHSV(hue, 1, 1)
+        task.wait(0.03)
+    end
+end)
+
+-- Header
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1, -20, 0, 36)
+title.Position = UDim2.new(0, 10, 0, 8)
+title.BackgroundTransparency = 1
+title.Text = "Safe NPC Inspector"
+title.TextColor3 = Color3.fromRGB(255,255,255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 20
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Controls: radius slider label (simple)
+local radiusLabel = Instance.new("TextLabel", main)
+radiusLabel.Size = UDim2.new(0, 160, 0, 20)
+radiusLabel.Position = UDim2.new(0, 10, 0, 46)
+radiusLabel.BackgroundTransparency = 1
+radiusLabel.TextColor3 = Color3.fromRGB(200,200,200)
+radiusLabel.Font = Enum.Font.Gotham
+radiusLabel.TextSize = 14
+radiusLabel.Text = "Radius: "..SCAN_RADIUS.." studs"
+
+-- Clear button
+local clearBtn = Instance.new("TextButton", main)
+clearBtn.Size = UDim2.new(0, 80, 0, 28)
+clearBtn.Position = UDim2.new(1, -90, 0, 42)
+clearBtn.Text = "Clear"
+clearBtn.Font = Enum.Font.Gotham
+clearBtn.TextSize = 14
+clearBtn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+clearBtn.TextColor3 = Color3.fromRGB(255,255,255)
+clearBtn.AutoButtonColor = true
+
+-- Log scrolling frame
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Name = "LogFrame"
+scroll.Size = UDim2.new(1, -20, 1, -110)
+scroll.Position = UDim2.new(0, 10, 0, 80)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0,0,0,0)
+scroll.ScrollBarThickness = 6
+
+local uiList = Instance.new("UIListLayout", scroll)
+uiList.SortOrder = Enum.SortOrder.Name
+uiList.Padding = UDim.new(0,6)
+
+-- Helper: create entry
+local function createEntry(npcName, dist, hp, pos)
+    local entry = Instance.new("Frame")
+    entry.Size = UDim2.new(1, 0, 0, 64)
+    entry.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    entry.BorderSizePixel = 0
+    entry.Parent = scroll
+    local ecorner = Instance.new("UICorner", entry)
+    ecorner.CornerRadius = UDim.new(0,8)
+
+    local nameLbl = Instance.new("TextLabel", entry)
+    nameLbl.Position = UDim2.new(0,10,0,6)
+    nameLbl.Size = UDim2.new(1, -120, 0, 22)
+    nameLbl.BackgroundTransparency = 1
+    nameLbl.Text = npcName
+    nameLbl.Font = Enum.Font.GothamBold
+    nameLbl.TextSize = 16
+    nameLbl.TextColor3 = Color3.fromRGB(255,255,255)
+    nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local infoLbl = Instance.new("TextLabel", entry)
+    infoLbl.Position = UDim2.new(0,10,0,28)
+    infoLbl.Size = UDim2.new(1, -120, 0, 18)
+    infoLbl.BackgroundTransparency = 1
+    infoLbl.Text = string.format("Dist: %.1f | HP: %s", dist, tostring(hp))
+    infoLbl.Font = Enum.Font.Gotham
+    infoLbl.TextSize = 14
+    infoLbl.TextColor3 = Color3.fromRGB(200,200,200)
+    infoLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Copy button
+    local copyBtn = Instance.new("TextButton", entry)
+    copyBtn.Size = UDim2.new(0, 84, 0, 32)
+    copyBtn.Position = UDim2.new(1, -94, 0.5, -16)
+    copyBtn.Text = "Copy Info"
+    copyBtn.Font = Enum.Font.Gotham
+    copyBtn.TextSize = 14
+    copyBtn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    copyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    copyBtn.AutoButtonColor = true
+
+    local codeBox = nil
+    local function getInfoText()
+        local s = ""
+        s = s .. "-- NPC Info (safe)\n"
+        s = s .. ("-- Name: %s\n"):format(tostring(npcName))
+        s = s .. ("-- Position: Vector3.new(%.3f, %.3f, %.3f)\n"):format(pos.X, pos.Y, pos.Z)
+        s = s .. ("-- Distance: %.2f\n"):format(dist)
+        s = s .. ("-- HP: %s\n"):format(tostring(hp))
+        s = s .. ("\n-- Example debug usage (dev only):\n")
+        s = s .. ("local npcPos = Vector3.new(%.3f, %.3f, %.3f)\n"):format(pos.X, pos.Y, pos.Z)
+        s = s .. ("-- Use this position in Studio or your debugging environment\n")
+        return s
+    end
+
+    copyBtn.MouseButton1Click:Connect(function()
+        local infoText = getInfoText()
+        -- try setclipboard if available, otherwise pop a textbox
+        local ok, err = pcall(function() setclipboard(infoText) end)
+        if ok then
+            copyBtn.Text = "Copied!"
+            task.delay(1.2, function() if copyBtn and copyBtn.Parent then copyBtn.Text = "Copy Info" end end)
+        else
+            -- fallback: show a small TextBox for manual copy
+            if codeBox and codeBox.Parent then codeBox:Destroy() end
+            codeBox = Instance.new("TextBox", entry)
+            codeBox.Size = UDim2.new(1, -104, 0, 32)
+            codeBox.Position = UDim2.new(0,10,0,16)
+            codeBox.Text = getInfoText()
+            codeBox.TextWrapped = true
+            codeBox.ClearTextOnFocus = false
+            codeBox.TextEditable = true
+            codeBox.Font = Enum.Font.Gotham
+            codeBox.TextSize = 12
+            codeBox.TextColor3 = Color3.fromRGB(230,230,230)
+            codeBox.BackgroundColor3 = Color3.fromRGB(20,20,20)
+            codeBox.BorderSizePixel = 0
+            local cc = Instance.new("UICorner", codeBox)
+            cc.CornerRadius = UDim.new(0,6)
+        end
+    end)
+
+    return entry
+end
+
+-- Update function: scan nearby NPCs and populate UI
+local function scanAndPopulate()
+    -- clear children
+    for _,c in pairs(scroll:GetChildren()) do
+        if c ~= uiList then pcall(function() c:Destroy() end) end
+    end
+
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = char.HumanoidRootPart
+    local enemiesRoot = workspace:FindFirstChild("Enemies") or workspace
+    local list = {}
+
+    for _, v in pairs(enemiesRoot:GetChildren()) do
+        if v:IsA("Model") then
+            local hr = v:FindFirstChild("HumanoidRootPart")
+            local hum = v:FindFirstChild("Humanoid")
+            if hr and hum then
+                local dist = (hr.Position - hrp.Position).Magnitude
+                if dist <= SCAN_RADIUS then
+                    table.insert(list, {model = v, dist = dist, hp = hum.Health, pos = hr.Position})
+                end
+            end
+        end
+    end
+
+    -- sort by distance
+    table.sort(list, function(a,b) return a.dist < b.dist end)
+
+    for _,info in ipairs(list) do
+        local name = info.model.Name or "<NPC>"
+        local entry = createEntry(name, info.dist, math.floor(info.hp), info.pos)
+        entry.Parent = scroll
+    end
+
+    -- adjust canvas size
+    local total = 0
+    for _,v in pairs(scroll:GetChildren()) do
+        if v:IsA("Frame") then total = total + v.Size.Y.Offset + uiList.Padding.Offset end
+    end
+    scroll.CanvasSize = UDim2.new(0,0,0, math.max(total, 0))
+end
+
+-- Clear button behavior
+clearBtn.MouseButton1Click:Connect(function()
+    for _,c in pairs(scroll:GetChildren()) do
+        if c ~= uiList then pcall(function() c:Destroy() end) end
+    end
+    scroll.CanvasSize = UDim2.new(0,0,0,0)
+end)
+
+-- Small footer label
+local footer = Instance.new("TextLabel", main)
+footer.Size = UDim2.new(1, -20, 0, 18)
+footer.Position = UDim2.new(0, 10, 1, -24)
+footer.BackgroundTransparency = 1
+footer.TextColor3 = Color3.fromRGB(180,180,180)
+footer.Font = Enum.Font.Gotham
+footer.TextSize = 12
+footer.Text = "Safe inspector — chỉ hiển thị thông tin local (không spy remote)."
+
+-- Periodic update
+spawn(function()
+    while true do
+        pcall(function()
+            scanAndPopulate()
+        end)
+        task.wait(UPDATE_INTERVAL)
+    end
+end)
