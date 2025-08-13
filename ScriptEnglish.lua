@@ -64,7 +64,7 @@ if _G.FastAttack then
 
     local Settings = {
         AutoClick = true,
-        ClickDelay = 0,
+        ClickDelay = 0.1,
     }
 
     local Module = {}
@@ -176,7 +176,7 @@ hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respa
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local RunService = game:GetService("RunService")
 local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX ",
+    Title = "PHUCMAX",
     SubTitle = "Blox Fruits", 
     TabWidth = 155, 
     Theme = "Aqua",
@@ -201,49 +201,45 @@ local Tabs = {
     Shop=Window:AddTab({ Title=" cửa hàng" }),
     Misc=Window:AddTab({ Title=" linh tinh" }),
 }
-
--- Ảnh banner và ảnh nền
-local bannerImageID = "rbxassetid://127114352687058" -- Thay ID ảnh banner
-local backgroundImageID = "rbxassetid://127114352687058" -- Thay ID ảnh nền lớn
+-- ID ảnh
+local bannerImageID = "rbxassetid://127114352687058"
+local backgroundImageID = "rbxassetid://127114352687058"
 
 task.spawn(function()
     wait(1) -- Đợi UI load xong
 
     local gui = game:GetService("CoreGui"):FindFirstChild("Fluent")
-
     if gui then
-        -- Thêm banner ảnh trên đầu Tabs
-        local banner = Instance.new("ImageLabel")
-        banner.Name = "BannerImage"
-        banner.Parent = gui
-        banner.Size = UDim2.new(0, 520, 0, 100) -- Ngang bằng menu, cao 100px
-        banner.Position = UDim2.new(0, 0, 0, -100) -- Đặt ngay trên Tabs
-        banner.BackgroundTransparency = 1
-        banner.Image = bannerImageID
-        banner.ImageTransparency = 0.1
-        banner.ScaleType = Enum.ScaleType.Crop
-
-        -- Làm cạnh ảnh mờ
-        local bannerUICorner = Instance.new("UICorner", banner)
-        bannerUICorner.CornerRadius = UDim.new(0, 15)
-
-        -- Thêm ảnh nền lớn trong menu
+        -- Background ảnh lớn
         local bg = Instance.new("ImageLabel")
         bg.Name = "BackgroundImage"
-        bg.Parent = gui
         bg.Size = UDim2.new(1, 0, 1, 0)
-        bg.Position = UDim2.new(0, 0, 0, 0)
+        bg.AnchorPoint = Vector2.new(0.5, 0.5)
+        bg.Position = UDim2.new(0.5, 0, 0.5, 0)
         bg.BackgroundTransparency = 1
         bg.Image = backgroundImageID
         bg.ImageTransparency = 0.3
         bg.ScaleType = Enum.ScaleType.Crop
+        bg.ZIndex = 0
+        bg.Parent = gui
 
-        -- Làm cạnh ảnh nền mờ
         local bgUICorner = Instance.new("UICorner", bg)
         bgUICorner.CornerRadius = UDim.new(0, 20)
 
-        -- Đưa ảnh nền ra phía sau cùng
-        bg.ZIndex = 0
+        -- Banner ảnh trên cùng
+        local banner = Instance.new("ImageLabel")
+        banner.Name = "BannerImage"
+        banner.Size = UDim2.new(1, 0, 0, 100)
+        banner.Position = UDim2.new(0, 0, 0, 0)
+        banner.BackgroundTransparency = 1
+        banner.Image = bannerImageID
+        banner.ImageTransparency = 0.1
+        banner.ScaleType = Enum.ScaleType.Crop
+        banner.ZIndex = 2
+        banner.Parent = gui
+
+        local bannerUICorner = Instance.new("UICorner", banner)
+        bannerUICorner.CornerRadius = UDim.new(0, 15)
     end
 end)
 
@@ -2707,7 +2703,7 @@ spawn(function()
         if _G.FastAttackVxeze_Mode then
             pcall(function()
                 if _G.FastAttackVxeze_Mode=="Super Fast Attack" then
-                    _G.Fast_Delay=0.0000000000001 
+                    _G.Fast_Delay=0.3
                 end
             end)
         end
@@ -2717,7 +2713,7 @@ local AutoFram = Tabs.Main:AddSection("cày")
 local DropdownSelectWeapon = Tabs.Main:AddDropdown("DropdownSelectWeapon", {
     Title = "chọn Vũ khí",
     Description = "",
-    Values = {'cận chiến  ', ' kiếm ', ' trái '},
+    Values = {'Melee', 'Sword', 'Blox fruit'},
     Multi = false,
     Default = 1,
 })
@@ -2728,7 +2724,7 @@ end)
 task.spawn(function()
     while wait() do
         pcall(function()
-            if ChooseWeapon == "cận chiến" then
+            if ChooseWeapon == "Melee" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Melee" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
@@ -2736,7 +2732,7 @@ task.spawn(function()
                         end
                     end
                 end
-            elseif ChooseWeapon == "kiếm" then
+            elseif ChooseWeapon == "Sword" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Sword" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
@@ -2744,7 +2740,7 @@ task.spawn(function()
                         end
                     end
                 end
-            elseif ChooseWeapon == "trái" then
+            elseif ChooseWeapon == "Blox Fruit" then
                 for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
                     if v.ToolTip == "Blox Fruit" then
                         if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
