@@ -174,7 +174,6 @@ until player.Team
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local RunService = game:GetService("RunService")
 local Window = Fluent:CreateWindow({
     Title = "PHUCMAX",
     SubTitle = "Blox Fruits", 
@@ -186,61 +185,63 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Info=Window:AddTab({ Title=" help script lỗi" }),
-    Main=Window:AddTab({ Title=" chính" }),
-    Music=Window:AddTab({ Title=" nhạc" }),
-    Item=Window:AddTab({ Title=" vật phẩm" }),
-    Sea=Window:AddTab({ Title=" sự kiện biển" }),
-    Status=Window:AddTab({ Title=" trạng thái" }),
-    Stats=Window:AddTab({ Title=" chỉ số" }),
-    Player=Window:AddTab({ Title=" người chơi" }),
-    Teleport=Window:AddTab({ Title=" dịch chuyển" }),
-    Raid=Window:AddTab({ Title=" Raid" }),
-    Race=Window:AddTab({ Title=" tộc" }),
-    Fruit=Window:AddTab({ Title=" trái" }),
-    Shop=Window:AddTab({ Title=" cửa hàng" }),
-    Misc=Window:AddTab({ Title=" linh tinh" }),
+    Info = Window:AddTab({ Title="help script lỗi" }),
+    Main = Window:AddTab({ Title="chính" }),
+    Music = Window:AddTab({ Title="nhạc" }),
+    Item = Window:AddTab({ Title="vật phẩm" }),
+    Sea = Window:AddTab({ Title="sự kiện biển" }),
+    Status = Window:AddTab({ Title="trạng thái" }),
+    Stats = Window:AddTab({ Title="chỉ số" }),
+    Player = Window:AddTab({ Title="người chơi" }),
+    Teleport = Window:AddTab({ Title="dịch chuyển" }),
+    Raid = Window:AddTab({ Title="Raid" }),
+    Race = Window:AddTab({ Title="tộc" }),
+    Fruit = Window:AddTab({ Title="trái" }),
+    Shop = Window:AddTab({ Title="cửa hàng" }),
+    Misc = Window:AddTab({ Title="linh tinh" }),
 }
+
 -- ID ảnh
 local bannerImageID = "rbxassetid://127114352687058"
 local backgroundImageID = "rbxassetid://127114352687058"
 
 task.spawn(function()
-    wait(1) -- Đợi UI load xong
+    -- Chờ cho Fluent tạo frame chính
+    local gui
+    repeat
+        gui = game:GetService("CoreGui"):FindFirstChild("Fluent", true) -- true = tìm trong mọi cấp con
+        task.wait(0.5)
+    until gui and gui:FindFirstChildWhichIsA("Frame")
 
-    local gui = game:GetService("CoreGui"):FindFirstChild("Fluent")
-    if gui then
-        -- Background ảnh lớn
-        local bg = Instance.new("ImageLabel")
-        bg.Name = "BackgroundImage"
-        bg.Size = UDim2.new(1, 0, 1, 0)
-        bg.AnchorPoint = Vector2.new(0.5, 0.5)
-        bg.Position = UDim2.new(0.5, 0, 0.5, 0)
-        bg.BackgroundTransparency = 1
-        bg.Image = backgroundImageID
-        bg.ImageTransparency = 0.3
-        bg.ScaleType = Enum.ScaleType.Crop
-        bg.ZIndex = 0
-        bg.Parent = gui
+    local mainFrame = gui:FindFirstChildWhichIsA("Frame") -- Lấy frame chính
 
-        local bgUICorner = Instance.new("UICorner", bg)
-        bgUICorner.CornerRadius = UDim.new(0, 20)
+    -- Ảnh nền
+    local bg = Instance.new("ImageLabel")
+    bg.Name = "BackgroundImage"
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundTransparency = 1
+    bg.Image = backgroundImageID
+    bg.ImageTransparency = 0.3
+    bg.ScaleType = Enum.ScaleType.Crop
+    bg.ZIndex = 0
+    bg.Parent = mainFrame
 
-        -- Banner ảnh trên cùng
-        local banner = Instance.new("ImageLabel")
-        banner.Name = "BannerImage"
-        banner.Size = UDim2.new(1, 0, 0, 100)
-        banner.Position = UDim2.new(0, 0, 0, 0)
-        banner.BackgroundTransparency = 1
-        banner.Image = bannerImageID
-        banner.ImageTransparency = 0.1
-        banner.ScaleType = Enum.ScaleType.Crop
-        banner.ZIndex = 2
-        banner.Parent = gui
+    local bgUICorner = Instance.new("UICorner", bg)
+    bgUICorner.CornerRadius = UDim.new(0, 20)
 
-        local bannerUICorner = Instance.new("UICorner", banner)
-        bannerUICorner.CornerRadius = UDim.new(0, 15)
-    end
+    -- Banner
+    local banner = Instance.new("ImageLabel")
+    banner.Name = "BannerImage"
+    banner.Size = UDim2.new(1, 0, 0, 100)
+    banner.BackgroundTransparency = 1
+    banner.Image = bannerImageID
+    banner.ImageTransparency = 0.1
+    banner.ScaleType = Enum.ScaleType.Crop
+    banner.ZIndex = 2
+    banner.Parent = mainFrame
+
+    local bannerUICorner = Instance.new("UICorner", banner)
+    bannerUICorner.CornerRadius = UDim.new(0, 15)
 end)
 
 local SoundService = game:GetService("SoundService")
