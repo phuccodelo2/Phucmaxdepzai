@@ -177,10 +177,11 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local Window = Fluent:CreateWindow({
     Title = "PHUCMAX",
     SubTitle = "Blox Fruits", 
-    TabWidth = 155, 
-    Theme = "Aqua",
-    Acrylic = true,
-    Size = UDim2.fromOffset(520, 300), 
+    TabWidth = 155,
+    Theme = "Aqua", -- Giống hình
+    Acrylic = true, -- Bật nền trong mờ
+    Transparency = 0.15, -- Độ trong (0 = đục, 1 = trong suốt hoàn toàn)
+    Size = UDim2.fromOffset(520, 300),
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
