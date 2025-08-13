@@ -1,5 +1,5 @@
 -- PHUCMAX VIP Loading UI with Rainbow Effect
-local logoAssetId = "rbxassetid://96179526758636" -- Thay logo nếu muốn
+local logoAssetId = "rbxassetid://118680632542863" -- Thay logo nếu muốn
 local scriptLink1 = "https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/ScriptEnglish.lua"
 
 -- Destroy old UI if exists
@@ -99,4 +99,5 @@ task.delay(3.1, function()
 	pcall(function()
 		game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetTeam", "Marines")
 	end)
+
 end)
