@@ -64,7 +64,7 @@ if _G.FastAttack then
 
     local Settings = {
         AutoClick = true,
-        ClickDelay = 0.1,
+        ClickDelay = 0.01,
     }
 
     local Module = {}
@@ -175,12 +175,12 @@ hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death
 hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
-    Title = "PHUCMAX",
-    SubTitle = "Blox Fruits", 
+    Title = "PHUCMAX[VIP]",
+    SubTitle = "V1.0 PHUCDEPZAI", 
     TabWidth = 155,
     Theme = "Aqua", -- Giống hình
-    Acrylic = true, -- Bật nền trong mờ
-    Transparency = 0.15, -- Độ trong (0 = đục, 1 = trong suốt hoàn toàn)
+    Acrylic = "false", -- Bật nền trong mờ
+    Transparency = 3, -- Độ trong (0 = đục, 1 = trong suốt hoàn toàn)
     Size = UDim2.fromOffset(520, 300),
     MinimizeKey = Enum.KeyCode.LeftControl
 })
