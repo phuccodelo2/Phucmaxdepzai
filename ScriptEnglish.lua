@@ -8263,7 +8263,7 @@ Tabs.Race:AddButton({
 Title="Ngôi đền thời gian",
 Description="",
 Callback=function()
-game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.3514896.54102.62))
+game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35, 14896.54, 102.62))
 end
 }) 
 Tabs.Race:AddButton({
