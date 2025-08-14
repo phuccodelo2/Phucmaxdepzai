@@ -8258,12 +8258,20 @@ spawn(function()
         end
     end)
 end)
-local Mastery = Tabs.Race:AddSection("Tộc V4")
+local Mastery = Tabs.Race:AddSection("tộc v4")
+
 Tabs.Race:AddButton({
-    Title = "Ngôi đền thời gian",
+    Title = "ngôi đền thời gian ",
     Description = "",
     Callback = function()
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("RaceV4Progress", "Teleport")
+        local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+        
+        -- Teleport tới toạ độ NPC
+        hrp.CFrame = CFrame.new(3028.84, 2280.90, -7324.78)
+        wait(0.5) -- đợi tí để server cập nhật vị trí
+
+        -- Gửi lệnh quét
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("RaceV4Progress", "MysteriousForce", "Use")
     end
 })
 Tabs.Race:AddButton({
