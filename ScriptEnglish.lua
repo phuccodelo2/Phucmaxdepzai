@@ -1,4 +1,5 @@
 _G.FastAttack = true
+
 if _G.FastAttack then
     local _ENV = (getgenv or getrenv or getfenv)()
 
@@ -63,7 +64,7 @@ if _G.FastAttack then
 
     local Settings = {
         AutoClick = true,
-        ClickDelay = 0.01,
+        ClickDelay = 0,
     }
 
     local Module = {}
