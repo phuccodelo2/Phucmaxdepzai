@@ -8258,14 +8258,14 @@ spawn(function()
         end
     end)
 end)
-local Mastery = Tabs.Race:AddSection("tộc v4")
+local Mastery = Tabs.Race:AddSection("Tộc V4")
 Tabs.Race:AddButton({
-Title="Ngôi đền thời gian",
-Description="",
-Callback=function()
-game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("requestEntrance",Vector3.new(28286.35, 14896.54, 102.62))
-end
-}) 
+    Title = "Ngôi đền thời gian",
+    Description = "",
+    Callback = function()
+        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("RaceV4Progress", "Teleport")
+    end
+})
 Tabs.Race:AddButton({
     Title="Pull Lever",
     Description="",
