@@ -6816,7 +6816,7 @@ spawn(function()
         end)
     end
 end)
-local ToggleRemoveNotify =  Tabs.Misc:AddToggle("ToggleRemoveNotify", {Title="Remove Notify",Description="", Default=false })
+local ToggleRemoveNotify =  Tabs.Misc:AddToggle("ToggleRemoveNotify", {Title="Xóa thông báo",Description="", Default=false })
 ToggleRemoveNotify:OnChanged(function(Value)
     RemoveNotify=Value
     end)
@@ -6830,7 +6830,7 @@ ToggleRemoveNotify:OnChanged(function(Value)
             end
         end
     end)
-    local ToggleWhite =  Tabs.Misc:AddToggle("ToggleWhite", {Title="Remove White",Description="", Default=false })
+    local ToggleWhite =  Tabs.Misc:AddToggle("ToggleWhite", {Title="Xóa màu trắng",Description="", Default=false })
     ToggleWhite:OnChanged(function(Value)
        _G.WhiteScreen=Value
        if _G.WhiteScreen==true then
@@ -6840,7 +6840,7 @@ ToggleRemoveNotify:OnChanged(function(Value)
             end
         end)
         Options.ToggleWhite:SetValue(false)
-        local SKill =  Tabs.Misc:AddSection("Mastery Skill")
+        local SKill =  Tabs.Misc:AddSection("thông thạo chiêu")
 local ToggleZ =  Tabs.Misc:AddToggle("ToggleZ", { Title="chiêu Z",Description="", Default=true })
 ToggleZ:OnChanged(function(Value)
     SkillZ=Value
@@ -7083,6 +7083,63 @@ Tabs.Player:AddButton({
         end
     end
 })
+
+-- Thêm Section Aimbot Skill
+local aimbot = Tabs.player:AddSection("aimbot skill")
+local Toggleaimbot = Tabs.player:AddToggle("Toggleaimbot", {
+    Title = "Aimbot Skill",
+    Description = "",
+    Default = false
+})
+
+Toggleaimbot:OnChanged(function(Value)
+    _G.SkillAimbot = Value
+end)
+
+Options.Toggleaimbot:SetValue(false)
+
+-- Hàm tìm player gần nhất và máu thấp nhất trong phạm vi 400
+local function GetLowestHPNearestPlayer()
+    local closestTarget = nil
+    local lowestHP = math.huge
+    local localPlayer = game.Players.LocalPlayer
+
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character:FindFirstChild("HumanoidRootPart") then
+            local distance = (player.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).Magnitude
+            local health = player.Character.Humanoid.Health
+
+            if distance <= 900 and health > 0 then
+                -- Nếu HP nhỏ hơn và khoảng cách vẫn ok thì ưu tiên
+                if health < lowestHP then
+                    lowestHP = health
+                    closestTarget = player
+                end
+            end
+        end
+    end
+
+    return closestTarget
+end
+
+-- Vòng lặp aimbot
+spawn(function()
+    while wait(0.1) do
+        pcall(function()
+            if _G.SkillAimbot then
+                local target = GetLowestHPNearestPlayer()
+                if target then
+                    AimBotSkillPosition = target.Character.HumanoidRootPart.CFrame
+                    Skillaimbot = true
+                else
+                    Skillaimbot = false
+                end
+            end
+        end)
+    end
+end)
+
+
 local ToggleTeleport = Tabs.Player:AddToggle("ToggleTeleport", {Title="dịch chuyển đến người chơi", Description="",Default=false })
 ToggleTeleport:OnChanged(function(Value)
     _G.TeleportPly=Value
@@ -8260,14 +8317,13 @@ spawn(function()
 end)
 local Mastery = Tabs.Race:AddSection("tộc v4")
 Tabs.Race:AddButton({
-    Title = "Ngôi đền thời gian",
-    Description = "",
+    Title = "dịch chuyển đến chỗ vào đền",
+    Description = "do UI có chút lỗi với logic nên phải dịch chuyển vậy",
     Callback = function()
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-        CommF_:InvokeServer("RaceV4Progress", "Check")
-        task.wait(1)
-        CommF_:InvokeServer("requestEntrance", Vector3.new(28286.35546875, 14895.3017578125, 102.62469482421875))
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(3034.29, 2281.04, -7323.79)
+        end
     end
 })
 Tabs.Race:AddButton({
@@ -8432,7 +8488,7 @@ spawn(function()
         end
     end)
 end)
-local ToggleKillTrial = Tabs.Race:AddToggle("ToggleKillTrial", {Title="Kill Player Trial", Description="", Default=false})
+local ToggleKillTrial = Tabs.Race:AddToggle("ToggleKillTrial", {Title="giết người chơi trong trial", Description="", Default=false})
 ToggleKillTrial:OnChanged(function(Value)
     _G.AutoKillTrial=Value
 end)
@@ -8461,7 +8517,7 @@ spawn(function()
         end)
     end
 end)
-local Mastery = Tabs.Race:AddSection("Train Race")
+local Mastery = Tabs.Race:AddSection("Train tộc")
 local ToggleFarmRace = Tabs.Race:AddToggle("ToggleFarmRace", {Title="tự động  Train", Description="", Default=false})
 local AutoFarmRace = false 
 ToggleFarmRace:OnChanged(function(Value)
