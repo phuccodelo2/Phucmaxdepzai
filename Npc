@@ -1,69 +1,424 @@
---// RSPY with UI & Copy Button
+-- RSpy LocalScript
+-- Put this LocalScript in StarterGui, or inside a Tool "RSpy" in StarterPack.
+-- Người dùng: equip RSpy, mở UI, chọn tool từ Backpack/Character, xem source, copy.
+
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
--- UI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 400, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
-MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
 
-local UIListLayout = Instance.new("UIListLayout", MainFrame)
-UIListLayout.FillDirection = Enum.FillDirection.Vertical
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+-- ===== Create UI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RSpyGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "Remote Spy"
-Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Name = "Main"
+mainFrame.Size = UDim2.new(0, 520, 0, 380)
+mainFrame.Position = UDim2.new(0.5, -260, 0.5, -190)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = false
+mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
+mainFrame.ZIndex = 10
 
-local Scroll = Instance.new("ScrollingFrame", MainFrame)
-Scroll.Size = UDim2.new(1, 0, 1, -30)
-Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-Scroll.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-Scroll.ScrollBarThickness = 6
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 36)
+title.Position = UDim2.new(0,0,0,0)
+title.BackgroundTransparency = 1
+title.Text = "RSpy — Tool Script Viewer & Copy"
+title.TextColor3 = Color3.fromRGB(240,240,240)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
 
-local UIList = Instance.new("UIListLayout", Scroll)
-UIList.FillDirection = Enum.FillDirection.Vertical
-UIList.SortOrder = Enum.SortOrder.LayoutOrder
+local closeBtn = Instance.new("TextButton", mainFrame)
+closeBtn.Size = UDim2.new(0, 80, 0, 28)
+closeBtn.Position = UDim2.new(1, -86, 0, 4)
+closeBtn.Text = "Đóng"
+closeBtn.Font = Enum.Font.Gotham
+closeBtn.TextSize = 14
+closeBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.BorderSizePixel = 0
 
--- Hook
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
-local old = mt.__namecall
+-- Left panel: tool list
+local leftPanel = Instance.new("Frame", mainFrame)
+leftPanel.Size = UDim2.new(0, 180, 1, -46)
+leftPanel.Position = UDim2.new(0, 8, 0, 40)
+leftPanel.BackgroundTransparency = 1
 
-mt.__namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    if method == "FireServer" or method == "InvokeServer" then
-        local args = {...}
-        local line = tostring(self) .. " : " .. HttpService:JSONEncode(args)
+local leftTitle = Instance.new("TextLabel", leftPanel)
+leftTitle.Size = UDim2.new(1,0,0,22)
+leftTitle.Position = UDim2.new(0,0,0,0)
+leftTitle.BackgroundTransparency = 1
+leftTitle.Text = "Tools (Backpack & Hand)"
+leftTitle.TextColor3 = Color3.fromRGB(210,210,210)
+leftTitle.Font = Enum.Font.Gotham
+leftTitle.TextSize = 14
 
-        -- UI Item
-        local item = Instance.new("Frame", Scroll)
-        item.Size = UDim2.new(1, 0, 0, 25)
-        item.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+local toolList = Instance.new("ScrollingFrame", leftPanel)
+toolList.Size = UDim2.new(1,0,1,-28)
+toolList.Position = UDim2.new(0,0,0,28)
+toolList.CanvasSize = UDim2.new(0,0,0,0)
+toolList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+toolList.BackgroundTransparency = 1
+toolList.BorderSizePixel = 0
+toolList.ScrollBarThickness = 8
 
-        local label = Instance.new("TextLabel", item)
-        label.Size = UDim2.new(0.8, 0, 1, 0)
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Text = line
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+local uiListLayout = Instance.new("UIListLayout", toolList)
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0,6)
 
-        local copyBtn = Instance.new("TextButton", item)
-        copyBtn.Size = UDim2.new(0.2, 0, 1, 0)
-        copyBtn.Position = UDim2.new(0.8, 0, 0, 0)
-        copyBtn.Text = "Copy"
-        copyBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-        copyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        copyBtn.MouseButton1Click:Connect(function()
-            setclipboard(line)
+-- Middle panel: scripts in tool
+local midPanel = Instance.new("Frame", mainFrame)
+midPanel.Size = UDim2.new(0, 160, 1, -46)
+midPanel.Position = UDim2.new(0, 200, 0, 40)
+midPanel.BackgroundTransparency = 1
+
+local midTitle = Instance.new("TextLabel", midPanel)
+midTitle.Size = UDim2.new(1,0,0,22)
+midTitle.Position = UDim2.new(0,0,0,0)
+midTitle.BackgroundTransparency = 1
+midTitle.Text = "Scripts in Tool"
+midTitle.TextColor3 = Color3.fromRGB(210,210,210)
+midTitle.Font = Enum.Font.Gotham
+midTitle.TextSize = 14
+
+local scriptList = Instance.new("ScrollingFrame", midPanel)
+scriptList.Size = UDim2.new(1,0,1,-28)
+scriptList.Position = UDim2.new(0,0,0,28)
+scriptList.CanvasSize = UDim2.new(0,0,0,0)
+scriptList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scriptList.BackgroundTransparency = 1
+scriptList.BorderSizePixel = 0
+scriptList.ScrollBarThickness = 8
+
+local uiListLayout2 = Instance.new("UIListLayout", scriptList)
+uiListLayout2.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout2.Padding = UDim.new(0,6)
+
+-- Right panel: code viewer + copy
+local rightPanel = Instance.new("Frame", mainFrame)
+rightPanel.Size = UDim2.new(0, 340, 0, 300)
+rightPanel.Position = UDim2.new(0, 176, 0, 40)
+rightPanel.BackgroundColor3 = Color3.fromRGB(20,20,20)
+rightPanel.BorderSizePixel = 0
+
+local rightTitle = Instance.new("TextLabel", rightPanel)
+rightTitle.Size = UDim2.new(1, -12, 0, 22)
+rightTitle.Position = UDim2.new(0, 6, 0, 4)
+rightTitle.BackgroundTransparency = 1
+rightTitle.Text = "Source Viewer"
+rightTitle.TextColor3 = Color3.fromRGB(220,220,220)
+rightTitle.Font = Enum.Font.Gotham
+rightTitle.TextSize = 14
+rightTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local codeBox = Instance.new("TextBox", rightPanel)
+codeBox.Size = UDim2.new(1, -12, 1, -70)
+codeBox.Position = UDim2.new(0, 6, 0, 30)
+codeBox.MultiLine = true
+codeBox.ClearTextOnFocus = false
+codeBox.TextWrapped = false
+codeBox.TextXAlignment = Enum.TextXAlignment.Left
+codeBox.TextYAlignment = Enum.TextYAlignment.Top
+codeBox.Font = Enum.Font.Code
+codeBox.TextSize = 14
+codeBox.TextColor3 = Color3.fromRGB(230,230,230)
+codeBox.BackgroundColor3 = Color3.fromRGB(12,12,12)
+codeBox.BorderSizePixel = 0
+codeBox.RichText = false
+codeBox.Text = "-- Chọn 1 script bên trái để xem source --"
+
+local copyBtn = Instance.new("TextButton", rightPanel)
+copyBtn.Size = UDim2.new(0, 120, 0, 30)
+copyBtn.Position = UDim2.new(1, -130, 1, -40)
+copyBtn.Text = "📋 Sao chép"
+copyBtn.Font = Enum.Font.Gotham
+copyBtn.TextSize = 14
+copyBtn.BackgroundColor3 = Color3.fromRGB(0,150,200)
+copyBtn.TextColor3 = Color3.fromRGB(255,255,255)
+copyBtn.BorderSizePixel = 0
+
+local statusLabel = Instance.new("TextLabel", mainFrame)
+statusLabel.Size = UDim2.new(1, -16, 0, 24)
+statusLabel.Position = UDim2.new(0,8,1,-38)
+statusLabel.BackgroundTransparency = 1
+statusLabel.TextColor3 = Color3.fromRGB(190,190,190)
+statusLabel.Text = "Ready"
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextSize = 13
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- ===== Helper functions =====
+
+local function setStatus(txt, timeout)
+    statusLabel.Text = tostring(txt or "")
+    if timeout and timeout > 0 then
+        delay(timeout, function()
+            if statusLabel then statusLabel.Text = "Ready" end
         end)
-
-        Scroll.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
     end
-    return old(self, ...)
+end
+
+-- Clear list children helper
+local function clearChildren(frame)
+    for _,c in ipairs(frame:GetChildren()) do
+        if not (c:IsA("UIListLayout") or c:IsA("UITextSizeConstraint")) then
+            c:Destroy()
+        end
+    end
+end
+
+-- Build UI item button
+local function makeButton(text, parent, callback)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(1, -8, 0, 28)
+    b.BackgroundColor3 = Color3.fromRGB(45,45,45)
+    b.BorderSizePixel = 0
+    b.TextColor3 = Color3.fromRGB(230,230,230)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 14
+    b.Text = text
+    b.MouseButton1Click:Connect(function()
+        pcall(callback, b)
+    end)
+    return b
+end
+
+-- Find toolkit: tools in backpack + equipped
+local function gatherTools()
+    local arr = {}
+    local backpack = player:FindFirstChildOfClass("Backpack")
+    if backpack then
+        for _,t in ipairs(backpack:GetChildren()) do
+            if t:IsA("Tool") then
+                table.insert(arr, t)
+            end
+        end
+    end
+    local char = player.Character
+    if char then
+        for _,t in ipairs(char:GetChildren()) do
+            if t:IsA("Tool") then
+                -- avoid duplicating same instance if equipped is from backpack reference
+                local found = false
+                for _,x in ipairs(arr) do if x == t then found = true end end
+                if not found then table.insert(arr, t) end
+            end
+        end
+    end
+    return arr
+end
+
+-- List scripts in tool: Script, LocalScript, ModuleScript
+local function listScriptsInTool(tool)
+    local out = {}
+    for _,v in ipairs(tool:GetDescendants()) do
+        if v:IsA("ModuleScript") or v:IsA("LocalScript") or v:IsA("Script") then
+            -- Only include direct scripts; keep path for context
+            local rel = v:GetFullName():gsub("^"..tool:GetFullName()..".", "")
+            table.insert(out, {inst = v, path = rel})
+        end
+    end
+    return out
+end
+
+-- Attempt to read Source safely
+local function tryReadSource(inst)
+    local ok, src = pcall(function()
+        -- ModuleScript & LocalScript often have .Source; Script (server) may error or return empty
+        return inst.Source
+    end)
+    if ok and type(src) == "string" and #src > 0 then
+        return true, src
+    end
+
+    -- fallback: if it's ModuleScript, try require toString? DO NOT execute require for unknown modules.
+    -- We avoid executing server code. So if Source not accessible, return false with message.
+    return false, ("[Không thể đọc Source — có thể bị bảo vệ bởi Roblox (server-side) hoặc môi trường không cho phép]. Kiểm tra bằng executor (setclipboard) nếu cần.")
+end
+
+-- Copy to clipboard helper (supports setclipboard in exploit)
+local function copyToClipboard(txt)
+    if type(txt) ~= "string" then return false end
+    -- prefer setclipboard
+    local ok, errMsg = pcall(function()
+        if setclipboard then
+            setclipboard(txt)
+            return true
+        end
+    end)
+    if ok then return true end
+    -- fallback: use ClipboardService via prompt (roblox studio only) or show prompt
+    -- Show a popup TextBox for manual copy
+    local success = pcall(function()
+        local w = Instance.new("TextBox")
+        w.Text = txt
+        w.Size = UDim2.new(0.9, 0, 0.6, 0)
+        w.Position = UDim2.new(0.05,0,0.2,0)
+        w.ClearTextOnFocus = false
+        w.MultiLine = true
+        w.TextEditable = true
+        w.TextWrapped = true
+        w.Font = Enum.Font.Code
+        w.TextSize = 14
+        w.Parent = screenGui
+        w.Name = "RSpyCopyFallback"
+        -- focus/select
+        w:CaptureFocus()
+        setStatus("Không có setclipboard — mở ô copy tạm thời. Ctrl+C để copy.", 6)
+        delay(12, function() if w and w.Parent then w:Destroy() end end)
+    end)
+    return success
+end
+
+-- ===== Core UI logic =====
+local currentTargetTool = nil
+local currentScriptInst = nil
+
+local function refreshToolList()
+    clearChildren(toolList)
+    local arr = gatherTools()
+    if #arr == 0 then
+        local lbl = Instance.new("TextLabel", toolList)
+        lbl.Size = UDim2.new(1, -8, 0, 28)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = "Không tìm thấy Tool trong Backpack/Hand"
+        lbl.TextColor3 = Color3.fromRGB(200,200,200)
+        lbl.Font = Enum.Font.Gotham
+        lbl.TextSize = 13
+        toolList.CanvasSize = UDim2.new(0,0,0,40)
+        return
+    end
+    local totalH = 8
+    for i,tool in ipairs(arr) do
+        local b = makeButton(tool.Name, toolList, function()
+            currentTargetTool = tool
+            setStatus("Chọn tool: "..tool.Name, 3)
+            -- populate scripts
+            clearChildren(scriptList)
+            local scripts = listScriptsInTool(tool)
+            if #scripts == 0 then
+                local l = Instance.new("TextLabel", scriptList)
+                l.Size = UDim2.new(1, -8, 0, 26)
+                l.BackgroundTransparency = 1
+                l.Text = "Không tìm thấy Script/Module trong tool"
+                l.TextColor3 = Color3.fromRGB(200,200,200)
+                l.Font = Enum.Font.Gotham
+                l.TextSize = 13
+                scriptList.CanvasSize = UDim2.new(0,0,0,40)
+            else
+                local h = 8
+                for _,entry in ipairs(scripts) do
+                    local name = entry.inst.Name .. "  ("..entry.path..")"
+                    local btn = makeButton(name, scriptList, function()
+                        currentScriptInst = entry.inst
+                        -- read source
+                        local ok, srcOrMsg = tryReadSource(entry.inst)
+                        if ok then
+                            codeBox.Text = srcOrMsg
+                            setStatus("Đã load source: "..entry.inst.Name, 4)
+                        else
+                            codeBox.Text = srcOrMsg
+                            setStatus("Không đọc được source (bảo vệ).", 6)
+                        end
+                    end)
+                    h = h + 34
+                end
+                scriptList.CanvasSize = UDim2.new(0,0,0,h)
+            end
+        end)
+        totalH = totalH + 34
+    end
+    toolList.CanvasSize = UDim2.new(0,0,0,totalH)
+end
+
+-- copy button handler
+copyBtn.MouseButton1Click:Connect(function()
+    local txt = codeBox.Text or ""
+    if txt == "" or txt:match("^%s*$") then
+        setStatus("Không có nội dung để copy.", 3)
+        return
+    end
+    local ok = false
+    local success, errMsg = pcall(function()
+        ok = copyToClipboard(txt)
+    end)
+    if ok then
+        setStatus("Đã sao chép (hoặc mở hộp copy tạm).", 4)
+    else
+        setStatus("Sao chép thất bại. Dùng executor hỗ trợ setclipboard để copy tự động.", 6)
+    end
 end)
+
+-- Refresh tool list button (double-click title to refresh)
+leftTitle.MouseButton1Click = nil
+leftTitle.MouseButton1Down:Connect(function() refreshToolList() end) -- cheap hook
+
+-- Close button
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- Toggle UI by equipping RSpy Tool OR by pressing a key (e.g., RightControl)
+local function toggleUI()
+    mainFrame.Visible = not mainFrame.Visible
+    if mainFrame.Visible then
+        refreshToolList()
+    end
+end
+
+-- Keybind (RightControl or "/" key)
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.Slash then
+        toggleUI()
+    end
+end)
+
+-- If this LocalScript is child of a Tool called "RSpy", show UI on equip
+local parent = script.Parent
+if parent and parent:IsA("Tool") and parent.Name:lower():find("rspy") then
+    -- Tool-based: show on equip
+    parent.Equipped:Connect(function()
+        mainFrame.Visible = true
+        refreshToolList()
+    end)
+    parent.Unequipped:Connect(function()
+        mainFrame.Visible = false
+    end)
+else
+    -- Not tool: show a small launcher button in corner to open UI
+    local launcher = Instance.new("TextButton", screenGui)
+    launcher.Size = UDim2.new(0, 140, 0, 28)
+    launcher.Position = UDim2.new(0, 8, 0, 8)
+    launcher.Text = "RSpy — Open"
+    launcher.Font = Enum.Font.Gotham
+    launcher.TextSize = 14
+    launcher.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    launcher.TextColor3 = Color3.fromRGB(230,230,230)
+    launcher.BorderSizePixel = 0
+    launcher.MouseButton1Click:Connect(function()
+        toggleUI()
+    end)
+end
+
+-- Auto-refresh when tools change in Backpack or character (very helpful)
+local function hookAutoRefresh()
+    local backpack = player:FindFirstChildOfClass("Backpack")
+    if backpack then
+        backpack.ChildAdded:Connect(function() if mainFrame.Visible then refreshToolList() end end)
+        backpack.ChildRemoved:Connect(function() if mainFrame.Visible then refreshToolList() end end)
+    end
+    player.CharacterAdded:Connect(function(char)
+        char.ChildAdded:Connect(function() if mainFrame.Visible then refreshToolList() end end)
+        char.ChildRemoved:Connect(function() if mainFrame.Visible then refreshToolList() end end)
+    end)
+end
+hookAutoRefresh()
+
+setStatus("RSpy loaded. Toggle UI: RightCtrl or / or equip RSpy.", 6)
