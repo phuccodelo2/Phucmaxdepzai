@@ -352,17 +352,24 @@ createToggle("Auto Click", tabPVP, function(state)
         autoClickTask = task.spawn(function()
             while autoClickEnabled do
                 pcall(function()
-                    local RE = game:GetService("ReplicatedStorage"):WaitForChild("RE")
-                    local clickEvent = RE:FindFirstChild("ClickEvent")
+                    -- Tìm đúng service / RE của game
+                    local RepStorage = game:GetService("ReplicatedStorage")
+                    local KnitPackages = RepStorage:WaitForChild("KnitPackages")
+                    local Index = KnitPackages:WaitForChild("_Index")
+                    local Knit = Index:WaitForChild("sleitnick_knit@1.7.0").knit
+                    local Services = Knit:WaitForChild("Services")
+                    local PlayerService = Services:WaitForChild("PlayerService") -- thay tên event đúng game
+                    local RE = PlayerService:WaitForChild("RE")
+                    local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click") -- thử các tên
+
                     if clickEvent then
-                        clickEvent:FireServer()  -- fire server trực tiếp
+                        clickEvent:FireServer() -- FireServer đúng argument nếu cần
                     end
                 end)
                 task.wait(autoClickInterval)
             end
         end)
     else
-        autoClickEnabled = false
         if autoClickTask then
             task.cancel(autoClickTask)
             autoClickTask = nil
@@ -405,8 +412,8 @@ end)
 -- Tạo UI chức năng băng gạc (sub UI)
 local bandageFrame = Instance.new("Frame", gui)
 bandageFrame.Size = UDim2.new(0, 180, 0, 50)
-bandageFrame.AnchorPoint = Vector2.new(1, 1) -- neo góc phải dưới
-bandageFrame.Position = UDim2.new(1, -20, 1, -20) -- cách mép 20px
+bandageFrame.AnchorPoint = Vector2.new(1, 0.5) -- neo theo phải + giữa theo chiều dọc
+bandageFrame.Position = UDim2.new(1, -20, 0.5, -30) -- cách mép phải 20px, cao hơn giữa màn hình 30px
 bandageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 bandageFrame.Visible = false -- mặc định ẩn
 bandageFrame.ClipsDescendants = true
@@ -415,13 +422,13 @@ Instance.new("UICorner", bandageFrame).CornerRadius = UDim.new(0, 12)
 -- Nút bấm lấy băng gạc
 local canUse = true
 local bandageButton = Instance.new("TextButton", bandageFrame)
-bandageButton.Size = UDim2.new(1, -10, 1, -10) -- để có padding
+bandageButton.Size = UDim2.new(1, -10, 1, -10) -- padding 5px
 bandageButton.Position = UDim2.new(0, 5, 0, 5)
 bandageButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 bandageButton.Text = ""
 Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0, 8)
 
--- Label hiển thị thời gian hồi, đặt trên button
+-- Label hiển thị thời gian hồi, nằm trên button
 local cooldownLabel = Instance.new("TextLabel", bandageButton)
 cooldownLabel.Size = UDim2.new(1, 0, 1, 0)
 cooldownLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -447,8 +454,8 @@ bandageButton.MouseButton1Click:Connect(function()
     end)
 
     -- Countdown 6s
-    local countdown = 6
-    cooldownLabel.Text = "Cooldown: "..countdown.."s"
+    local countdown = 7
+    cooldownLabel.Text = "đợi tí : "..countdown.."s"
     task.spawn(function()
         while countdown > 0 do
             task.wait(1)
@@ -461,7 +468,7 @@ bandageButton.MouseButton1Click:Connect(function()
 end)
 
 -- Toggle từ menu chính
-createToggle("Băng gạc 6s", tabPVP, function(state)
+createToggle("Băng gạc ", tabPVP, function(state)
     bandageFrame.Visible = state
 end)
 
