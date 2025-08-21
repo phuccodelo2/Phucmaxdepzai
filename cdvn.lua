@@ -339,49 +339,23 @@ createToggle("Chạy nhanh", tabPVP, function(state)
             humanoid.WalkSpeed = 32
         end)
     end
-end)local defaultSpeed = 16
-local speedEnabled = false
-
-createToggle("Chạy nhanh", tabPVP, function(state)
-    speedEnabled = state
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-
-    if state then
-        humanoid.WalkSpeed = 32 -- bật chạy nhanh
-    else
-        humanoid.WalkSpeed = defaultSpeed -- trả về bình thường
-    end
-
-    -- Theo dõi nếu người chơi respawn
-    if state then
-        local conn
-        conn = player.CharacterAdded:Connect(function(char)
-            humanoid = char:WaitForChild("Humanoid")
-            humanoid.WalkSpeed = 32
-        end)
-    end
 end)
 
 local autoClickEnabled = false
-local autoClickInterval = 0.1 -- 0.1s/click, bạn chỉnh nếu muốn nhanh/chậm
+local autoClickInterval = 0.1
 local autoClickTask
 
 createToggle("Auto Click", tabPVP, function(state)
     autoClickEnabled = state
 
     if state then
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local mouse = player:GetMouse()
-
         autoClickTask = task.spawn(function()
             while autoClickEnabled do
-                -- Fire server trực tiếp mà không chạm camera
                 pcall(function()
-                    if game.ReplicatedStorage:FindFirstChild("ClickEvent") then
-                        game.ReplicatedStorage.ClickEvent:FireServer()
+                    local RE = game:GetService("ReplicatedStorage"):WaitForChild("RE")
+                    local clickEvent = RE:FindFirstChild("ClickEvent")
+                    if clickEvent then
+                        clickEvent:FireServer()  -- fire server trực tiếp
                     end
                 end)
                 task.wait(autoClickInterval)
@@ -415,7 +389,7 @@ createToggle("xoay", tabPVP, function(state)
         -- Bật xoay
         if not rotateConnection then
             rotateConnection = RunService.RenderStepped:Connect(function()
-                RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(60), 0) 
+                RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(40), 0) 
                 -- 20° mỗi frame, vừa nhìn
             end)
         end
@@ -428,30 +402,65 @@ createToggle("xoay", tabPVP, function(state)
     end
 end)
 
-local canUse = true -- Biến kiểm soát thời gian chờ
+-- Tạo UI chức năng băng gạc (sub UI)
+local bandageFrame = Instance.new("Frame", gui)
+bandageFrame.Size = UDim2.new(0, 180, 0, 50)
+bandageFrame.Position = UDim2.new(0.8, 0, 0.8, 0) -- góc phải dưới
+bandageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+bandageFrame.Visible = false -- mặc định ẩn
+bandageFrame.ClipsDescendants = true
+Instance.new("UICorner", bandageFrame).CornerRadius = UDim.new(0, 12)
 
-createButton("Lấy băng gạc", tabPVP, function()
-    if not canUse then
-        -- Nếu đang trong thời gian chờ 6s thì không làm gì
-        return
-    end
+-- Label hiển thị thời gian hồi
+local cooldownLabel = Instance.new("TextLabel", bandageFrame)
+cooldownLabel.Size = UDim2.new(1, 0, 1, 0)
+cooldownLabel.Position = UDim2.new(0, 0, 0, 0)
+cooldownLabel.BackgroundTransparency = 1
+cooldownLabel.TextColor3 = Color3.new(1, 1, 1)
+cooldownLabel.Text = "Lấy băng gạc"
+cooldownLabel.Font = Enum.Font.GothamBold
+cooldownLabel.TextSize = 14
+cooldownLabel.TextScaled = true
 
-    canUse = false -- khóa nút
+-- Nút bấm lấy băng gạc
+local canUse = true
+local bandageButton = Instance.new("TextButton", bandageFrame)
+bandageButton.Size = UDim2.new(1, -10, 1, -10)
+bandageButton.Position = UDim2.new(0, 5, 0, 5)
+bandageButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+bandageButton.Text = ""
+Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0, 8)
 
-    -- Chạy script lấy băng gạc
+bandageButton.MouseButton1Click:Connect(function()
+    if not canUse then return end
+    canUse = false
+
     local InventoryService = game:GetService("ReplicatedStorage")
         .KnitPackages._Index["sleitnick_knit@1.7.0"]
         .knit.Services.InventoryService.RE
 
-    -- Lấy băng gạc
-    InventoryService.updateInventory:FireServer("eue", "băng gạc")
-    -- Refresh để sync với server
-    InventoryService.updateInventory:FireServer("refresh")
+    pcall(function()
+        InventoryService.updateInventory:FireServer("eue", "băng gạc")
+        InventoryService.updateInventory:FireServer("refresh")
+    end)
 
-    -- Bắt đầu đếm ngược 6 giây mới được bấm lại
-    task.delay(6, function()
+    -- Countdown 6s
+    local countdown = 6
+    cooldownLabel.Text = "Cooldown: "..countdown.."s"
+    task.spawn(function()
+        while countdown > 0 do
+            task.wait(1)
+            countdown -= 1
+            cooldownLabel.Text = "Cooldown: "..countdown.."s"
+        end
+        cooldownLabel.Text = "Lấy băng gạc"
         canUse = true
     end)
+end)
+
+-- Tạo toggle trong menu chính để bật/tắt sub UI
+createToggle("Băng gạc 6s", tabPVP, function(state)
+    bandageFrame.Visible = state
 end)
 
 local canBuy = true -- Biến kiểm soát cooldown 6s
