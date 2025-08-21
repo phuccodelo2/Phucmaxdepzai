@@ -1,11 +1,10 @@
--- PHUCMAX Rainbow UI + Farm Boss (NPC2) Noclip & Follow-Under
+-- PHUCMAX Rainbow UI + Farm Boss (NPC2) Noclip & Follow + AutoClick
 -- by ChatGPT (GPT-5 Thinking)
 
---// ===== Helpers =====
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local lp = Players.LocalPlayer
 
 local function notify(t, tx)
@@ -14,15 +13,7 @@ local function notify(t, tx)
     end)
 end
 
-local function getChar()
-    local c = lp.Character or lp.CharacterAdded:Wait()
-    if not c:FindFirstChild("HumanoidRootPart") then c:WaitForChild("HumanoidRootPart") end
-    if not c:FindFirstChild("Humanoid") then c:WaitForChild("Humanoid") end
-    return c
-end
-
 local function getNPC()
-    -- Tìm model tên "NPC2" có HumanoidRootPart trong Workspace
     for _,obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("Model") and obj.Name == "NPC2" and obj:FindFirstChild("HumanoidRootPart") then
             return obj
@@ -31,7 +22,7 @@ local function getNPC()
     return nil
 end
 
--- Noclip toggle
+-- Noclip
 local noclipConn
 local function setNoclip(on)
     if on then
@@ -51,7 +42,7 @@ local function setNoclip(on)
     end
 end
 
--- Follow-under target
+-- Follow target cách 22 studs
 local followConn
 local function startFollowUnder(targetModel)
     if followConn then followConn:Disconnect() end
@@ -64,22 +55,10 @@ local function startFollowUnder(targetModel)
         local myHRP = char:FindFirstChild("HumanoidRootPart")
         if not myHRP or not hrp or not hrp.Parent then return end
 
-        -- vị trí ngay dưới chân quái (hơi thấp 2.5 stud)
-        local targetPos = hrp.Position + Vector3.new(0, -2.5, 0)
-        -- quay mặt hướng về chân quái
+        -- Tele cách boss 22 studs (dưới chân boss)
+        local targetPos = hrp.Position + Vector3.new(0, -22, 0)
         local lookCF = CFrame.new(targetPos, hrp.Position)
-
-        -- Đặt CFrame mượt nhẹ
-        local newCF = lookCF
-        myHRP.CFrame = newCF
-        -- giữ vận tốc thấp để không bị đẩy
-        local rootVel = myHRP:FindFirstChildOfClass("BodyVelocity")
-        if not rootVel then
-            rootVel = Instance.new("BodyVelocity")
-            rootVel.MaxForce = Vector3.new(1e5,1e5,1e5)
-            rootVel.Parent = myHRP
-        end
-        rootVel.Velocity = Vector3.new(0,0,0)
+        myHRP.CFrame = lookCF
     end)
 end
 
@@ -87,14 +66,27 @@ local function stopFollow()
     if followConn then followConn:Disconnect(); followConn=nil end
 end
 
---// ===== UI =====
+-- AutoClick
+local autoClickConn
+local function setAutoClick(on)
+    if on then
+        if autoClickConn then autoClickConn:Disconnect() end
+        autoClickConn = RunService.Heartbeat:Connect(function()
+            VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,0)
+            VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,0)
+        end)
+    else
+        if autoClickConn then autoClickConn:Disconnect(); autoClickConn=nil end
+    end
+end
+
+-- UI
 local gui = Instance.new("ScreenGui")
 gui.Name = "PHUCMAX_UI"
 gui.ResetOnSpawn = false
 pcall(function() gui.Parent = game:GetService("CoreGui") end)
 if not gui.Parent then gui.Parent = lp:WaitForChild("PlayerGui") end
 
--- Main container
 local frame = Instance.new("Frame")
 frame.Parent = gui
 frame.Size = UDim2.fromOffset(240, 110)
@@ -102,16 +94,12 @@ frame.Position = UDim2.new(0.07, 0, 0.25, 0)
 frame.BackgroundColor3 = Color3.fromRGB(20,20,25)
 frame.BackgroundTransparency = 0.1
 frame.BorderSizePixel = 0
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 20)
 
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 20)
-
--- Rainbow border
 local stroke = Instance.new("UIStroke")
 stroke.Thickness = 2.5
 stroke.Parent = frame
 
--- Title
 local title = Instance.new("TextLabel")
 title.Parent = frame
 title.Size = UDim2.new(1, -20, 0, 36)
@@ -122,7 +110,6 @@ title.TextScaled = true
 title.Text = "phucmax"
 title.TextColor3 = Color3.fromRGB(255,255,255)
 
--- Toggle button
 local btn = Instance.new("TextButton")
 btn.Parent = frame
 btn.Size = UDim2.new(1, -20, 0, 48)
@@ -133,14 +120,11 @@ btn.Text = "Farm Boss: OFF"
 btn.Font = Enum.Font.GothamBold
 btn.TextScaled = true
 btn.TextColor3 = Color3.fromRGB(220,220,220)
-
-local btnCorner = Instance.new("UICorner", btn)
-btnCorner.CornerRadius = UDim.new(0, 16)
-
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 16)
 local btnStroke = Instance.new("UIStroke", btn)
 btnStroke.Thickness = 1.8
 
--- Drag movement
+-- Drag
 do
     local dragging, dragStart, startPos
     frame.InputBegan:Connect(function(i)
@@ -163,30 +147,30 @@ do
     end)
 end
 
--- Rainbow animator (true gradient rainbow – HSV hue loop)
+-- Rainbow
 local hue = 0
 RunService.RenderStepped:Connect(function(dt)
-    hue = (hue + dt*0.15) % 1 -- tốc độ đổi màu
+    hue = (hue + dt*0.15) % 1
     local col = Color3.fromHSV(hue, 1, 1)
     stroke.Color = col
     btnStroke.Color = col
     title.TextColor3 = col
 end)
 
---// ===== Logic: Farm Boss toggle =====
+-- Farm logic
 local farming = false
-
 local function turnOn()
     local npc = getNPC()
     if not npc then
-        notify("PHUCMAX", "Không tìm thấy NPC: NPC2")
+        notify("PHUCMAX", "Không tìm thấy NPC2")
         return
     end
     farming = true
     btn.Text = "Farm Boss: ON"
     setNoclip(true)
     startFollowUnder(npc)
-    notify("PHUCMAX", "Đã bật Farm Boss (bám dưới chân NPC2)")
+    setAutoClick(true)
+    notify("PHUCMAX", "Farm Boss (cách boss 22) + AutoClick ON")
 end
 
 local function turnOff()
@@ -194,23 +178,12 @@ local function turnOff()
     btn.Text = "Farm Boss: OFF"
     setNoclip(false)
     stopFollow()
-    notify("PHUCMAX", "Đã tắt Farm Boss")
+    setAutoClick(false)
+    notify("PHUCMAX", "Farm Boss OFF")
 end
 
 btn.MouseButton1Click:Connect(function()
     if farming then turnOff() else turnOn() end
 end)
 
--- Auto-refresh mục tiêu nếu NPC2 respawn
-local refreshConn
-refreshConn = RunService.Heartbeat:Connect(function()
-    if farming then
-        local npc = getNPC()
-        if npc then
-            -- nếu followConn mất vì NPC biến mất, bật lại
-            if not followConn then startFollowUnder(npc) end
-        end
-    end
-end)
-
-notify("PHUCMAX", "UI đã bật. Nhấn nút để Farm Boss (NPC2).")
+notify("PHUCMAX", "UI bật xong. Nhấn để Farm Boss NPC2 (22 studs + AutoClick).")
