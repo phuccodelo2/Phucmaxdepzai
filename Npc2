@@ -56,7 +56,7 @@ local function startFollowUnder(targetModel)
         if not myHRP or not hrp or not hrp.Parent then return end
 
         -- Tele cách boss 22 studs (dưới chân boss)
-        local targetPos = hrp.Position + Vector3.new(0, -10, 0)
+        local targetPos = hrp.Position + Vector3.new(0, -5, 0)
         local lookCF = CFrame.new(targetPos, hrp.Position)
         myHRP.CFrame = lookCF
     end)
