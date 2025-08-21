@@ -201,8 +201,8 @@ logo.MouseButton1Click:Connect(function()
 end)
 
 -- TẠO CÁC TAB
-local tabMain = createTab("INFO")
-local tabMain = createTab("PVP")
+local tabINFO = createTab("INFO")
+local tabPVP = createTab("PVP")
 local tabESP = createTab("ESP")
 --------------------------------------------------------------------
 createButton("📋 COPY LINK DISCORD", tabs["INFO"], function()
