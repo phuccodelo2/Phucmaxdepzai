@@ -405,7 +405,8 @@ end)
 -- Tạo UI chức năng băng gạc (sub UI)
 local bandageFrame = Instance.new("Frame", gui)
 bandageFrame.Size = UDim2.new(0, 180, 0, 50)
-bandageFrame.Position = UDim2.new(0.8, 0, 0.8, 0) -- góc phải dưới
+bandageFrame.AnchorPoint = Vector2.new(1, 1) -- neo góc phải dưới
+bandageFrame.Position = UDim2.new(1, -10, 1, -10) -- cách mép 10px
 bandageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 bandageFrame.Visible = false -- mặc định ẩn
 bandageFrame.ClipsDescendants = true
