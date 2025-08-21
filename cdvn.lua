@@ -203,7 +203,6 @@ end)
 -- TẠO CÁC TAB
 local tabINFO = createTab("INFO")
 local tabPVP = createTab("PVP")
-local tabESP = createTab("ESP")
 --------------------------------------------------------------------
 createButton("📋 COPY LINK DISCORD", tabs["INFO"], function()
     local setClipboard = setclipboard or toclipboard or function() end
@@ -240,104 +239,6 @@ createButton("📋 COPY LINK tiktok", tabs["INFO"], function()
         })
     end)
 end)
-
-    
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-
-local espEnabled = false
-local espList = {} -- lưu thông tin ESP mỗi player
-local rainbowCycle = 0
-
--- Hàm tạo ESP cho 1 player
-local function createESP(player)
-	if player == LocalPlayer then return end
-	if not player.Character or not player.Character:FindFirstChild("Head") then return end
-	if espList[player] then return end
-
-	local head = player.Character:FindFirstChild("Head")
-
-	-- BillboardGui chính
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "PhucmaxESP"
-	gui.Size = UDim2.new(0, 120, 0, 40)
-	gui.Adornee = head
-	gui.AlwaysOnTop = true
-	gui.Parent = head
-
-	-- Tên player
-	local nameLabel = Instance.new("TextLabel")
-	nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
-	nameLabel.Position = UDim2.new(0, 0, 0, 0)
-	nameLabel.BackgroundTransparency = 1
-	nameLabel.Font = Enum.Font.GothamBold
-	nameLabel.TextScaled = true
-	nameLabel.TextStrokeTransparency = 0
-	nameLabel.Text = player.Name
-	nameLabel.Parent = gui
-
-	-- Thanh máu
-	local healthBar = Instance.new("Frame")
-	healthBar.Size = UDim2.new(1, -4, 0, 5)
-	healthBar.Position = UDim2.new(0, 2, 0.5, 5)
-	healthBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-	healthBar.BorderSizePixel = 0
-	healthBar.Parent = gui
-
-	espList[player] = {gui = gui, nameLabel = nameLabel, healthBar = healthBar, character = player.Character}
-end
-
--- Xóa tất cả ESP
-local function clearAllESP()
-	for player, data in pairs(espList) do
-		if data.gui and data.gui.Parent then
-			data.gui:Destroy()
-		end
-	end
-	espList = {}
-end
-
--- Toggle ESP
-createToggle("ESP Player", tabESP, function(state)
-	espEnabled = state
-	if espEnabled then
-		for _, p in pairs(Players:GetPlayers()) do
-			createESP(p)
-		end
-	else
-		clearAllESP()
-	end
-end)
-
--- Khi player join game
-Players.PlayerAdded:Connect(function(p)
-	p.CharacterAdded:Connect(function()
-		if espEnabled then task.wait(1) createESP(p) end
-	end)
-end)
-
--- Update rainbow và thanh máu
-RunService.RenderStepped:Connect(function()
-	if not espEnabled then return end
-	rainbowCycle = (rainbowCycle + 0.005) % 1
-
-	for player, data in pairs(espList) do
-		local char = data.character
-		if char and char:FindFirstChild("Humanoid") then
-			local hum = char:FindFirstChild("Humanoid")
-			-- Cập nhật màu cầu vồng
-			data.nameLabel.TextColor3 = Color3.fromHSV(rainbowCycle, 1, 1)
-			-- Cập nhật thanh máu
-			local healthPercent = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
-			data.healthBar.Size = UDim2.new(healthPercent, -4, 0, 5)
-			-- Màu thanh máu từ đỏ -> xanh
-			data.healthBar.BackgroundColor3 = Color3.fromHSV(healthPercent/3, 1, 1)
-		end
-	end
-end)
-
 
 createButton("FIXLAG", tabPVP, function()
     -- Xoá toàn bộ hiệu ứng, particles, trails, smoke, fire, sparkles...
@@ -413,6 +314,86 @@ createButton("FIXLAG", tabPVP, function()
     end
 
     print("✅ Đã fix lag tối đa.")
+end)
+
+local defaultSpeed = 16
+local speedEnabled = false
+
+createToggle("Chạy nhanh", tabPVP, function(state)
+    speedEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    if state then
+        humanoid.WalkSpeed = 32 -- bật chạy nhanh
+    else
+        humanoid.WalkSpeed = defaultSpeed -- trả về bình thường
+    end
+
+    -- Theo dõi nếu người chơi respawn
+    if state then
+        local conn
+        conn = player.CharacterAdded:Connect(function(char)
+            humanoid = char:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = 32
+        end)
+    end
+end)local defaultSpeed = 16
+local speedEnabled = false
+
+createToggle("Chạy nhanh", tabPVP, function(state)
+    speedEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    if state then
+        humanoid.WalkSpeed = 32 -- bật chạy nhanh
+    else
+        humanoid.WalkSpeed = defaultSpeed -- trả về bình thường
+    end
+
+    -- Theo dõi nếu người chơi respawn
+    if state then
+        local conn
+        conn = player.CharacterAdded:Connect(function(char)
+            humanoid = char:WaitForChild("Humanoid")
+            humanoid.WalkSpeed = 32
+        end)
+    end
+end)
+
+local autoClickEnabled = false
+local autoClickInterval = 0.1 -- 0.1s/click, bạn chỉnh nếu muốn nhanh/chậm
+local autoClickTask
+
+createToggle("Auto Click", tabPVP, function(state)
+    autoClickEnabled = state
+
+    if state then
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local mouse = player:GetMouse()
+
+        autoClickTask = task.spawn(function()
+            while autoClickEnabled do
+                -- Fire server trực tiếp mà không chạm camera
+                pcall(function()
+                    if game.ReplicatedStorage:FindFirstChild("ClickEvent") then
+                        game.ReplicatedStorage.ClickEvent:FireServer()
+                    end
+                end)
+                task.wait(autoClickInterval)
+            end
+        end)
+    else
+        autoClickEnabled = false
+        if autoClickTask then
+            task.cancel(autoClickTask)
+            autoClickTask = nil
+        end
+    end
 end)
 
 -- Biến lưu connection xoay
