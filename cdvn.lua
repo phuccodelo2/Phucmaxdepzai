@@ -243,67 +243,66 @@ end)
 
     
 
--- ESP PLAYER
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
 local espEnabled = false
-local espConnections = {}
+local espList = {} -- lưu thông tin ESP mỗi player
 local rainbowCycle = 0
 
+-- Hàm tạo ESP cho 1 player
 local function createESP(player)
 	if player == LocalPlayer then return end
 	if not player.Character or not player.Character:FindFirstChild("Head") then return end
-	if player.Character:FindFirstChild("PhucmaxESP") then return end
+	if espList[player] then return end
 
-	local gui = Instance.new("BillboardGui", player.Character)
+	local head = player.Character:FindFirstChild("Head")
+
+	-- BillboardGui chính
+	local gui = Instance.new("BillboardGui")
 	gui.Name = "PhucmaxESP"
-	gui.Size = UDim2.new(0, 100, 0, 30)
-	gui.Adornee = player.Character:FindFirstChild("Head")
+	gui.Size = UDim2.new(0, 120, 0, 40)
+	gui.Adornee = head
 	gui.AlwaysOnTop = true
+	gui.Parent = head
 
-	local name = Instance.new("TextLabel", gui)
-	name.Size = UDim2.new(1, 0, 1, 0)
-	name.BackgroundTransparency = 1
-	name.Font = Enum.Font.GothamBold
-	name.TextScaled = true
-	name.TextStrokeTransparency = 0
-	name.Text = player.Name
+	-- Tên player
+	local nameLabel = Instance.new("TextLabel")
+	nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
+	nameLabel.Position = UDim2.new(0, 0, 0, 0)
+	nameLabel.BackgroundTransparency = 1
+	nameLabel.Font = Enum.Font.GothamBold
+	nameLabel.TextScaled = true
+	nameLabel.TextStrokeTransparency = 0
+	nameLabel.Text = player.Name
+	nameLabel.Parent = gui
 
-	local hl = Instance.new("Highlight", player.Character)
-	hl.Name = "PhucmaxHL"
-	hl.FillTransparency = 1
-	hl.OutlineTransparency = 0
-	hl.OutlineColor = Color3.fromHSV(rainbowCycle, 1, 1)
+	-- Thanh máu
+	local healthBar = Instance.new("Frame")
+	healthBar.Size = UDim2.new(1, -4, 0, 5)
+	healthBar.Position = UDim2.new(0, 2, 0.5, 5)
+	healthBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+	healthBar.BorderSizePixel = 0
+	healthBar.Parent = gui
 
-	local conn = RunService.RenderStepped:Connect(function()
-		rainbowCycle = (rainbowCycle + 0.005) % 1
-		if name and name.Parent then
-			name.TextColor3 = Color3.fromHSV(rainbowCycle, 1, 1)
-		end
-		if hl and hl.Parent then
-			hl.OutlineColor = Color3.fromHSV(rainbowCycle, 1, 1)
-		end
-	end)
-
-	table.insert(espConnections, conn)
+	espList[player] = {gui = gui, nameLabel = nameLabel, healthBar = healthBar, character = player.Character}
 end
 
+-- Xóa tất cả ESP
 local function clearAllESP()
-	for _, p in pairs(Players:GetPlayers()) do
-		if p.Character and p.Character:FindFirstChild("PhucmaxESP") then
-			p.Character:FindFirstChild("PhucmaxESP"):Destroy()
-		end
-		if p.Character and p.Character:FindFirstChild("PhucmaxHL") then
-			p.Character:FindFirstChild("PhucmaxHL"):Destroy()
+	for player, data in pairs(espList) do
+		if data.gui and data.gui.Parent then
+			data.gui:Destroy()
 		end
 	end
-	for _, c in pairs(espConnections) do
-		if c then pcall(function() c:Disconnect() end) end
-	end
-	espConnections = {}
+	espList = {}
 end
 
+-- Toggle ESP
 createToggle("ESP Player", tabESP, function(state)
 	espEnabled = state
-	if state then
+	if espEnabled then
 		for _, p in pairs(Players:GetPlayers()) do
 			createESP(p)
 		end
@@ -312,71 +311,33 @@ createToggle("ESP Player", tabESP, function(state)
 	end
 end)
 
+-- Khi player join game
 Players.PlayerAdded:Connect(function(p)
 	p.CharacterAdded:Connect(function()
-		if espEnabled then task.wait(2) createESP(p) end
+		if espEnabled then task.wait(1) createESP(p) end
 	end)
 end)
 
+-- Update rainbow và thanh máu
+RunService.RenderStepped:Connect(function()
+	if not espEnabled then return end
+	rainbowCycle = (rainbowCycle + 0.005) % 1
 
---------------------------------------------------------------------
--- SHOP BUY
-local items = {
-	"Invisibility Cloak",
-	"Medusa's Head",
-	"Quantum Cloner",
-	"All Seeing Sentry",
-	"Body Swap Potion",
-	"Rainbowrath Sword",
-	"Trap",
-	"Web Slinger"
-}
-
-for _, name in ipairs(items) do
-	createButton("Buy: " .. name, tabShop, function()
-		local remote = game.ReplicatedStorage:WaitForChild("Packages")
-			:WaitForChild("Net")
-			:WaitForChild("RF/CoinsShopService/RequestBuy")
-		pcall(function() remote:InvokeServer(name) end)
-	end)
-end
-
--- 📌 Tạo ESP khối + dòng chữ dưới
-local function createESPText(pos, text)
-	local part = Instance.new("Part", workspace)
-	part.Anchored = true
-	part.CanCollide = false
-	part.Transparency = 0.8
-	part.Size = Vector3.new(1.5, 1.5, 1.5)
-	part.Position = pos
-	part.Material = Enum.Material.Neon
-	part.Color = Color3.fromRGB(255, 255, 255)
-	part.Name = "ESP_"..text
-
-	local gui = Instance.new("BillboardGui", part)
-	gui.Size = UDim2.new(0, 100, 0, 30)
-	gui.AlwaysOnTop = true
-	gui.Adornee = part
-	gui.StudsOffset = Vector3.new(0, -2, 0) -- Text nằm dưới Part
-
-	local label = Instance.new("TextLabel", gui)
-	label.Size = UDim2.new(1, 0, 1, 0)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBold
-	label.TextScaled = true
-	label.TextStrokeTransparency = 0.3
-	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	label.Text = text
-
-	local h = 0
-	game:GetService("RunService").RenderStepped:Connect(function()
-		if label and label.Parent and label:IsDescendantOf(game) then
-			h = (h + 0.01) % 1
-			label.TextColor3 = Color3.fromHSV(h, 1, 1)
-			part.Color = label.TextColor3
+	for player, data in pairs(espList) do
+		local char = data.character
+		if char and char:FindFirstChild("Humanoid") then
+			local hum = char:FindFirstChild("Humanoid")
+			-- Cập nhật màu cầu vồng
+			data.nameLabel.TextColor3 = Color3.fromHSV(rainbowCycle, 1, 1)
+			-- Cập nhật thanh máu
+			local healthPercent = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
+			data.healthBar.Size = UDim2.new(healthPercent, -4, 0, 5)
+			-- Màu thanh máu từ đỏ -> xanh
+			data.healthBar.BackgroundColor3 = Color3.fromHSV(healthPercent/3, 1, 1)
 		end
-	end)
-end
+	end
+end)
+
 
 createButton("FIXLAG", tabPVP, function()
     -- Xoá toàn bộ hiệu ứng, particles, trails, smoke, fire, sparkles...
@@ -454,40 +415,36 @@ createButton("FIXLAG", tabPVP, function()
     print("✅ Đã fix lag tối đa.")
 end)
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+-- Biến lưu connection xoay
+local rotateConnection
 
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
+createToggle("xoay", tabPVP, function(state)
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
 
--- Tắt tự động xoay theo hướng chạy
-Humanoid.AutoRotate = false
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+    local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Xoay liên tục (như cánh quạt)
-RunService.RenderStepped:Connect(function()
-RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(30), 0)
--- 30 độ mỗi frame (cực nhanh), chỉnh lại số cho vừa ý (10-30-50)
-end) code xoay nè
+    -- Tắt tự động xoay theo hướng chạy
+    Humanoid.AutoRotate = false
 
-
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
-
--- Tắt tự động xoay theo hướng chạy
-Humanoid.AutoRotate = false
-
--- Xoay liên tục (như cánh quạt)
-RunService.RenderStepped:Connect(function()
-    RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(60), 0) 
-    -- 30 độ mỗi frame (cực nhanh), chỉnh lại số cho vừa ý (10-30-50)
+    if state then
+        -- Bật xoay
+        if not rotateConnection then
+            rotateConnection = RunService.RenderStepped:Connect(function()
+                RootPart.CFrame = RootPart.CFrame * CFrame.Angles(0, math.rad(60), 0) 
+                -- 20° mỗi frame, vừa nhìn
+            end)
+        end
+    else
+        -- Tắt xoay
+        if rotateConnection then
+            rotateConnection:Disconnect()
+            rotateConnection = nil
+        end
+    end
 end)
 
 local canUse = true -- Biến kiểm soát thời gian chờ
