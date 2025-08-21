@@ -406,31 +406,32 @@ end)
 local bandageFrame = Instance.new("Frame", gui)
 bandageFrame.Size = UDim2.new(0, 180, 0, 50)
 bandageFrame.AnchorPoint = Vector2.new(1, 1) -- neo góc phải dưới
-bandageFrame.Position = UDim2.new(1, -10, 1, -10) -- cách mép 10px
+bandageFrame.Position = UDim2.new(1, -20, 1, -20) -- cách mép 20px
 bandageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 bandageFrame.Visible = false -- mặc định ẩn
 bandageFrame.ClipsDescendants = true
 Instance.new("UICorner", bandageFrame).CornerRadius = UDim.new(0, 12)
 
--- Label hiển thị thời gian hồi
-local cooldownLabel = Instance.new("TextLabel", bandageFrame)
+-- Nút bấm lấy băng gạc
+local canUse = true
+local bandageButton = Instance.new("TextButton", bandageFrame)
+bandageButton.Size = UDim2.new(1, -10, 1, -10) -- để có padding
+bandageButton.Position = UDim2.new(0, 5, 0, 5)
+bandageButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+bandageButton.Text = ""
+Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0, 8)
+
+-- Label hiển thị thời gian hồi, đặt trên button
+local cooldownLabel = Instance.new("TextLabel", bandageButton)
 cooldownLabel.Size = UDim2.new(1, 0, 1, 0)
 cooldownLabel.Position = UDim2.new(0, 0, 0, 0)
 cooldownLabel.BackgroundTransparency = 1
 cooldownLabel.TextColor3 = Color3.new(1, 1, 1)
 cooldownLabel.Text = "Lấy băng gạc"
 cooldownLabel.Font = Enum.Font.GothamBold
-cooldownLabel.TextSize = 14
+cooldownLabel.TextSize = 16
 cooldownLabel.TextScaled = true
-
--- Nút bấm lấy băng gạc
-local canUse = true
-local bandageButton = Instance.new("TextButton", bandageFrame)
-bandageButton.Size = UDim2.new(1, -10, 1, -10)
-bandageButton.Position = UDim2.new(0, 5, 0, 5)
-bandageButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-bandageButton.Text = ""
-Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0, 8)
+cooldownLabel.TextWrapped = true
 
 bandageButton.MouseButton1Click:Connect(function()
     if not canUse then return end
@@ -459,7 +460,7 @@ bandageButton.MouseButton1Click:Connect(function()
     end)
 end)
 
--- Tạo toggle trong menu chính để bật/tắt sub UI
+-- Toggle từ menu chính
 createToggle("Băng gạc 6s", tabPVP, function(state)
     bandageFrame.Visible = state
 end)
