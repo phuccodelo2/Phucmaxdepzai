@@ -439,13 +439,8 @@ bandageButton.MouseButton1Click:Connect(function()
 if not canUse then return end
 canUse = false
 
-local InventoryService = game:GetService("ReplicatedStorage")    
-    .KnitPackages._Index["sleitnick_knit@1.7.0"]    
-    .knit.Services.InventoryService.RE    
-
-pcall(function()    
-    InventoryService.updateInventory:FireServer("eue", "b\196\131ng g\225\186\161c")    
-    InventoryService.updateInventory:FireServer("refresh")    
+local args = {"eue","b\196\131ng g\225\186\161c"}
+game:GetService("ReplicatedStorage"):WaitForChild("KnitPackages"):WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit"):WaitForChild("Services"):WaitForChild("InventoryService"):WaitForChild("RE"):WaitForChild("updateInventory"):FireServer(unpack(args))
 end)    
 
 -- Countdown 6s    
