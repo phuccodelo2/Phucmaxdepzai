@@ -345,9 +345,6 @@ local autoClickEnabled = false
 local autoClickInterval = 0.1
 local autoClickTask
 
-local UIS = game:GetService("UserInputService")
-local VIM = game:GetService("VirtualInputManager")
-
 createToggle("Auto Click", tabPVP, function(state)
     autoClickEnabled = state
 
@@ -355,14 +352,14 @@ createToggle("Auto Click", tabPVP, function(state)
         autoClickTask = task.spawn(function()
             while autoClickEnabled do
                 pcall(function()
-                    -- Nhấn chuột trái ảo (click hiện tại vị trí con trỏ)
-                    VIM:SendMouseButtonEvent(
-                        0, 0, 0, true, game, 1
-                    )
-                    task.wait(0.01)
-                    VIM:SendMouseButtonEvent(
-                        0, 0, 0, false, game, 1
-                    )
+                    local RepStorage = game:GetService("ReplicatedStorage")
+                    local RE = RepStorage:FindFirstChild("RE")
+                    if RE then
+                        local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click")
+                        if clickEvent then
+                            clickEvent:FireServer() -- gửi thẳng tới server, không nhấp vào UI
+                        end
+                    end
                 end)
                 task.wait(autoClickInterval)
             end
@@ -407,132 +404,71 @@ createToggle("xoay", tabPVP, function(state)
     end
 end)
 
--- UI sub băng gạc nâng cao
+-- Tạo UI chức năng băng gạc (sub UI)
 local bandageFrame = Instance.new("Frame", gui)
-bandageFrame.Size = UDim2.new(0,250,0,110)
-bandageFrame.AnchorPoint = Vector2.new(1,0.5)
-bandageFrame.Position = UDim2.new(1,-20,0.5,-55)
-bandageFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-bandageFrame.Visible = false
-Instance.new("UICorner", bandageFrame).CornerRadius = UDim.new(0,12)
+bandageFrame.Size = UDim2.new(0, 180, 0, 50)
+bandageFrame.AnchorPoint = Vector2.new(1, 0.5) -- neo theo phải + giữa theo chiều dọc
+bandageFrame.Position = UDim2.new(1, -20, 0.5, -30) -- cách mép phải 20px, cao hơn giữa màn hình 30px
+bandageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+bandageFrame.Visible = false -- mặc định ẩn
+bandageFrame.ClipsDescendants = true
+Instance.new("UICorner", bandageFrame).CornerRadius = UDim.new(0, 12)
 
--- Label thông báo
-local infoLabel = Instance.new("TextLabel", bandageFrame)
-infoLabel.Size = UDim2.new(1,-10,0,24)
-infoLabel.Position = UDim2.new(0,5,0,5)
-infoLabel.BackgroundTransparency = 1
-infoLabel.TextColor3 = Color3.new(1,1,1)
-infoLabel.Font = Enum.Font.GothamBold
-infoLabel.TextScaled = true
-infoLabel.Text = "Chọn ô băng gạc"
-
--- Slot chọn (1-5)
-local selectedSlot = nil
-local slotButtons = {}
-for i=1,5 do
-    local btn = Instance.new("TextButton", bandageFrame)
-    btn.Size = UDim2.new(0,40,0,40)
-    btn.Position = UDim2.new(0,10+(i-1)*45,0,35)
-    btn.Text = tostring(i)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 18
-    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
-    btn.MouseButton1Click:Connect(function()
-        selectedSlot = i
-        for _, b in pairs(slotButtons) do b.BackgroundColor3 = Color3.fromRGB(50,50,50) end
-        btn.BackgroundColor3 = Color3.fromRGB(0,200,0)
-        infoLabel.Text = "Ô đã chọn: "..i
-    end)
-    table.insert(slotButtons, btn)
-end
-
--- Nút lấy băng gạc
-local bandageButton = Instance.new("TextButton", bandageFrame)
-bandageButton.Size = UDim2.new(0,230,0,30)
-bandageButton.Position = UDim2.new(0,10,0,85)
-bandageButton.BackgroundColor3 = Color3.fromRGB(70,70,70)
-Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0,6)
-
-local cooldownLabel = Instance.new("TextLabel", bandageButton)
-cooldownLabel.Size = UDim2.new(1,0,1,0)
-cooldownLabel.Position = UDim2.new(0,0,0,0)
-cooldownLabel.BackgroundTransparency = 1
-cooldownLabel.TextColor3 = Color3.new(1,1,1)
-cooldownLabel.Font = Enum.Font.GothamBold
-cooldownLabel.TextScaled = true
-cooldownLabel.Text = "Lấy băng gạc"
-
-local firstClickDone = false
+-- Nút bấm lấy băng gạc
 local canUse = true
+local bandageButton = Instance.new("TextButton", bandageFrame)
+bandageButton.Size = UDim2.new(1, -10, 1, -10) -- padding 5px
+bandageButton.Position = UDim2.new(0, 5, 0, 5)
+bandageButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+bandageButton.Text = ""
+Instance.new("UICorner", bandageButton).CornerRadius = UDim.new(0, 8)
+
+-- Label hiển thị thời gian hồi, nằm trên button
+local cooldownLabel = Instance.new("TextLabel", bandageButton)
+cooldownLabel.Size = UDim2.new(1, 0, 1, 0)
+cooldownLabel.Position = UDim2.new(0, 0, 0, 0)
+cooldownLabel.BackgroundTransparency = 1
+cooldownLabel.TextColor3 = Color3.new(1, 1, 1)
+cooldownLabel.Text = "Lấy băng gạc"
+cooldownLabel.Font = Enum.Font.GothamBold
+cooldownLabel.TextSize = 16
+cooldownLabel.TextScaled = true
+cooldownLabel.TextWrapped = true
 
 bandageButton.MouseButton1Click:Connect(function()
-    if not canUse then return end
-    if not selectedSlot then
-        infoLabel.Text = "Chưa chọn ô!"
-        return
-    end
+if not canUse then return end
+canUse = false
 
-    if not firstClickDone then
-        infoLabel.Text = "Nhấn vào màn hình 1 lần để kích hoạt!"
-        local conn
-        conn = game:GetService("UserInputService").InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                firstClickDone = true
-                conn:Disconnect()
-                infoLabel.Text = "Đã kích hoạt! Bắt đầu cooldown 10s"
-                canUse = false
-                task.spawn(function()
-                    local cd = 10
-                    while cd>0 do
-                        cooldownLabel.Text = "Cooldown: "..cd.."s"
-                        task.wait(1)
-                        cd -= 1
-                    end
-                    cooldownLabel.Text = "Lấy băng gạc"
-                    canUse = true
-                end)
-            end
-        end)
-        return
-    end
+local InventoryService = game:GetService("ReplicatedStorage")    
+    .KnitPackages._Index["sleitnick_knit@1.7.0"]    
+    .knit.Services.InventoryService.RE    
 
-    -- Lấy băng gạc & bấm phím slot tự động
-    local RepStorage = game:GetService("ReplicatedStorage")
-    local KnitPackages = RepStorage:WaitForChild("KnitPackages")
-    local Index = KnitPackages._Index
-    local Knit = Index:WaitForChild("sleitnick_knit@1.7.0").knit
-    local Services = Knit:WaitForChild("Services")
-    local InventoryService = Services:WaitForChild("InventoryService").RE
+pcall(function()    
+    InventoryService.updateInventory:FireServer("eue", "băng gạc")    
+    InventoryService.updateInventory:FireServer("refresh")    
+end)    
 
-    pcall(function()
-        InventoryService.updateInventory:FireServer("eue","băng gạc")
-        InventoryService.updateInventory:FireServer("refresh")
-    end)
-
-    -- Gửi phím slot (1-5)
-    local keyMap = {"One","Two","Three","Four","Five"}
-    local key = keyMap[selectedSlot]
-    game:GetService("UserInputService"):InputBegan:Fire({KeyCode = Enum.KeyCode[key]})
-
-    -- Cooldown 10s
-    canUse = false
-    task.spawn(function()
-        local cd = 10
-        while cd>0 do
-            cooldownLabel.Text = "Cooldown: "..cd.."s"
-            task.wait(1)
-            cd -= 1
-        end
-        cooldownLabel.Text = "Lấy băng gạc"
-        canUse = true
-    end)
+-- Countdown 6s    
+local countdown = 7    
+cooldownLabel.Text = "tự mà canh : "..countdown.."s"    
+task.spawn(function()    
+    while countdown > 0 do    
+        task.wait(1)    
+        countdown -= 1    
+        cooldownLabel.Text = "Cooldown: "..countdown.."s"    
+    end    
+    cooldownLabel.Text = "Lấy băng gạc"    
+    canUse = true    
 end)
 
--- Toggle từ menu chính (tabPVP) bật/tắt UI sub băng gạc
-createToggle("Auto Băng gạc", tabPVP, function(state)
-    bandageFrame.Visible = state
 end)
+
+-- Toggle từ menu chính
+createToggle("Băng gạc ", tabPVP, function(state)
+bandageFrame.Visible = state
+end) 
+
+
 
 createButton("Mua 5 băng gạc", tabPVP, function()
     if not canBuy then
