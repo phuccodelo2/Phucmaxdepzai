@@ -543,6 +543,10 @@ bandageButton.MouseButton1Click:Connect(function()
 end)
 
 local canBuy = true -- Biến kiểm soát cooldown 6s
+-- Toggle từ menu chính (tabPVP) để hiển thị sub UI băng gạc
+createToggle("auto Băng gạc", tabPVP, function(state)
+    bandageFrame.Visible = state
+end)
 
 createButton("Mua 5 băng gạc", tabPVP, function()
     if not canBuy then
