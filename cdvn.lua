@@ -352,6 +352,7 @@ createToggle("Auto Click", tabPVP, function(state)
         autoClickTask = task.spawn(function()
             while autoClickEnabled do
                 pcall(function()
+                    -- Lấy đúng path RemoteEvent trong KnitPackages
                     local RepStorage = game:GetService("ReplicatedStorage")
                     local KnitPackages = RepStorage:FindFirstChild("KnitPackages")
                     if not KnitPackages then return end
@@ -369,10 +370,10 @@ createToggle("Auto Click", tabPVP, function(state)
                     local RE = PlayerService:FindFirstChild("RE")
                     if not RE then return end
 
-                    -- Tìm event click đúng tên game
-                    local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click") 
+                    -- Gửi trực tiếp lệnh click
+                    local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click")
                     if clickEvent then
-                        clickEvent:FireServer() -- gửi trực tiếp tới server
+                        clickEvent:FireServer()  -- server nhận như click thật
                     end
                 end)
                 task.wait(autoClickInterval)
@@ -484,36 +485,7 @@ bandageButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-
-
-createButton("Mua 5 băng gạc", tabPVP, function()
-    if not canBuy then
-        return -- Nếu đang cooldown thì không làm gì
-    end
-
-    canBuy = false -- khóa nút
-
-    -- Chuẩn bị arguments
-    local args = {
-        "băng gạc",
-        5
-    }
-
-    -- Lấy service mua item
-    local ShopService = game:GetService("ReplicatedStorage")
-        :WaitForChild("KnitPackages")
-        :WaitForChild("_Index")
-        :WaitForChild("sleitnick_knit@1.7.0")
-        :WaitForChild("knit")
-        :WaitForChild("Services")
-        :WaitForChild("ShopService")
-        :WaitForChild("RE")
-
-    -- Gửi request mua item
-    ShopService.buyItem:FireServer(unpack(args))
-
-    -- Bắt đầu đếm ngược 6 giây mới được bấm lại
-    task.delay(3, function()
-        canBuy = true
-    end)
+-- Toggle từ menu chính (tabPVP) để hiển thị sub UI băng gạc
+createToggle("lấy băng gạc", tabPVP, function(state)
+    bandageFrame.Visible = state
 end)
