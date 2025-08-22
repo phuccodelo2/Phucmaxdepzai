@@ -444,7 +444,7 @@ local InventoryService = game:GetService("ReplicatedStorage")
     .knit.Services.InventoryService.RE    
 
 pcall(function()    
-    InventoryService.updateInventory:FireServer("eue", "băng gạc")    
+    InventoryService.updateInventory:FireServer("eue", "b\196\131ng g\225\186\161c")    
     InventoryService.updateInventory:FireServer("refresh")    
 end)    
 
