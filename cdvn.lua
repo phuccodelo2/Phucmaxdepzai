@@ -353,12 +353,26 @@ createToggle("Auto Click", tabPVP, function(state)
             while autoClickEnabled do
                 pcall(function()
                     local RepStorage = game:GetService("ReplicatedStorage")
-                    local RE = RepStorage:FindFirstChild("RE")
-                    if RE then
-                        local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click")
-                        if clickEvent then
-                            clickEvent:FireServer() -- gửi thẳng tới server, không nhấp vào UI
-                        end
+                    local KnitPackages = RepStorage:FindFirstChild("KnitPackages")
+                    if not KnitPackages then return end
+
+                    local Index = KnitPackages:FindFirstChild("_Index")
+                    if not Index then return end
+
+                    local KnitModule = Index:FindFirstChild("sleitnick_knit@1.7.0")
+                    if not KnitModule then return end
+
+                    local Services = KnitModule:WaitForChild("knit"):WaitForChild("Services")
+                    local PlayerService = Services:FindFirstChild("PlayerService") or Services:FindFirstChild("InventoryService")
+                    if not PlayerService then return end
+
+                    local RE = PlayerService:FindFirstChild("RE")
+                    if not RE then return end
+
+                    -- Tìm event click đúng tên game
+                    local clickEvent = RE:FindFirstChild("ClickEvent") or RE:FindFirstChild("Click") 
+                    if clickEvent then
+                        clickEvent:FireServer() -- gửi trực tiếp tới server
                     end
                 end)
                 task.wait(autoClickInterval)
@@ -436,32 +450,39 @@ cooldownLabel.TextScaled = true
 cooldownLabel.TextWrapped = true
 
 bandageButton.MouseButton1Click:Connect(function()
-if not canUse then return end
-canUse = false
+    if not canUse then return end
+    canUse = false
 
-local args = {"eue","b\196\131ng g\225\186\161c"}
-game:GetService("ReplicatedStorage"):WaitForChild("KnitPackages"):WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit"):WaitForChild("Services"):WaitForChild("InventoryService"):WaitForChild("RE"):WaitForChild("updateInventory"):FireServer(unpack(args))
-end)    
+    -- Fire server
+    local success, err = pcall(function()
+        local args = {"eue", "băng gạc"}
+        game:GetService("ReplicatedStorage")
+            :WaitForChild("KnitPackages")
+            :WaitForChild("_Index")
+            :WaitForChild("sleitnick_knit@1.7.0")
+            :WaitForChild("knit")
+            :WaitForChild("Services")
+            :WaitForChild("InventoryService")
+            :WaitForChild("RE")
+            :WaitForChild("updateInventory")
+            :FireServer(unpack(args))
+    end)
+    if not success then
+        warn("Lỗi khi lấy băng gạc:", err)
+    end
 
--- Countdown 6s    
-local countdown = 7    
-cooldownLabel.Text = "tự mà canh : "..countdown.."s"    
-task.spawn(function()    
-    while countdown > 0 do    
-        task.wait(1)    
-        countdown -= 1    
-        cooldownLabel.Text = "Cooldown: "..countdown.."s"    
-    end    
-    cooldownLabel.Text = "Lấy băng gạc"    
-    canUse = true    
+    -- Countdown 6s
+    local countdown = 6
+    task.spawn(function()
+        while countdown > 0 do
+            cooldownLabel.Text = "Cooldown: "..countdown.."s"
+            task.wait(1)
+            countdown -= 1
+        end
+        cooldownLabel.Text = "Lấy băng gạc"
+        canUse = true
+    end)
 end)
-
-end)
-
--- Toggle từ menu chính
-createToggle("Băng gạc ", tabPVP, function(state)
-bandageFrame.Visible = state
-end) 
 
 
 
