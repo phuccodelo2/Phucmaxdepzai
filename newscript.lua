@@ -1,664 +1,405 @@
--- // PHẦN 1/4 : CORE UI + HIỆU ỨNG RAINBOW
--- Tác giả: PhucUI RainbowX
--- Kết hợp ý tưởng Rayfield + Fluent + Rainbow Gradient
--- Tổng code chia 4 phần (>2000 dòng)
+-- LocalScript: Rainbow UI (rebuild từ đầu) - nhẹ, draggable, nút chuẩn, toàn UI rainbow gradient
+-- Ghi chú: dán vào StarterPlayerScripts hoặc chạy client-side
 
--- Khởi tạo ScreenGui
-local CoreGui = game:GetService("CoreGui")
+-- Tránh load 2 lần
+if getgenv and getgenv()._rainbow_ui_loaded then return end
+if getgenv then getgenv()._rainbow_ui_loaded = true end
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RainbowUI"
-ScreenGui.Parent = CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Hàm tạo Rainbow Gradient động
-local function createRainbowGradient(parent)
-    local uiGradient = Instance.new("UIGradient")
-    uiGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-        ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 255, 0)),
-        ColorSequenceKeypoint.new(0.4, Color3.fromRGB(0, 255, 0)),
-        ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 255)),
-        ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255)),
-    })
-    uiGradient.Rotation = 0
-    uiGradient.Parent = parent
+-- ===== helper: tạo rainbow ColorSequence chung =====
+local RAINBOW_SEQUENCE = ColorSequence.new{
+	ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255,0,0)),
+	ColorSequenceKeypoint.new(0.16, Color3.fromRGB(255,165,0)),
+	ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255,255,0)),
+	ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0,255,0)),
+	ColorSequenceKeypoint.new(0.66, Color3.fromRGB(0,255,255)),
+	ColorSequenceKeypoint.new(0.83, Color3.fromRGB(0,0,255)),
+	ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255,0,255)),
+}
 
-    -- Animate Gradient
-    task.spawn(function()
-        while task.wait(0.03) do
-            uiGradient.Rotation = (uiGradient.Rotation + 2) % 360
-        end
-    end)
+local gradients = {} -- table lưu UIGradient để animate chung
 
-    return uiGradient
+local function attachRainbowGradient(parent)
+	local g = Instance.new("UIGradient")
+	g.Color = RAINBOW_SEQUENCE
+	g.Rotation = 0
+	g.Parent = parent
+	table.insert(gradients, g)
+	return g
 end
 
--- Frame chính (UI Container)
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 600, 0, 400)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.BorderSizePixel = 0
+-- ===== GUI base =====
+local screen = Instance.new("ScreenGui")
+screen.Name = "Phuc_RainbowUI"
+screen.ResetOnSpawn = false
+screen.Parent = PlayerGui
 
--- UICorner + Shadow
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 16)
-Corner.Parent = MainFrame
+-- Main frame: nhỏ gọn, tỉ lệ hợp lý
+local main = Instance.new("Frame")
+main.Name = "Main"
+main.Size = UDim2.new(0, 420, 0, 260) -- kích thước nhỏ gọn
+main.Position = UDim2.new(0.35, 0, 0.35, 0)
+main.AnchorPoint = Vector2.new(0,0)
+main.BackgroundColor3 = Color3.fromRGB(22,22,22)
+main.BorderSizePixel = 0
+main.Parent = screen
 
-local Shadow = Instance.new("ImageLabel")
-Shadow.Name = "Shadow"
-Shadow.Parent = MainFrame
-Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1, 40, 1, 40)
-Shadow.Image = "rbxassetid://1316045217"
-Shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-Shadow.ImageTransparency = 0.5
-Shadow.ScaleType = Enum.ScaleType.Slice
-Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
-Shadow.ZIndex = 0
+local mainCorner = Instance.new("UICorner", main)
+mainCorner.CornerRadius = UDim.new(0, 10)
 
--- Viền Rainbow Gradient
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 2
-UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-UIStroke.Parent = MainFrame
-createRainbowGradient(UIStroke)
+-- shadow (subtle)
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Parent = main
+shadow.AnchorPoint = Vector2.new(0.5,0.5)
+shadow.Position = UDim2.new(0.5,0,0.5,0)
+shadow.Size = UDim2.new(1,30,1,30)
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.new(0,0,0)
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10,10,118,118)
+shadow.BackgroundTransparency = 1
+shadow.ZIndex = main.ZIndex - 1
+shadow.ImageTransparency = 0.75
 
--- Title Bar
-local TitleBar = Instance.new("Frame")
-TitleBar.Name = "TitleBar"
-TitleBar.Parent = MainFrame
-TitleBar.Size = UDim2.new(1, 0, 0, 40)
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-TitleBar.BorderSizePixel = 0
+-- rainbow border stroke cho main
+local mainStroke = Instance.new("UIStroke", main)
+mainStroke.Thickness = 2
+mainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+attachRainbowGradient(mainStroke)
 
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 16)
-TitleCorner.Parent = TitleBar
+-- Titlebar (dùng để kéo)
+local titleBar = Instance.new("Frame", main)
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 36)
+titleBar.Position = UDim2.new(0, 0, 0, 0)
+titleBar.BackgroundColor3 = Color3.fromRGB(30,30,30)
+titleBar.BorderSizePixel = 0
+local titleCorner = Instance.new("UICorner", titleBar)
+titleCorner.CornerRadius = UDim.new(0, 10)
 
-local Title = Instance.new("TextLabel")
-Title.Parent = TitleBar
-Title.AnchorPoint = Vector2.new(0.5, 0.5)
-Title.Position = UDim2.new(0.5, 0, 0.5, 0)
-Title.Size = UDim2.new(1, -20, 1, -10)
-Title.Text = "🌈 Rainbow UI X - Rayfield + Fluent Style"
-Title.Font = Enum.Font.GothamBold
-Title.TextScaled = true
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+local titleLabel = Instance.new("TextLabel", titleBar)
+titleLabel.Size = UDim2.new(1, -10, 1, 0)
+titleLabel.Position = UDim2.new(0, 10, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "🌈 Rainbow Hub — Lean & Clean"
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 15
+titleLabel.TextColor3 = Color3.new(1,1,1)
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+attachRainbowGradient(titleLabel)
 
--- Rainbow Gradient cho Title
-createRainbowGradient(Title)
+-- container nội dung
+local leftCol = Instance.new("Frame", main)
+leftCol.Name = "LeftCol"
+leftCol.Position = UDim2.new(0, 8, 0, 46)
+leftCol.Size = UDim2.new(0, 120, 0, 200)
+leftCol.BackgroundTransparency = 1
 
--- Kéo UI bằng TitleBar
-local dragging, dragInput, dragStart, startPos
-TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-    end
-end)
-TitleBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
+local rightCol = Instance.new("Frame", main)
+rightCol.Name = "RightCol"
+rightCol.Position = UDim2.new(0, 136, 0, 46)
+rightCol.Size = UDim2.new(0, 276, 0, 200)
+rightCol.BackgroundColor3 = Color3.fromRGB(28,28,28)
+rightCol.BorderSizePixel = 0
+local rightCorner = Instance.new("UICorner", rightCol)
+rightCorner.CornerRadius = UDim.new(0,8)
+local rightStroke = Instance.new("UIStroke", rightCol)
+rightStroke.Thickness = 1
+attachRainbowGradient(rightStroke)
 
-print("[RainbowUI] Part 1 Loaded: Core UI + Rainbow Gradient Ready!")
--- // PHẦN 2/4 : TAB + BUTTON + TOGGLE
--- Tiếp nối từ phần 1
--- Tất cả chữ + viền đều rainbow gradient
+-- tab list (left)
+local tabList = Instance.new("UIListLayout", leftCol)
+tabList.Padding = UDim.new(0,6)
+tabList.SortOrder = Enum.SortOrder.LayoutOrder
 
--- Container cho Tabs
-local TabContainer = Instance.new("Frame")
-TabContainer.Name = "TabContainer"
-TabContainer.Parent = MainFrame
-TabContainer.Position = UDim2.new(0, 10, 0, 50)
-TabContainer.Size = UDim2.new(0, 150, 1, -60)
-TabContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TabContainer.BorderSizePixel = 0
+-- content scrolling area
+local contentScroll = Instance.new("ScrollingFrame", rightCol)
+contentScroll.Size = UDim2.new(1, -12, 1, -12)
+contentScroll.Position = UDim2.new(0, 6, 0, 6)
+contentScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+contentScroll.ScrollBarThickness = 6
+contentScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+contentScroll.BackgroundTransparency = 1
 
-local TabCorner = Instance.new("UICorner")
-TabCorner.CornerRadius = UDim.new(0, 12)
-TabCorner.Parent = TabContainer
+local contentLayout = Instance.new("UIListLayout", contentScroll)
+contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+contentLayout.Padding = UDim.new(0,8)
 
-local TabList = Instance.new("UIListLayout")
-TabList.Parent = TabContainer
-TabList.SortOrder = Enum.SortOrder.LayoutOrder
-TabList.Padding = UDim.new(0, 6)
+-- ===== helpers tạo controls =====
+local tabs = {}
+local currentTab = nil
 
--- Nội dung tab
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Name = "ContentFrame"
-ContentFrame.Parent = MainFrame
-ContentFrame.Position = UDim2.new(0, 170, 0, 50)
-ContentFrame.Size = UDim2.new(1, -180, 1, -60)
-ContentFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-ContentFrame.BorderSizePixel = 0
+local function makeTab(name)
+	local btn = Instance.new("TextButton", leftCol)
+	btn.Name = name .. "_TabBtn"
+	btn.Size = UDim2.new(1, 0, 0, 34)
+	btn.BackgroundColor3 = Color3.fromRGB(36,36,36)
+	btn.BorderSizePixel = 0
+	btn.Text = "  "..name
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.TextColor3 = Color3.fromRGB(240,240,240)
+	local c = Instance.new("UICorner", btn); c.CornerRadius = UDim.new(0,6)
+	local s = Instance.new("UIStroke", btn); s.Thickness = 1; attachRainbowGradient(s)
+	attachRainbowGradient(btn)
+	local page = Instance.new("Frame", contentScroll)
+	page.Size = UDim2.new(1, -12, 0, 10) -- will resize by AutomaticCanvasSize
+	page.BackgroundTransparency = 1
+	local layout = Instance.new("UIListLayout", page)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0,8)
 
-local ContentCorner = Instance.new("UICorner")
-ContentCorner.CornerRadius = UDim.new(0, 12)
-ContentCorner.Parent = ContentFrame
-
--- Rainbow border cho ContentFrame
-local ContentStroke = Instance.new("UIStroke")
-ContentStroke.Thickness = 2
-ContentStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-ContentStroke.Parent = ContentFrame
-createRainbowGradient(ContentStroke)
-
--- Table quản lý tab
-local Tabs = {}
-
--- Hàm tạo tab
-local function createTab(name)
-    local TabButton = Instance.new("TextButton")
-    TabButton.Name = name.."Tab"
-    TabButton.Parent = TabContainer
-    TabButton.Size = UDim2.new(1, -10, 0, 40)
-    TabButton.Text = name
-    TabButton.Font = Enum.Font.GothamBold
-    TabButton.TextSize = 14
-    TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-    local TabCorner = Instance.new("UICorner")
-    TabCorner.CornerRadius = UDim.new(0, 8)
-    TabCorner.Parent = TabButton
-
-    local TabStroke = Instance.new("UIStroke")
-    TabStroke.Thickness = 2
-    TabStroke.Parent = TabButton
-    createRainbowGradient(TabStroke)
-    createRainbowGradient(TabButton)
-
-    -- Nội dung riêng của tab
-    local TabContent = Instance.new("ScrollingFrame")
-    TabContent.Name = name.."Content"
-    TabContent.Parent = ContentFrame
-    TabContent.Size = UDim2.new(1, -10, 1, -10)
-    TabContent.Position = UDim2.new(0, 5, 0, 5)
-    TabContent.BackgroundTransparency = 1
-    TabContent.Visible = false
-    TabContent.ScrollBarThickness = 6
-
-    local UIList = Instance.new("UIListLayout")
-    UIList.Parent = TabContent
-    UIList.Padding = UDim.new(0, 8)
-    UIList.SortOrder = Enum.SortOrder.LayoutOrder
-
-    Tabs[name] = {Button = TabButton, Content = TabContent}
-
-    -- Click tab để show nội dung
-    TabButton.MouseButton1Click:Connect(function()
-        for _, tab in pairs(Tabs) do
-            tab.Content.Visible = false
-        end
-        TabContent.Visible = true
-    end)
-
-    return TabContent
+	tabs[name] = {btn = btn, page = page}
+	btn.MouseButton1Click:Connect(function()
+		-- hide others
+		for k,v in pairs(tabs) do
+			v.page.Visible = false
+		end
+		page.Visible = true
+		currentTab = name
+	end)
+	-- default select first
+	if not currentTab then
+		currentTab = name
+		page.Visible = true
+	else
+		page.Visible = false
+	end
+	return page
 end
 
--- Tạo một số tab mặc định
-local HomeTab = createTab("🏠 Home")
-local SettingsTab = createTab("⚙ Settings")
-
--- Auto chọn tab Home
-Tabs["🏠 Home"].Content.Visible = true
-
-----------------------------------------------------
--- Hàm tạo Button trong tab
-local function createButton(parent, text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, -10, 0, 40)
-    Button.Text = text
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 14
-    Button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Parent = parent
-
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 8)
-    BtnCorner.Parent = Button
-
-    local BtnStroke = Instance.new("UIStroke")
-    BtnStroke.Thickness = 2
-    BtnStroke.Parent = Button
-    createRainbowGradient(BtnStroke)
-    createRainbowGradient(Button)
-
-    Button.MouseButton1Click:Connect(function()
-        pcall(callback)
-    end)
-
-    return Button
+-- Button factory (compact)
+local function makeButton(parent, text, callback)
+	local btn = Instance.new("TextButton", parent)
+	btn.Size = UDim2.new(1, -12, 0, 34)
+	btn.BackgroundColor3 = Color3.fromRGB(46,46,46)
+	btn.BorderSizePixel = 0
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.Text = text
+	btn.TextColor3 = Color3.fromRGB(245,245,245)
+	local c = Instance.new("UICorner", btn); c.CornerRadius = UDim.new(0,6)
+	local s = Instance.new("UIStroke", btn); s.Thickness = 1; attachRainbowGradient(s)
+	attachRainbowGradient(btn)
+	btn.MouseButton1Click:Connect(function()
+		pcall(callback)
+	end)
+	return btn
 end
 
--- Hàm tạo Toggle
-local function createToggle(parent, text, default, callback)
-    local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, -10, 0, 40)
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    ToggleFrame.Parent = parent
+-- Toggle (compact switch)
+local function makeToggle(parent, text, default, callback)
+	local holder = Instance.new("Frame", parent)
+	holder.Size = UDim2.new(1, -12, 0, 34)
+	holder.BackgroundColor3 = Color3.fromRGB(42,42,42)
+	holder.BorderSizePixel = 0
+	local c = Instance.new("UICorner", holder); c.CornerRadius = UDim.new(0,6)
+	local s = Instance.new("UIStroke", holder); s.Thickness = 1; attachRainbowGradient(s)
 
-    local ToggleCorner = Instance.new("UICorner")
-    ToggleCorner.CornerRadius = UDim.new(0, 8)
-    ToggleCorner.Parent = ToggleFrame
+	local lbl = Instance.new("TextLabel", holder)
+	lbl.Size = UDim2.new(0.7, 0, 1, 0)
+	lbl.Position = UDim2.new(0, 8, 0, 0)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.GothamBold
+	lbl.Text = text
+	lbl.TextSize = 14
+	lbl.TextColor3 = Color3.fromRGB(245,245,245)
+	attachRainbowGradient(lbl)
 
-    local ToggleStroke = Instance.new("UIStroke")
-    ToggleStroke.Thickness = 2
-    ToggleStroke.Parent = ToggleFrame
-    createRainbowGradient(ToggleStroke)
+	local btn = Instance.new("TextButton", holder)
+	btn.Size = UDim2.new(0, 60, 0, 24)
+	btn.Position = UDim2.new(1, -70, 0.5, -12)
+	btn.AnchorPoint = Vector2.new(0,0)
+	btn.BackgroundColor3 = default and Color3.fromRGB(0,180,80) or Color3.fromRGB(160,40,40)
+	btn.Text = default and "ON" or "OFF"
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 12
+	btn.TextColor3 = Color3.fromRGB(245,245,245)
+	local bc = Instance.new("UICorner", btn); bc.CornerRadius = UDim.new(0,6)
+	local bs = Instance.new("UIStroke", btn); bs.Thickness = 1; attachRainbowGradient(bs)
 
-    local Label = Instance.new("TextLabel")
-    Label.Parent = ToggleFrame
-    Label.AnchorPoint = Vector2.new(0, 0.5)
-    Label.Position = UDim2.new(0, 10, 0.5, 0)
-    Label.Size = UDim2.new(0.7, 0, 1, -10)
-    Label.Text = text
-    Label.Font = Enum.Font.GothamBold
-    Label.TextScaled = true
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.BackgroundTransparency = 1
-    createRainbowGradient(Label)
-
-    local Button = Instance.new("TextButton")
-    Button.Parent = ToggleFrame
-    Button.AnchorPoint = Vector2.new(1, 0.5)
-    Button.Position = UDim2.new(1, -10, 0.5, 0)
-    Button.Size = UDim2.new(0, 60, 0, 25)
-    Button.Text = default and "ON" or "OFF"
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 12
-    Button.BackgroundColor3 = default and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 0, 0)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(1, 0)
-    BtnCorner.Parent = Button
-
-    local state = default
-    Button.MouseButton1Click:Connect(function()
-        state = not state
-        Button.Text = state and "ON" or "OFF"
-        Button.BackgroundColor3 = state and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 0, 0)
-        pcall(callback, state)
-    end)
-
-    return ToggleFrame
+	local state = default
+	btn.MouseButton1Click:Connect(function()
+		state = not state
+		btn.Text = state and "ON" or "OFF"
+		btn.BackgroundColor3 = state and Color3.fromRGB(0,180,80) or Color3.fromRGB(160,40,40)
+		pcall(callback, state)
+	end)
+	return holder, function() return state end
 end
 
-----------------------------------------------------
--- Demo: thêm button + toggle vào HomeTab
-createButton(HomeTab, "Click Me!", function()
-    print("Button clicked!")
-end)
+-- Slider (compact)
+local function makeSlider(parent, text, min, max, default, callback)
+	local holder = Instance.new("Frame", parent)
+	holder.Size = UDim2.new(1, -12, 0, 48)
+	holder.BackgroundColor3 = Color3.fromRGB(42,42,42)
+	local c = Instance.new("UICorner", holder); c.CornerRadius = UDim.new(0,6)
+	local s = Instance.new("UIStroke", holder); s.Thickness = 1; attachRainbowGradient(s)
 
-createToggle(HomeTab, "Rainbow Mode", false, function(state)
-    print("Toggle Rainbow:", state)
-end)
+	local lbl = Instance.new("TextLabel", holder)
+	lbl.Position = UDim2.new(0,8,0,4); lbl.Size = UDim2.new(1,-16,0,18)
+	lbl.BackgroundTransparency = 1; lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 13
+	lbl.Text = text.." : "..tostring(default); lbl.TextColor3 = Color3.fromRGB(245,245,245)
+	attachRainbowGradient(lbl)
 
-print("[RainbowUI] Part 2 Loaded: Tabs + Buttons + Toggle Ready!")
+	local bar = Instance.new("Frame", holder)
+	bar.Position = UDim2.new(0,8,0,28); bar.Size = UDim2.new(1,-16,0,8)
+	bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	local fill = Instance.new("Frame", bar)
+	fill.Size = UDim2.new((default-min)/(max-min),0,1,0)
+	fill.BackgroundColor3 = Color3.fromRGB(0,170,255)
+	attachRainbowGradient(fill)
 
--- // PHẦN 3/4 : SLIDER + DROPDOWN + KEYBIND + TEXTBOX
--- Tiếp nối từ Phần 1 + 2
+	local dragging = false
+	bar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+	end)
+	bar.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local rel = (input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X
+			rel = math.clamp(rel, 0, 1)
+			fill.Size = UDim2.new(rel, 0, 1, 0)
+			local val = math.floor(min + (max-min)*rel)
+			lbl.Text = text.." : "..tostring(val)
+			pcall(callback, val)
+		end
+	end)
 
-----------------------------------------------------
--- Hàm tạo Slider
-local function createSlider(parent, text, min, max, default, callback)
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, -10, 0, 60)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    SliderFrame.Parent = parent
-
-    local SliderCorner = Instance.new("UICorner")
-    SliderCorner.CornerRadius = UDim.new(0, 8)
-    SliderCorner.Parent = SliderFrame
-
-    local SliderStroke = Instance.new("UIStroke")
-    SliderStroke.Thickness = 2
-    SliderStroke.Parent = SliderFrame
-    createRainbowGradient(SliderStroke)
-
-    local Label = Instance.new("TextLabel")
-    Label.Parent = SliderFrame
-    Label.Size = UDim2.new(1, -20, 0, 20)
-    Label.Position = UDim2.new(0, 10, 0, 5)
-    Label.Text = text.." : "..default
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 14
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.BackgroundTransparency = 1
-    createRainbowGradient(Label)
-
-    local Bar = Instance.new("Frame")
-    Bar.Parent = SliderFrame
-    Bar.Size = UDim2.new(1, -20, 0, 6)
-    Bar.Position = UDim2.new(0, 10, 0, 35)
-    Bar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    Bar.BorderSizePixel = 0
-
-    local Fill = Instance.new("Frame")
-    Fill.Parent = Bar
-    Fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
-    Fill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-    Fill.BorderSizePixel = 0
-
-    createRainbowGradient(Fill)
-
-    local dragging = false
-    Bar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-        end
-    end)
-    Bar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local relative = (input.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X
-            relative = math.clamp(relative, 0, 1)
-            Fill.Size = UDim2.new(relative, 0, 1, 0)
-            local value = math.floor(min + (max - min) * relative)
-            Label.Text = text.." : "..value
-            pcall(callback, value)
-        end
-    end)
+	return holder
 end
 
-----------------------------------------------------
--- Hàm tạo Dropdown
-local function createDropdown(parent, text, options, callback)
-    local DropdownFrame = Instance.new("Frame")
-    DropdownFrame.Size = UDim2.new(1, -10, 0, 40)
-    DropdownFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    DropdownFrame.Parent = parent
+-- Textbox (compact)
+local function makeTextbox(parent, labelText, placeholder, callback)
+	local holder = Instance.new("Frame", parent)
+	holder.Size = UDim2.new(1, -12, 0, 36)
+	holder.BackgroundColor3 = Color3.fromRGB(42,42,42)
+	local c = Instance.new("UICorner", holder); c.CornerRadius = UDim.new(0,6)
+	local s = Instance.new("UIStroke", holder); s.Thickness = 1; attachRainbowGradient(s)
 
-    local DropCorner = Instance.new("UICorner")
-    DropCorner.CornerRadius = UDim.new(0, 8)
-    DropCorner.Parent = DropdownFrame
+	local lbl = Instance.new("TextLabel", holder)
+	lbl.Size = UDim2.new(0.45, 0, 1, 0)
+	lbl.Position = UDim2.new(0,8,0,0)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.GothamBold
+	lbl.Text = labelText
+	lbl.TextSize = 13
+	lbl.TextColor3 = Color3.fromRGB(245,245,245)
+	attachRainbowGradient(lbl)
 
-    local DropStroke = Instance.new("UIStroke")
-    DropStroke.Thickness = 2
-    DropStroke.Parent = DropdownFrame
-    createRainbowGradient(DropStroke)
+	local box = Instance.new("TextBox", holder)
+	box.Size = UDim2.new(0.5, -12, 0, 24)
+	box.Position = UDim2.new(1, -box.AbsoluteSize.X - 10, 0.5, -12)
+	box.AnchorPoint = Vector2.new(1,0.5)
+	box.PlaceholderText = placeholder
+	box.Text = ""
+	box.Font = Enum.Font.Gotham
+	box.TextSize = 13
+	box.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	box.TextColor3 = Color3.fromRGB(245,245,245)
+	local bc = Instance.new("UICorner", box); bc.CornerRadius = UDim.new(0,6)
 
-    local Button = Instance.new("TextButton")
-    Button.Size = UDim2.new(1, -10, 1, -10)
-    Button.Position = UDim2.new(0, 5, 0, 5)
-    Button.Text = text.." ▼"
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 14
-    Button.BackgroundTransparency = 1
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Parent = DropdownFrame
-    createRainbowGradient(Button)
-
-    local ListFrame = Instance.new("Frame")
-    ListFrame.Size = UDim2.new(1, -10, 0, #options * 30)
-    ListFrame.Position = UDim2.new(0, 5, 1, 5)
-    ListFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    ListFrame.Visible = false
-    ListFrame.Parent = DropdownFrame
-
-    local ListLayout = Instance.new("UIListLayout")
-    ListLayout.Parent = ListFrame
-    ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-    for _, option in ipairs(options) do
-        local OptButton = Instance.new("TextButton")
-        OptButton.Size = UDim2.new(1, -10, 0, 25)
-        OptButton.Text = option
-        OptButton.Font = Enum.Font.GothamBold
-        OptButton.TextSize = 14
-        OptButton.BackgroundTransparency = 1
-        OptButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        OptButton.Parent = ListFrame
-        createRainbowGradient(OptButton)
-
-        OptButton.MouseButton1Click:Connect(function()
-            Button.Text = text.." : "..option
-            ListFrame.Visible = false
-            pcall(callback, option)
-        end)
-    end
-
-    Button.MouseButton1Click:Connect(function()
-        ListFrame.Visible = not ListFrame.Visible
-    end)
+	box.FocusLost:Connect(function(enter)
+		if enter then pcall(callback, box.Text) end
+	end)
+	return holder
 end
 
-----------------------------------------------------
--- Hàm tạo Keybind
-local function createKeybind(parent, text, defaultKey, callback)
-    local KeybindFrame = Instance.new("Frame")
-    KeybindFrame.Size = UDim2.new(1, -10, 0, 40)
-    KeybindFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    KeybindFrame.Parent = parent
+-- ===== demo content =====
+local t1 = makeTab("Main")
+local t2 = makeTab("Utility")
+local t3 = makeTab("Settings")
 
-    local KeyCorner = Instance.new("UICorner")
-    KeyCorner.CornerRadius = UDim.new(0, 8)
-    KeyCorner.Parent = KeybindFrame
+-- Fill Main tab
+makeButton(t1, "Hello", function() print("Hello pressed") end)
+makeButton(t1, "Small Action", function() print("Action") end)
+makeToggle(t1, "Enable Rainbow", true, function(s) print("Rainbow:", s) end)
+makeSlider(t1, "Speed", 1, 200, 16, function(v) print("Speed:", v) end)
 
-    local KeyStroke = Instance.new("UIStroke")
-    KeyStroke.Thickness = 2
-    KeyStroke.Parent = KeybindFrame
-    createRainbowGradient(KeyStroke)
+-- Utility tab
+makeButton(t2, "Teleport to Spawn", function() pcall(function() LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.SpawnLocation.CFrame end) end)
+makeTextbox(t2, "Note", "Type note...", function(txt) print("Note:", txt) end)
 
-    local Label = Instance.new("TextLabel")
-    Label.Parent = KeybindFrame
-    Label.AnchorPoint = Vector2.new(0, 0.5)
-    Label.Position = UDim2.new(0, 10, 0.5, 0)
-    Label.Size = UDim2.new(0.6, 0, 1, -10)
-    Label.Text = text.." : "..defaultKey.Name
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 14
-    Label.BackgroundTransparency = 1
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    createRainbowGradient(Label)
+-- Settings tab
+makeToggle(t3, "Auto Save", false, function(s) print("AutoSave:", s) end)
+makeSlider(t3, "Volume", 0, 100, 50, function(v) print("Volume:", v) end)
 
-    local Button = Instance.new("TextButton")
-    Button.Parent = KeybindFrame
-    Button.AnchorPoint = Vector2.new(1, 0.5)
-    Button.Position = UDim2.new(1, -10, 0.5, 0)
-    Button.Size = UDim2.new(0, 100, 0, 25)
-    Button.Text = "Change"
-    Button.Font = Enum.Font.GothamBold
-    Button.TextSize = 12
-    Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+-- ===== Floating toggle button để ẩn/hiện UI =====
+local floatBtn = Instance.new("ImageButton", screen)
+floatBtn.Name = "FloatToggle"
+floatBtn.Size = UDim2.new(0,44,0,44)
+floatBtn.Position = UDim2.new(0, 12, 0.5, -22)
+floatBtn.AnchorPoint = Vector2.new(0,0)
+floatBtn.BackgroundColor3 = Color3.fromRGB(28,28,28)
+floatBtn.Image = "" -- để trống hoặc cho icon id
+local fcorner = Instance.new("UICorner", floatBtn); fcorner.CornerRadius = UDim.new(1,0)
+local fstroke = Instance.new("UIStroke", floatBtn); fstroke.Thickness = 2; attachRainbowGradient(fstroke)
+attachRainbowGradient(floatBtn)
 
-    local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 8)
-    BtnCorner.Parent = Button
-
-    local binding = false
-    local currentKey = defaultKey
-
-    Button.MouseButton1Click:Connect(function()
-        binding = true
-        Button.Text = "Press a Key..."
-    end)
-
-    game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
-        if gp then return end
-        if binding and input.UserInputType == Enum.UserInputType.Keyboard then
-            binding = false
-            currentKey = input.KeyCode
-            Button.Text = "Change"
-            Label.Text = text.." : "..currentKey.Name
-        elseif input.KeyCode == currentKey then
-            pcall(callback)
-        end
-    end)
-end
-
-----------------------------------------------------
--- Hàm tạo Textbox
-local function createTextbox(parent, text, placeholder, callback)
-    local BoxFrame = Instance.new("Frame")
-    BoxFrame.Size = UDim2.new(1, -10, 0, 40)
-    BoxFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    BoxFrame.Parent = parent
-
-    local BoxCorner = Instance.new("UICorner")
-    BoxCorner.CornerRadius = UDim.new(0, 8)
-    BoxCorner.Parent = BoxFrame
-
-    local BoxStroke = Instance.new("UIStroke")
-    BoxStroke.Thickness = 2
-    BoxStroke.Parent = BoxFrame
-    createRainbowGradient(BoxStroke)
-
-    local Label = Instance.new("TextLabel")
-    Label.Parent = BoxFrame
-    Label.AnchorPoint = Vector2.new(0, 0.5)
-    Label.Position = UDim2.new(0, 10, 0.5, 0)
-    Label.Size = UDim2.new(0.3, 0, 1, -10)
-    Label.Text = text
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 14
-    Label.BackgroundTransparency = 1
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    createRainbowGradient(Label)
-
-    local TextBox = Instance.new("TextBox")
-    TextBox.Parent = BoxFrame
-    TextBox.AnchorPoint = Vector2.new(1, 0.5)
-    TextBox.Position = UDim2.new(1, -10, 0.5, 0)
-    TextBox.Size = UDim2.new(0, 150, 0, 25)
-    TextBox.PlaceholderText = placeholder
-    TextBox.Text = ""
-    TextBox.Font = Enum.Font.Gotham
-    TextBox.TextSize = 12
-    TextBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-    local BoxCorner2 = Instance.new("UICorner")
-    BoxCorner2.CornerRadius = UDim.new(0, 8)
-    BoxCorner2.Parent = TextBox
-
-    TextBox.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            pcall(callback, TextBox.Text)
-        end
-    end)
-end
-
-----------------------------------------------------
--- Demo: thêm vào SettingsTab
-createSlider(SettingsTab, "Volume", 0, 100, 50, function(val)
-    print("Slider Value:", val)
+local isOpen = true
+floatBtn.MouseButton1Click:Connect(function()
+	isOpen = not isOpen
+	main.Visible = isOpen
 end)
 
-createDropdown(SettingsTab, "Choose Mode", {"Easy","Normal","Hard"}, function(opt)
-    print("Selected:", opt)
-end)
-
-createKeybind(SettingsTab, "Open Menu", Enum.KeyCode.RightShift, function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
-createTextbox(SettingsTab, "Username", "Enter name...", function(txt)
-    print("Entered:", txt)
-end)
-
-print("[RainbowUI] Part 3 Loaded: Slider + Dropdown + Keybind + Textbox Ready!")
-
---====================================================
--- 🌈 PART 4 - FINALIZATION & CLEANUP
---====================================================
-
--- 🌈 Tạo Rainbow Gradient Function cho Text
-local function ApplyRainbowGradientToText(textLabel)
-    local uiGradient = Instance.new("UIGradient")
-    uiGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-        ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 165, 0)),
-        ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
-        ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
-        ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(128, 0, 128))
-    }
-    uiGradient.Rotation = 90
-    uiGradient.Parent = textLabel
+-- ===== draggable bằng TitleBar (chuẩn, mượt) =====
+do
+	local dragging = false
+	local dragStart
+	local startPos
+	titleBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = main.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+	titleBar.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			-- store movement
+			UserInputService.InputChanged:Connect(function()
+				-- noop (prevent leak)
+			end)
+		end
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			local x = startPos.X.Offset + delta.X
+			local y = startPos.Y.Offset + delta.Y
+			main.Position = UDim2.new(startPos.X.Scale, x, startPos.Y.Scale, y)
+		end
+	end)
 end
 
--- 🌈 Áp dụng rainbow cho tất cả TextLabel, TextButton
-for _, obj in pairs(ScreenGui:GetDescendants()) do
-    if obj:IsA("TextLabel") or obj:IsA("TextButton") then
-        ApplyRainbowGradientToText(obj)
-    end
-end
-
--- 🌈 Áp dụng Rainbow Gradient cho viền Frame
-local function ApplyRainbowBorder(frame)
-    local uistroke = Instance.new("UIStroke")
-    uistroke.Thickness = 2
-    uistroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    uistroke.Color = Color3.fromRGB(255, 0, 0)
-    uistroke.Parent = frame
-
-    -- Animation Rainbow
-    task.spawn(function()
-        while true do
-            for i = 0, 1, 0.01 do
-                local hue = i
-                uistroke.Color = Color3.fromHSV(hue, 1, 1)
-                task.wait(0.05)
-            end
-        end
-    end)
-end
-
-for _, obj in pairs(ScreenGui:GetDescendants()) do
-    if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-        ApplyRainbowBorder(obj)
-    end
-end
-
--- 🌈 Keybind ẩn/hiện UI
-local UIS = game:GetService("UserInputService")
-local uiVisible = true
-UIS.InputBegan:Connect(function(input, gp)
-    if not gp and input.KeyCode == Enum.KeyCode.RightControl then
-        uiVisible = not uiVisible
-        ScreenGui.Enabled = uiVisible
-    end
+-- ===== animate all gradients (shared loop) =====
+task.spawn(function()
+	local rot = 0
+	while task.wait(0.03) do
+		rot = (rot + 1.5) % 360
+		for _, g in ipairs(gradients) do
+			if g and g.Parent then
+				g.Rotation = rot
+			end
+		end
+	end
 end)
 
--- 🌈 Hoàn tất
-print("[🌈 Rainbow UI Hub] Loaded successfully with Rayfield+Fluent Style!")
-print("[UI]: Rainbow gradient applied to all text & borders")
-print("[UI]: Press RightControl to toggle UI visibility")
-
---====================================================
--- 🎉 END OF SCRIPT (4/4)
---====================================================
+-- Done
+print("[Phuc_RainbowUI] Built fresh UI (compact, draggable, rainbow).")
