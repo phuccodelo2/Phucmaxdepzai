@@ -1,238 +1,1 @@
--- PHUCMAX UI - Rainbow Gradient "rợn sống" cho text + FPS & Ping + Notifications
--- Dán vào LocalScript / executor. Không tạo nhiều lần (có guard).
-
-if getgenv and getgenv().PHUCMAX_UI_LOADED then
-    return
-end
-if getgenv then getgenv().PHUCMAX_UI_LOADED = true end
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-
-local LocalPlayer = Players.LocalPlayer
-local playerGui = LocalPlayer:WaitForChild("PlayerGui")
-
--- Remove old if exists
-local existing = playerGui:FindFirstChild("PHUCMAX_UI")
-if existing then existing:Destroy() end
-
-local screen = Instance.new("ScreenGui")
-screen.Name = "PHUCMAX_UI"
-screen.ResetOnSpawn = false
-screen.Parent = playerGui
-
--- Helpers
-local function color3ToHex(c)
-    local r = math.clamp(math.floor(c.R * 255), 0, 255)
-    local g = math.clamp(math.floor(c.G * 255), 0, 255)
-    local b = math.clamp(math.floor(c.B * 255), 0, 255)
-    return string.format("#%02x%02x%02x", r, g, b)
-end
-
--- Build richtext gradient for a string (per-char colors, animated by baseHue)
-local function buildGradientRichText(text, baseHue, spread, brightnessWave)
-    -- text: string, baseHue: number 0..1, spread: hue offset between chars, brightnessWave: function(index, t) -> brightness
-    local out = {}
-    local len = utf8.len(text)
-    -- iterate by byte-safe char
-    local i = 0
-    for _, ch in utf8.codes(text) do
-        i = i + 1
-        local char = utf8.char(ch)
-        local hue = (baseHue + (i-1) * spread) % 1
-        local bright = 1
-        if brightnessWave then
-            bright = brightnessWave(i, tick()) -- 0..1
-            bright = math.clamp(bright, 0.2, 1)
-        end
-        local col = Color3.fromHSV(hue, 1, bright)
-        local hex = color3ToHex(col)
-        -- escape < and >
-        if char == "<" then char = "&lt;" end
-        if char == ">" then char = "&gt;" end
-        table.insert(out, string.format('<font color="%s">%s</font>', hex, char))
-    end
-    return table.concat(out)
-end
-
--- Gradient-managed labels registry
-local gradientLabels = {} -- { {label=TextLabel, text="PHUCMAX", spread=..., speed=..., brightnessWave=fn}, ... }
-
-local function registerGradientLabel(lbl, text, opts)
-    opts = opts or {}
-    local entry = {
-        label = lbl,
-        text = text or lbl.Text or "",
-        spread = opts.spread or (1 / math.max(utf8.len(text or lbl.Text or ""), 1)) * 0.6,
-        speed = opts.speed or 0.6,
-        brightnessWave = opts.brightnessWave or function(i,t) return 0.85 + 0.12 * math.sin(t * 4 + i * 0.6) end
-    }
-    lbl.RichText = true
-    lbl.Text = "" -- will be set by updater
-    gradientLabels[#gradientLabels + 1] = entry
-    return entry
-end
-
--- UI elements & layout adjustments (more spacing)
--- Main big label (PHUCMAX)
-local mainLabel = Instance.new("TextLabel")
-mainLabel.Name = "MainLabel"
-mainLabel.Size = UDim2.new(0.7, 0, 0, 80)
-mainLabel.Position = UDim2.new(0.5, 0, 0.30, 0)
-mainLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-mainLabel.BackgroundTransparency = 1
-mainLabel.Font = Enum.Font.GothamBlack
-mainLabel.TextScaled = true
-mainLabel.Text = "PHUCMAX"
-mainLabel.Parent = screen
-mainLabel.TextStrokeTransparency = 0.4
-
--- Sub label under main (nhattrai)
-local subLabel = Instance.new("TextLabel")
-subLabel.Name = "SubLabel"
-subLabel.Size = UDim2.new(0.45, 0, 0, 40)
-subLabel.Position = UDim2.new(0.5, 0, 0.395, 0)
-subLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-subLabel.BackgroundTransparency = 1
-subLabel.Font = Enum.Font.GothamBold
-subLabel.TextScaled = true
-subLabel.Text = "nhattrai"
-subLabel.Parent = screen
-subLabel.TextStrokeTransparency = 0.5
-
--- Info label for FPS | Ping under sub (smaller)
-local infoLabel = Instance.new("TextLabel")
-infoLabel.Name = "InfoLabel"
-infoLabel.Size = UDim2.new(0.35, 0, 0, 28)
-infoLabel.Position = UDim2.new(0.5, 0, 0.455, 0)
-infoLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.TextScaled = true
-infoLabel.Text = "FPS: 0 | Ping: 0 ms"
-infoLabel.Parent = screen
-
--- Notification container (bottom-right, a bit above jump button area)
-local notiContainer = Instance.new("Frame")
-notiContainer.Name = "NotiContainer"
-notiContainer.Size = UDim2.new(0.22, 0, 0.18, 0)
--- place slightly above typical mobile jump button area (approx)
-notiContainer.Position = UDim2.new(0.78, 0, 0.72, 0)
-notiContainer.AnchorPoint = Vector2.new(0, 0)
-notiContainer.BackgroundTransparency = 1
-notiContainer.Parent = screen
-
--- notification queue & show function
-local notiQueue = {}
-local showing = false
-
-local function showNotification(text)
-    table.insert(notiQueue, text)
-    -- if not currently showing, start show loop
-    if not showing then
-        showing = true
-        spawn(function()
-            while #notiQueue > 0 do
-                local msg = table.remove(notiQueue, 1)
-                -- create noti label
-                local noti = Instance.new("TextLabel")
-                noti.Size = UDim2.new(1, -6, 0, 36)
-                noti.Position = UDim2.new(0, 6, 0, 6)
-                noti.AnchorPoint = Vector2.new(0, 0)
-                noti.BackgroundTransparency = 0.25
-                noti.BackgroundColor3 = Color3.fromRGB(20,20,20)
-                noti.BorderSizePixel = 0
-                noti.Parent = notiContainer
-                noti.Font = Enum.Font.GothamBold
-                noti.TextScaled = true
-                noti.RichText = true
-                noti.Text = msg
-                noti.TextTransparency = 1
-                noti.TextStrokeTransparency = 0.6
-                noti.ClipsDescendants = true
-                local corner = Instance.new("UICorner", noti); corner.CornerRadius = UDim.new(0,8)
-
-                -- register gradient for this notification
-                registerGradientLabel(noti, msg, { spread = 0.06, speed = 1.2, brightnessWave = function(i,t) return 0.9 + 0.08*math.sin(t*6 + i*0.35) end })
-
-                -- tween appear
-                TweenService:Create(noti, TweenInfo.new(0.18, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-                -- show 2s
-                task.wait(2)
-                -- tween disappear
-                TweenService:Create(noti, TweenInfo.new(0.18, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
-                task.wait(0.18)
-                -- cleanup: remove from gradientLabels table
-                for idx,entry in ipairs(gradientLabels) do
-                    if entry.label == noti then
-                        table.remove(gradientLabels, idx)
-                        break
-                    end
-                end
-                noti:Destroy()
-                task.wait(0.1)
-            end
-            showing = false
-        end)
-    end
-end
-
--- Register main & sub as gradient labels
-registerGradientLabel(mainLabel, "PHUCMAX", { spread = 0.04, speed = 0.55, brightnessWave = function(i,t) return 0.9 + 0.07*math.sin(t*3 + i*0.35) end })
-registerGradientLabel(subLabel, "nhattrai", { spread = 0.055, speed = 0.7, brightnessWave = function(i,t) return 0.9 + 0.06*math.sin(t*4 + i*0.4) end })
-
--- FPS & Ping updater variables
-local frames = 0
-local lastTime = tick()
-local fps = 0
-
--- single RenderStepped updater for gradients + FPS/ping
-local updaterConn
-updaterConn = RunService.RenderStepped:Connect(function(dt)
-    -- update gradient labels
-    for _, entry in ipairs(gradientLabels) do
-        local lbl = entry.label
-        if lbl and lbl.Parent then
-            local baseHue = (tick() * entry.speed) % 1
-            -- build richText using entry.text
-            local text = entry.text or lbl.Text or ""
-            if text == "" then
-                -- fallback: use current plain text
-                text = lbl.Text
-            end
-            -- construct gradient richtext
-            local rich = buildGradientRichText(text, baseHue, entry.spread, entry.brightnessWave)
-            -- apply
-            lbl.Text = rich
-        end
-    end
-
-    -- fps
-    frames = frames + 1
-    local now = tick()
-    if now - lastTime >= 1 then
-        fps = frames
-        frames = 0
-        lastTime = now
-    end
-
-    -- ping (ms)
-    local ping = math.floor(Players:GetStatus() and (LocalPlayer:GetNetworkPing() * 1000) or (LocalPlayer:GetNetworkPing() * 1000)) -- fallback safe
-    infoLabel.Text = string.format("FPS: %d   |   Ping: %d ms", fps, ping)
-    -- also color infoLabel by gradient quickly
-    local h = (tick() * 0.6) % 1
-    infoLabel.TextColor3 = Color3.fromHSV(h, 1, 1)
-end)
-
--- Utility: expose ShowNotification
-if getgenv then
-    getgenv().PHUCMAX_ShowNotification = showNotification
-end
-
--- Example usage (comment out or keep):
--- showNotification("✅ Auto Join Hải Quân Bật")
--- showNotification("🍏 Auto nhặt trái đang chạy")
--- showNotification("⚡ FixLag X2 applied")
-
-print("PHUCMAX UI loaded (gradient 'rợn sống').")
+-- 📌 PHUCMAX HUB – FULL SCRIPT-- Part 1/3: UI + Rainbow Text + Notification System-- Serviceslocal Players = game:GetService("Players")local RunService = game:GetService("RunService")local HttpService = game:GetService("HttpService")local TweenService = game:GetService("TweenService")local Lighting = game:GetService("Lighting")local LocalPlayer = Players.LocalPlayerlocal PlayerGui = LocalPlayer:WaitForChild("PlayerGui")-- Rainbow gradient functionlocal function rainbowColor(hueShift)    return Color3.fromHSV((tick() * 0.2 + hueShift) % 1, 1, 1)end-- Main ScreenGuilocal MainUI = Instance.new("ScreenGui")MainUI.Name = "PHUCMAX_UI"MainUI.ResetOnSpawn = falseMainUI.Parent = PlayerGui-- Containerlocal Container = Instance.new("Frame")Container.Size = UDim2.new(1, 0, 1, 0)Container.BackgroundTransparency = 1Container.Parent = MainUI-- Title PHUCMAXlocal Title = Instance.new("TextLabel")Title.Text = "PHUCMAX"Title.Font = Enum.Font.GothamBoldTitle.TextScaled = trueTitle.Size = UDim2.new(0.4, 0, 0.15, 0)Title.Position = UDim2.new(0.3, 0, 0.05, 0)Title.BackgroundTransparency = 1Title.Parent = Container-- SubText nhattrailocal SubText = Instance.new("TextLabel")SubText.Text = "nhattrai"SubText.Font = Enum.Font.GothamSemiboldSubText.TextScaled = trueSubText.Size = UDim2.new(0.25, 0, 0.1, 0)SubText.Position = UDim2.new(0.375, 0, 0.18, 0)SubText.BackgroundTransparency = 1SubText.Parent = Container-- FPS + Pinglocal Status = Instance.new("TextLabel")Status.Text = "FPS: 0 | Ping: 0"Status.Font = Enum.Font.GothamStatus.TextScaled = trueStatus.Size = UDim2.new(0.3, 0, 0.08, 0)Status.Position = UDim2.new(0.35, 0, 0.28, 0)Status.BackgroundTransparency = 1Status.Parent = Container-- Notifications containerlocal NotiHolder = Instance.new("Frame")NotiHolder.Size = UDim2.new(0.25, 0, 0.6, 0)NotiHolder.Position = UDim2.new(0.75, 0, 0.35, 0)NotiHolder.BackgroundTransparency = 1NotiHolder.Parent = MainUI-- Function create notificationlocal function createNotification(msg)    local Noti = Instance.new("TextLabel")    Noti.Text = msg    Noti.Font = Enum.Font.GothamBold    Noti.TextScaled = true    Noti.Size = UDim2.new(1, 0, 0.08, 0)    Noti.BackgroundTransparency = 1    Noti.Parent = NotiHolder    -- Position bottom then tween up    Noti.Position = UDim2.new(0, 0, 1, 0)    local tweenIn = TweenService:Create(Noti, TweenInfo.new(0.3), {Position = UDim2.new(0, 0, 0.9, 0)})    tweenIn:Play()    task.delay(2, function()        local tweenOut = TweenService:Create(Noti, TweenInfo.new(0.3), {Position = UDim2.new(0, 0, 1.1, 0)})        tweenOut:Play()        tweenOut.Completed:Wait()        Noti:Destroy()    end)    -- Rainbow effect    task.spawn(function()        while Noti.Parent do            Noti.TextColor3 = rainbowColor(0)            RunService.RenderStepped:Wait()        end    end)end-- Rainbow update looptask.spawn(function()    while task.wait() do        Title.TextColor3 = rainbowColor(0)        SubText.TextColor3 = rainbowColor(0.2)        Status.TextColor3 = rainbowColor(0.4)        -- Update FPS + Ping        local fps = math.floor(1 / RunService.RenderStepped:Wait())        local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()        Status.Text = string.format("FPS: %d | Ping: %s", fps, ping)    endend)-- Test notificationcreateNotification("✅ UI Loaded thành công")-- Part 2/3: Chức năng chính PHUCMAX--// Auto Join Marinestask.spawn(function()    pcall(function()        local chooseTeam = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ChooseTeam")        local teamBtn = chooseTeam.Container.Marines.Frame.ViewportFrame.TextButton        if teamBtn then            fireclickdetector(teamBtn.ClickDetector)            createNotification("⚓ Auto Join Marines")        end    end)end)--// Highlight & nhặt trái tự độnglocal function highlightFruit(fruit)    local handle = fruit:FindFirstChildWhichIsA("BasePart") or fruit:FindFirstChild("Handle")    if not handle then return end    local bill = Instance.new("BillboardGui")    bill.Size = UDim2.new(0, 100, 0, 20)    bill.Adornee = handle    bill.AlwaysOnTop = true    bill.Parent = fruit    local label = Instance.new("TextLabel")    label.Text = fruit.Name    label.Size = UDim2.new(1,0,1,0)    label.BackgroundTransparency = 1    label.Font = Enum.Font.GothamBold    label.TextScaled = true    label.TextColor3 = rainbowColor(0)    label.Parent = bill    -- Rainbow effect    task.spawn(function()        while label.Parent do            label.TextColor3 = rainbowColor(0.3)            RunService.RenderStepped:Wait()        end    end)end-- Auto pick fruit + ESP rainbowtask.spawn(function()    while task.wait(5) do        for _, obj in ipairs(workspace:GetDescendants()) do            if obj:IsA("Tool") and obj:FindFirstChild("Handle") and obj.Name:lower():find("fruit") then                highlightFruit(obj)                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then                    local hrp = LocalPlayer.Character.HumanoidRootPart                    hrp.CFrame = obj.Handle.CFrame + Vector3.new(0, 3, 0)                    firetouchinterest(hrp, obj.Handle, 0)                    firetouchinterest(hrp, obj.Handle, 1)                    createNotification("🍎 Nhặt: " .. obj.Name)                end            end        end    endend)--// Auto Store Fruit_G.AutoStoreFruit = true -- mặc định bậttask.spawn(function()    while task.wait(1) do        if _G.AutoStoreFruit and LocalPlayer.Backpack then            for _, fruit in ipairs(LocalPlayer.Backpack:GetChildren()) do                if fruit:IsA("Tool") and fruit.Name:find("Fruit") then                    pcall(function()                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruit.Name:gsub(" ", "-"), fruit)                        createNotification("💾 Lưu trữ: " .. fruit.Name)                    end)                end            end        end    endend)--// Auto Server Hop khi hết tráilocal function serverHop()    pcall(function()        local servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"))        for _, v in pairs(servers.data) do            if v.playing < v.maxPlayers and v.id ~= game.JobId then                createNotification("🔄 Server Hop...")                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, v.id, LocalPlayer)                break            end        end    end)endtask.spawn(function()    while task.wait(60) do        local hasFruit = false        for _, obj in ipairs(workspace:GetDescendants()) do            if obj:IsA("Tool") and obj.Name:lower():find("fruit") then                hasFruit = true                break            end        end        if not hasFruit then            serverHop()        end    endend)--// FixLag X2local function FixLagX2()    for _, obj in ipairs(workspace:GetDescendants()) do        if obj:IsA("BasePart") then            obj.Material = Enum.Material.SmoothPlastic            obj.Color = Color3.fromRGB(150,150,150)            obj.Reflectance = 0        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then            obj.Enabled = false        end        if obj.Name:match("Leaf") or obj.Name:match("Tree") then            obj:Destroy()        elseif obj:IsA("UnionOperation") or obj:IsA("MeshPart") then            obj.Transparency = 0.9        end    end    Lighting.GlobalShadows = false    Lighting.Brightness = Lighting.Brightness * 0.3    createNotification("✅ FixLag X2 Applied")endtask.spawn(FixLagX2)-- Part 3/3: UI toggle & thông báo góc phải--// UI Menu Framelocal menuFrame = Instance.new("Frame", screenGui)menuFrame.Size = UDim2.new(0, 220, 0, 300)menuFrame.Position = UDim2.new(0, 10, 0.3, 0)menuFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)menuFrame.BorderSizePixel = 0menuFrame.Visible = truemenuFrame.ClipsDescendants = truemenuFrame.ZIndex = 20menuFrame.AnchorPoint = Vector2.new(0,0)--// Titlelocal menuTitle = Instance.new("TextLabel", menuFrame)menuTitle.Text = "PHUCMAX HUB"menuTitle.Font = Enum.Font.GothamBoldmenuTitle.TextSize = 20menuTitle.TextColor3 = Color3.fromRGB(255,255,255)menuTitle.BackgroundTransparency = 1menuTitle.Size = UDim2.new(1,0,0,30)--// Layoutlocal menuLayout = Instance.new("UIListLayout", menuFrame)menuLayout.SortOrder = Enum.SortOrder.LayoutOrdermenuLayout.Padding = UDim.new(0,5)--// Chức năng Togglelocal function addToggle(title, default, callback)    local toggleFrame = Instance.new("Frame", menuFrame)    toggleFrame.Size = UDim2.new(1, -10, 0, 30)    toggleFrame.BackgroundTransparency = 1    local lbl = Instance.new("TextLabel", toggleFrame)    lbl.Text = title    lbl.Font = Enum.Font.Gotham    lbl.TextSize = 16    lbl.TextColor3 = Color3.fromRGB(255,255,255)    lbl.BackgroundTransparency = 1    lbl.Size = UDim2.new(0.7, 0, 1, 0)    lbl.TextXAlignment = Enum.TextXAlignment.Left    local btn = Instance.new("TextButton", toggleFrame)    btn.Size = UDim2.new(0.3,0,1,0)    btn.Position = UDim2.new(0.7,0,0,0)    btn.Text = default and "ON" or "OFF"    btn.TextColor3 = default and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)    btn.BackgroundColor3 = Color3.fromRGB(50,50,50)    btn.BorderSizePixel = 0    local state = default    btn.MouseButton1Click:Connect(function()        state = not state        btn.Text = state and "ON" or "OFF"        btn.TextColor3 = state and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)        callback(state)        createNotification("⚡ " .. title .. " " .. (state and "ON" or "OFF"))    end)end-- Thêm toggle cho các chức năngaddToggle("Auto Join Marines", true, function(v) _G.AutoJoinMarines = v end)addToggle("Auto Pick Fruit", true, function(v) _G.AutoPickFruit = v end)addToggle("Auto Store Fruit", true, function(v) _G.AutoStoreFruit = v end)addToggle("Auto Server Hop", true, function(v) _G.AutoServerHop = v end)addToggle("FixLag X2", true, function(v)     if v then FixLagX2() end end)--// Chức năng tạo thông báo góc phảifunction createNotification(msg)    local note = createRainbowText(msg, 18)    note.Size = UDim2.new(0,250,0,25)    note.Position = UDim2.new(1, -260, 1, -120)    note.AnchorPoint = Vector2.new(0,0)    note.Parent = screenGui    task.spawn(function()        wait(2)        note:Destroy()    end)end
