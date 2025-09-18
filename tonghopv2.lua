@@ -184,22 +184,114 @@ local function createButton(text, callback)
     return btn
 end
 
--- TAB Info
-local infoTab = createTab("Info")
-createButton("Thông tin: PHUCMAX Hub", function()
+-- quản lý tab + content
+local tabs = {}
+
+-- Helper: create tab
+local function createTab(name)
+    local tabBtn = Instance.new("TextButton", tabFrame)
+    tabBtn.Size = UDim2.new(0,120,1,0)
+    tabBtn.Text = name
+    tabBtn.Font = Enum.Font.GothamBold
+    tabBtn.TextSize = 16
+    tabBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    tabBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    tabBtn.BackgroundTransparency = 0.35
+    tabBtn.AutoButtonColor = false
+
+    Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0,8)
+    local stroke = Instance.new("UIStroke", tabBtn)
+    stroke.Thickness = 1.5
+    stroke.Color = Color3.fromRGB(180,220,255)
+    stroke.Transparency = 0.3
+
+    -- tạo content frame riêng cho tab
+    local thisContent = Instance.new("ScrollingFrame", mainFrame)
+    thisContent.Name = name .. "_Content"
+    thisContent.Size = UDim2.new(1, -20, 1, -70)
+    thisContent.Position = UDim2.new(0,10,0,50)
+    thisContent.BackgroundTransparency = 1
+    thisContent.ScrollBarThickness = 8
+    thisContent.ClipsDescendants = true
+    thisContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    thisContent.ScrollingDirection = Enum.ScrollingDirection.Y
+    thisContent.Visible = false
+
+    local list = Instance.new("UIListLayout", thisContent)
+    list.SortOrder = Enum.SortOrder.LayoutOrder
+    list.Padding = UDim.new(0,10)
+    list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    tabs[name] = {btn = tabBtn, frame = thisContent}
+
+    -- animation + switch tab
+    tabBtn.MouseButton1Click:Connect(function()
+        for n, data in pairs(tabs) do
+            data.frame.Visible = false
+        end
+        thisContent.Visible = true
+        -- animation click
+        local t1 = TweenService:Create(tabBtn, TweenInfo.new(0.08), {Size = UDim2.new(0,115,1,0)})
+        local t2 = TweenService:Create(tabBtn, TweenInfo.new(0.1), {Size = UDim2.new(0,120,1,0)})
+        t1:Play()
+        t1.Completed:Connect(function() t2:Play() end)
+    end)
+
+    return thisContent
+end
+
+-- Helper: create button
+local function createButton(parent, text, callback)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = text
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    btn.BackgroundTransparency = 0.35
+    btn.AutoButtonColor = false
+
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Thickness = 1.5
+    stroke.Color = Color3.fromRGB(135,206,250)
+    stroke.Transparency = 0.3
+
+    btn.MouseButton1Click:Connect(function()
+        local t1 = TweenService:Create(btn, TweenInfo.new(0.08), {Size = UDim2.new(1,0,0,35)})
+        local t2 = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1,0,0,40)})
+        t1:Play()
+        t1.Completed:Connect(function() t2:Play() end)
+        if callback then callback() end
+    end)
+
+    return btn
+end
+
+-- ======================
+-- Tạo tab & nút riêng
+-- ======================
+
+-- Tab Info
+local infoContent = createTab("Info")
+createButton(infoContent, "Thông tin", function()
     notify("Bạn đang dùng PHUCMAX Hub")
 end)
-createButton("Copy Discord Link", function()
+createButton(infoContent, "Copy Discord", function()
     setclipboard("https://discord.gg/yourlink")
     notify("Đã copy link Discord!")
 end)
 
--- TAB Blox Fruit
-local bfTab = createTab("Blox Fruit")
-createButton("Run Kaitun Script", function()
+-- Tab Blox Fruit
+local bfContent = createTab("Blox Fruit")
+createButton(bfContent, "Run Kaitun Script", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/nhattrai91.lua"))()
     notify("Script đã chạy thành công!")
 end)
+
+-- mặc định bật tab đầu
+tabs["Info"].frame.Visible = true
 
 -- refresh canvas
 local function refreshCanvasSizes()
