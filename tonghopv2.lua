@@ -1,4 +1,4 @@
--- PHUCMAX UI PRO FIX (ANIMATION + CLIP FIX)
+-- PHUCMAX UI PRO FIX (ANIMATION + CLIP FIX + BUTTON/TAB ANIM)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -75,7 +75,7 @@ mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Image = "rbxassetid://86753621306939"
 mainFrame.BackgroundTransparency = 1
 mainFrame.ScaleType = Enum.ScaleType.Crop
-mainFrame.ClipsDescendants = true  -- CRITICAL: cắt nội dung khi tween
+mainFrame.ClipsDescendants = true
 
 local mainCorner = Instance.new("UICorner", mainFrame)
 mainCorner.CornerRadius = UDim.new(0,20)
@@ -83,7 +83,7 @@ local mainStroke = Instance.new("UIStroke", mainFrame)
 mainStroke.Thickness = 3
 mainStroke.Color = Color3.fromRGB(180,220,255)
 
--- TAB area (horizontal scroll) - trong suốt như kính
+-- TAB area
 local tabFrame = Instance.new("ScrollingFrame", mainFrame)
 tabFrame.Name = "TabFrame"
 tabFrame.Size = UDim2.new(1, -20, 0, 40)
@@ -99,7 +99,7 @@ tabList.FillDirection = Enum.FillDirection.Horizontal
 tabList.SortOrder = Enum.SortOrder.LayoutOrder
 tabList.Padding = UDim.new(0,10)
 
--- CONTENT area (vertical scroll)
+-- CONTENT area
 local contentFrame = Instance.new("ScrollingFrame", mainFrame)
 contentFrame.Name = "ContentFrame"
 contentFrame.Size = UDim2.new(1, -20, 1, -70)
@@ -115,7 +115,7 @@ contentList.SortOrder = Enum.SortOrder.LayoutOrder
 contentList.Padding = UDim.new(0,10)
 contentList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Helper: create tab (glass)
+-- Helper: create tab
 local function createTab(name)
     local tabBtn = Instance.new("TextButton", tabFrame)
     tabBtn.Size = UDim2.new(0,120,1,0)
@@ -134,13 +134,21 @@ local function createTab(name)
     stroke.Color = Color3.fromRGB(180,220,255)
     stroke.Transparency = 0.3
 
+    -- animation click
+    tabBtn.MouseButton1Click:Connect(function()
+        local t1 = TweenService:Create(tabBtn, TweenInfo.new(0.08), {Size = UDim2.new(0,115,1,0)})
+        local t2 = TweenService:Create(tabBtn, TweenInfo.new(0.1), {Size = UDim2.new(0,120,1,0)})
+        t1:Play()
+        t1.Completed:Connect(function() t2:Play() end)
+    end)
+
     return tabBtn
 end
 
--- Helper: create button full width (glass)
+-- Helper: create button
 local function createButton(text)
     local btn = Instance.new("TextButton", contentFrame)
-    btn.Size = UDim2.new(1, 0, 0, 40) -- full width
+    btn.Size = UDim2.new(1, 0, 0, 40)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 16
@@ -156,6 +164,14 @@ local function createButton(text)
     stroke.Color = Color3.fromRGB(135,206,250)
     stroke.Transparency = 0.3
 
+    -- animation click
+    btn.MouseButton1Click:Connect(function()
+        local t1 = TweenService:Create(btn, TweenInfo.new(0.08), {Size = UDim2.new(1, 0, 0, 35)})
+        local t2 = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 40)})
+        t1:Play()
+        t1.Completed:Connect(function() t2:Play() end)
+    end)
+
     return btn
 end
 
@@ -166,74 +182,55 @@ local b1 = createButton("Demo nút 1")
 local b2 = createButton("Demo nút 2")
 local b3 = createButton("Demo nút 3")
 local b4 = createButton("Demo nút 4")
--- ensure contentFrame canvas updates nicely (prevents jitter)
-local function refreshCanvasSizes()
-    -- tabFrame X canvas
-    local totalX = tabList.AbsoluteContentSize.X + 16
-    tabFrame.CanvasSize = UDim2.new(0, math.max(totalX, tabFrame.Size.X.Offset), 0, 0)
-    -- contentFrame Y canvas
-    local totalY = contentList.AbsoluteContentSize.Y + 16
-    contentFrame.CanvasSize = UDim2.new(0, 0, 0, math.max(totalY, contentFrame.Size.Y.Offset))
-end
 
+-- refresh canvas
+local function refreshCanvasSizes()
+    tabFrame.CanvasSize = UDim2.new(0, math.max(tabList.AbsoluteContentSize.X+16, tabFrame.Size.X.Offset), 0, 0)
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, math.max(contentList.AbsoluteContentSize.Y+16, contentFrame.Size.Y.Offset))
+end
 tabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshCanvasSizes)
 contentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshCanvasSizes)
--- initial refresh
-task.spawn(function() task.wait(0.05); refreshCanvasSizes() end)
+task.defer(refreshCanvasSizes)
 
--- SMOOTH toggle UI (fixed: clip + tween ImageTransparency)
+-- toggle UI
 local OPEN_SIZE = UDim2.new(0,500,0,350)
 local CLOSED_SIZE = UDim2.new(0,0,0,0)
 local ANIM_TIME = 0.28
-
 local animPlaying = false
 local function toggleUI()
     if animPlaying then return end
     animPlaying = true
 
     if mainGui.Enabled then
-        -- closing: animate smaller + fade image, then disable gui
         mainFrame.Active = false
-        mainFrame.ClipsDescendants = true
-        -- hide scrollbar input while animating
         tabFrame.Active = false
         contentFrame.Active = false
-
-        local goals = { Size = CLOSED_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 1 }
-        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In), goals)
+        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+            {Size = CLOSED_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 1})
         tw:Play()
         tw.Completed:Wait()
         mainGui.Enabled = false
-        -- re-enable small delay
         tabFrame.Active = true
         contentFrame.Active = true
     else
-        -- opening: set small, visible, then tween to full
         mainGui.Enabled = true
         mainFrame.Size = CLOSED_SIZE
         mainFrame.Position = UDim2.new(0.5,0,0.5,0)
         mainFrame.ImageTransparency = 1
-        mainFrame.ClipsDescendants = true
-
-        -- ensure canvas sizes are correct before showing
         refreshCanvasSizes()
-
-        local goals = { Size = OPEN_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 0 }
-        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), goals)
+        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Size = OPEN_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 0})
         tw:Play()
         tw.Completed:Wait()
     end
-
     animPlaying = false
 end
-
 toggleBtn.MouseButton1Click:Connect(toggleUI)
 
--- ensure Main is centered on screen resize (optional)
+-- center UI on resize
 local function centerUI()
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 end
-game:GetService("GuiService"):GetPropertyChangedSignal("ScreenSize"):Connect(centerUI) -- fallback for some executors
+game:GetService("GuiService"):GetPropertyChangedSignal("ScreenSize"):Connect(centerUI)
 
--- done
-print("[PHUCMAX UI] Fixed: animation & clipping applied.")
+print("[PHUCMAX UI] Pro Fix: animation + clipping + button anim OK.")
