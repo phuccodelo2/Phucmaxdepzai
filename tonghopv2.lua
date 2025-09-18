@@ -12,6 +12,8 @@ if game.CoreGui:FindFirstChild("PHUCMAX_TOGGLE") then
     game.CoreGui.PHUCMAX_TOGGLE:Destroy()
 end
 
+local UserInputService = game:GetService("UserInputService")
+
 -- Toggle button (draggable)
 local toggleGui = Instance.new("ScreenGui", game.CoreGui)
 toggleGui.Name = "PHUCMAX_TOGGLE"
@@ -28,37 +30,51 @@ toggleBtn.BorderSizePixel = 0
 
 local uicorner = Instance.new("UICorner", toggleBtn)
 uicorner.CornerRadius = UDim.new(0,12)
+
 local uiStroke = Instance.new("UIStroke", toggleBtn)
 uiStroke.Thickness = 2
 uiStroke.Color = Color3.fromRGB(135,206,250)
 
--- draggable
-local dragging, dragInput, dragStart, startPos
+-- Draggable system
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	toggleBtn.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
 toggleBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = toggleBtn.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = toggleBtn.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
 end)
+
 toggleBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
+	if input.UserInputType == Enum.UserInputType.MouseMovement 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
 end)
+
 UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        toggleBtn.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
+	if input == dragInput and dragging then
+		update(input)
+	end
 end)
 
 -- MAIN UI
@@ -69,7 +85,7 @@ mainGui.Enabled = false
 
 local mainFrame = Instance.new("ImageLabel", mainGui)
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0,500,0,350)
+mainFrame.Size = UDim2.new(0,400,0,300)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
 mainFrame.Image = "rbxassetid://86753621306939"
