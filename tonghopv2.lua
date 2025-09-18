@@ -178,10 +178,18 @@ end
 -- demo items
 local t1 = createTab("Demo")
 local t2 = createTab("Main")
+local t3 = createTab("Demo")
+local t4 = createTab("Main")
+local t9 = createTab("Demo")
+local t7 = createTab("Main")
 local b1 = createButton("Demo nút 1")
 local b2 = createButton("Demo nút 2")
 local b3 = createButton("Demo nút 3")
 local b4 = createButton("Demo nút 4")
+local b5 = createButton("Demo nút 1")
+local b6 = createButton("Demo nút 2")
+local b7 = createButton("Demo nút 3")
+local b9 = createButton("Demo nút 4")
 
 -- refresh canvas
 local function refreshCanvasSizes()
