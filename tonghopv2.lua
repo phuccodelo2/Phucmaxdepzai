@@ -1,4 +1,4 @@
--- PHUCMAX UI PRO FIX (ANIMATION + CLIP FIX + BUTTON/TAB ANIM)
+-- PHUCMAX UI MENU (giữ nguyên UI cũ, thêm tab info + blox fruit)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -12,9 +12,7 @@ if game.CoreGui:FindFirstChild("PHUCMAX_TOGGLE") then
     game.CoreGui.PHUCMAX_TOGGLE:Destroy()
 end
 
-local UserInputService = game:GetService("UserInputService")
-
--- Toggle button (draggable)
+-- Toggle button
 local toggleGui = Instance.new("ScreenGui", game.CoreGui)
 toggleGui.Name = "PHUCMAX_TOGGLE"
 toggleGui.ResetOnSpawn = false
@@ -26,111 +24,86 @@ toggleBtn.Position = UDim2.new(0,20,0.5,-22)
 toggleBtn.AnchorPoint = Vector2.new(0,0.5)
 toggleBtn.Image = "rbxassetid://70869581156112"
 toggleBtn.BackgroundTransparency = 0.6
-toggleBtn.BorderSizePixel = 0
 
 local uicorner = Instance.new("UICorner", toggleBtn)
 uicorner.CornerRadius = UDim.new(0,12)
-
 local uiStroke = Instance.new("UIStroke", toggleBtn)
 uiStroke.Thickness = 2
 uiStroke.Color = Color3.fromRGB(135,206,250)
 
--- Draggable system
-local dragging = false
-local dragInput, dragStart, startPos
-
+-- draggable toggle
+local dragging, dragInput, dragStart, startPos
 local function update(input)
-	local delta = input.Position - dragStart
-	toggleBtn.Position = UDim2.new(
-		startPos.X.Scale,
-		startPos.X.Offset + delta.X,
-		startPos.Y.Scale,
-		startPos.Y.Offset + delta.Y
-	)
+    local delta = input.Position - dragStart
+    toggleBtn.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
 end
-
 toggleBtn.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 
-	or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPos = toggleBtn.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = toggleBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
-
 toggleBtn.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement 
-	or input.UserInputType == Enum.UserInputType.Touch then
-		dragInput = input
-	end
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
 end)
-
 UserInputService.InputChanged:Connect(function(input)
-	if input == dragInput and dragging then
-		update(input)
-	end
+    if input == dragInput and dragging then
+        update(input)
+    end
 end)
 
--- MAIN UI
+-- Main UI
 local mainGui = Instance.new("ScreenGui", game.CoreGui)
 mainGui.Name = "PHUCMAX_MAINUI"
 mainGui.ResetOnSpawn = false
 mainGui.Enabled = false
 
-local mainFrame = Instance.new("ImageLabel", mainGui)
+local mainFrame = Instance.new("Frame", mainGui)
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0,400,0,300)
+mainFrame.Size = UDim2.new(0,450,0,300)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Image = "rbxassetid://86753621306939"
-mainFrame.BackgroundTransparency = 1
-mainFrame.ScaleType = Enum.ScaleType.Crop
-mainFrame.ClipsDescendants = true
+mainFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+mainFrame.BackgroundTransparency = 0.1
 
-local mainCorner = Instance.new("UICorner", mainFrame)
-mainCorner.CornerRadius = UDim.new(0,20)
-local mainStroke = Instance.new("UIStroke", mainFrame)
-mainStroke.Thickness = 3
-mainStroke.Color = Color3.fromRGB(180,220,255)
+local corner = Instance.new("UICorner", mainFrame)
+corner.CornerRadius = UDim.new(0,15)
+local stroke = Instance.new("UIStroke", mainFrame)
+stroke.Color = Color3.fromRGB(135,206,250)
+stroke.Thickness = 2
 
--- TAB area
-local tabFrame = Instance.new("ScrollingFrame", mainFrame)
+-- Tab buttons
+local tabFrame = Instance.new("Frame", mainFrame)
 tabFrame.Name = "TabFrame"
-tabFrame.Size = UDim2.new(1, -20, 0, 40)
-tabFrame.Position = UDim2.new(0,10,0,10)
-tabFrame.BackgroundTransparency = 1
-tabFrame.ScrollBarThickness = 6
-tabFrame.ClipsDescendants = true
-tabFrame.AutomaticCanvasSize = Enum.AutomaticSize.X
-tabFrame.ScrollingDirection = Enum.ScrollingDirection.X
+tabFrame.Size = UDim2.new(0,120,1,0)
+tabFrame.BackgroundTransparency = 0.2
+tabFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 
 local tabList = Instance.new("UIListLayout", tabFrame)
-tabList.FillDirection = Enum.FillDirection.Horizontal
 tabList.SortOrder = Enum.SortOrder.LayoutOrder
-tabList.Padding = UDim.new(0,10)
+tabList.Padding = UDim.new(0,5)
 
--- CONTENT area
-local contentFrame = Instance.new("ScrollingFrame", mainFrame)
+-- Content
+local contentFrame = Instance.new("Frame", mainFrame)
 contentFrame.Name = "ContentFrame"
-contentFrame.Size = UDim2.new(1, -20, 1, -70)
-contentFrame.Position = UDim2.new(0,10,0,50)
+contentFrame.Size = UDim2.new(1,-130,1,-20)
+contentFrame.Position = UDim2.new(0,130,0,10)
 contentFrame.BackgroundTransparency = 1
-contentFrame.ScrollBarThickness = 8
-contentFrame.ClipsDescendants = true
-contentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-contentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
 
-local contentList = Instance.new("UIListLayout", contentFrame)
-contentList.SortOrder = Enum.SortOrder.LayoutOrder
-contentList.Padding = UDim.new(0,10)
-contentList.HorizontalAlignment = Enum.HorizontalAlignment.Center
--- notify helper
+-- notify
 local function notify(msg)
     local note = Instance.new("TextLabel", mainGui)
     note.Size = UDim2.new(0, 250, 0, 40)
@@ -142,91 +115,74 @@ local function notify(msg)
     note.Font = Enum.Font.Gotham
     note.TextSize = 16
     note.ZIndex = 10
-
-    local corner = Instance.new("UICorner", note)
-    corner.CornerRadius = UDim.new(0, 8)
-
-    local stroke = Instance.new("UIStroke", note)
-    stroke.Thickness = 1.5
-    stroke.Color = Color3.fromRGB(135,206,250)
-
-    -- auto remove sau 3s
+    Instance.new("UICorner", note).CornerRadius = UDim.new(0,8)
+    Instance.new("UIStroke", note).Color = Color3.fromRGB(135,206,250)
     game:GetService("Debris"):AddItem(note, 3)
 end
--- Helper: create tab
+
+-- tab create
+local currentTab
 local function createTab(name)
-    local tabBtn = Instance.new("TextButton", tabFrame)
-    tabBtn.Size = UDim2.new(0,120,1,0)
-    tabBtn.Text = name
-    tabBtn.Font = Enum.Font.GothamBold
-    tabBtn.TextSize = 16
-    tabBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    tabBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    tabBtn.BackgroundTransparency = 0.2
-    tabBtn.AutoButtonColor = false
+    local btn = Instance.new("TextButton", tabFrame)
+    btn.Size = UDim2.new(1,0,0,40)
+    btn.Text = name
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 16
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
 
-    local corner = Instance.new("UICorner", tabBtn)
-    corner.CornerRadius = UDim.new(0,8)
-    local stroke = Instance.new("UIStroke", tabBtn)
-    stroke.Thickness = 1.5
-    stroke.Color = Color3.fromRGB(180,220,255)
-    stroke.Transparency = 0.3
+    local tabContent = Instance.new("ScrollingFrame", contentFrame)
+    tabContent.Visible = false
+    tabContent.Size = UDim2.new(1,0,1,0)
+    tabContent.CanvasSize = UDim2.new(0,0,0,0)
+    tabContent.BackgroundTransparency = 1
 
-    -- animation click
-    tabBtn.MouseButton1Click:Connect(function()
-        local t1 = TweenService:Create(tabBtn, TweenInfo.new(0.08), {Size = UDim2.new(0,115,1,0)})
-        local t2 = TweenService:Create(tabBtn, TweenInfo.new(0.1), {Size = UDim2.new(0,120,1,0)})
-        t1:Play()
-        t1.Completed:Connect(function() t2:Play() end)
+    btn.MouseButton1Click:Connect(function()
+        if currentTab then currentTab.Visible = false end
+        tabContent.Visible = true
+        currentTab = tabContent
     end)
-
-    return tabBtn
+    return tabContent
 end
 
--- Helper: create button (sửa lại để dùng riêng)
+-- button create
 local function createButton(parent, text, callback)
     local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Size = UDim2.new(1, -10, 0, 40)
+    btn.Position = UDim2.new(0,5,0,0)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
-    btn.TextSize = 16
+    btn.TextSize = 15
     btn.TextColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
     btn.BackgroundTransparency = 0.2
-    btn.AutoButtonColor = false
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(135,206,250)
 
-    local corner = Instance.new("UICorner", btn)
-    corner.CornerRadius = UDim.new(0,8)
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Thickness = 1.5
-    stroke.Color = Color3.fromRGB(135,206,250)
-    stroke.Transparency = 0.3
-
-    -- animation click
     btn.MouseButton1Click:Connect(function()
-        local t1 = TweenService:Create(btn, TweenInfo.new(0.08), {Size = UDim2.new(1, 0, 0, 35)})
-        local t2 = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 40)})
-        t1:Play()
-        t1.Completed:Connect(function() t2:Play() end)
         if callback then callback() end
     end)
-
-    return btn
 end
 
--- Tab info
+-- Tab Info
 local infoTab = createTab("info")
-createButton(contentFrame, "Thông tin: PHUCMAX Script Hub", function()
+createButton(infoTab, "Thông tin: PHUCMAX Script Hub", function()
     notify("Bạn đang dùng PHUCMAX Hub")
 end)
-createButton(contentFrame, "Copy Discord Link", function()
+createButton(infoTab, "Copy Discord Link", function()
     setclipboard("https://discord.gg/yourlink")
     notify("Đã copy link Discord!")
 end)
 
--- Tab blox fruit
+-- Tab Blox Fruit
 local bfTab = createTab("blox fruit")
-createButton(contentFrame, "Run Kaitun Script", function()
+createButton(bfTab, "Run Kaitun Script", function()
+    notify("Đang chạy script Kaitun...")
     loadstring(game:HttpGet("https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/nhattrai91.lua"))()
-    notify("Script đã chạy thành công!")
+end)
+
+-- Toggle UI
+toggleBtn.MouseButton1Click:Connect(function()
+    mainGui.Enabled = not mainGui.Enabled
 end)
