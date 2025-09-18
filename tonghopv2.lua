@@ -130,7 +130,29 @@ local contentList = Instance.new("UIListLayout", contentFrame)
 contentList.SortOrder = Enum.SortOrder.LayoutOrder
 contentList.Padding = UDim.new(0,10)
 contentList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+-- notify helper
+local function notify(msg)
+    local note = Instance.new("TextLabel", mainGui)
+    note.Size = UDim2.new(0, 250, 0, 40)
+    note.Position = UDim2.new(1, -260, 1, -60)
+    note.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    note.BackgroundTransparency = 0.2
+    note.Text = msg
+    note.TextColor3 = Color3.fromRGB(255,255,255)
+    note.Font = Enum.Font.Gotham
+    note.TextSize = 16
+    note.ZIndex = 10
 
+    local corner = Instance.new("UICorner", note)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    local stroke = Instance.new("UIStroke", note)
+    stroke.Thickness = 1.5
+    stroke.Color = Color3.fromRGB(135,206,250)
+
+    -- auto remove sau 3s
+    game:GetService("Debris"):AddItem(note, 3)
+end
 -- Helper: create tab
 local function createTab(name)
     local tabBtn = Instance.new("TextButton", tabFrame)
@@ -139,8 +161,8 @@ local function createTab(name)
     tabBtn.Font = Enum.Font.GothamBold
     tabBtn.TextSize = 16
     tabBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    tabBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    tabBtn.BackgroundTransparency = 0.35
+    tabBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    tabBtn.BackgroundTransparency = 0.2
     tabBtn.AutoButtonColor = false
 
     local corner = Instance.new("UICorner", tabBtn)
@@ -161,16 +183,16 @@ local function createTab(name)
     return tabBtn
 end
 
--- Helper: create button
-local function createButton(text)
-    local btn = Instance.new("TextButton", contentFrame)
+-- Helper: create button (sửa lại để dùng riêng)
+local function createButton(parent, text, callback)
+    local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(1, 0, 0, 40)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 16
     btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    btn.BackgroundTransparency = 0.35
+    btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    btn.BackgroundTransparency = 0.2
     btn.AutoButtonColor = false
 
     local corner = Instance.new("UICorner", btn)
@@ -186,111 +208,25 @@ local function createButton(text)
         local t2 = TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, 0, 0, 40)})
         t1:Play()
         t1.Completed:Connect(function() t2:Play() end)
+        if callback then callback() end
     end)
 
     return btn
 end
 
--- Function tạo thông báo góc phải dưới
-local function notify(msg)
-    local sg = Instance.new("ScreenGui", game.CoreGui)
-    sg.ResetOnSpawn = false
-    sg.Name = "PHUC_NOTIFY"
-
-    local frame = Instance.new("Frame", sg)
-    frame.Size = UDim2.new(0, 250, 0, 40)
-    frame.Position = UDim2.new(1, -260, 1, -60)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    frame.BackgroundTransparency = 0.1
-    frame.BorderSizePixel = 0
-
-    local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 8)
-
-    local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -10, 1, 0)
-    label.Position = UDim2.new(0, 5, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = msg
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextScaled = true
-    label.Font = Enum.Font.GothamBold
-
-    task.delay(3, function()
-        sg:Destroy()
-    end)
-end
-
 -- Tab info
-local info = createTab("info")
-
--- Nút chỉ chứa chữ
-info:CreateButton("Thông tin: PHUCMAX Script Hub", function()
+local infoTab = createTab("info")
+createButton(contentFrame, "Thông tin: PHUCMAX Script Hub", function()
     notify("Bạn đang dùng PHUCMAX Hub")
 end)
-
--- Nút copy link discord
-info:CreateButton("Copy Discord Link", function()
-    setclipboard("https://discord.gg/yourlink") -- đổi link ở đây
+createButton(contentFrame, "Copy Discord Link", function()
+    setclipboard("https://discord.gg/yourlink")
     notify("Đã copy link Discord!")
 end)
 
 -- Tab blox fruit
-local tab1 = createTab("blox fruit")
-
-tab1:CreateButton("Run Kaitun Script", function()
+local bfTab = createTab("blox fruit")
+createButton(contentFrame, "Run Kaitun Script", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/nhattrai91.lua"))()
     notify("Script đã chạy thành công!")
 end)
-
--- refresh canvas
-local function refreshCanvasSizes()
-    tabFrame.CanvasSize = UDim2.new(0, math.max(tabList.AbsoluteContentSize.X+16, tabFrame.Size.X.Offset), 0, 0)
-    contentFrame.CanvasSize = UDim2.new(0, 0, 0, math.max(contentList.AbsoluteContentSize.Y+16, contentFrame.Size.Y.Offset))
-end
-tabList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshCanvasSizes)
-contentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(refreshCanvasSizes)
-task.defer(refreshCanvasSizes)
-
--- toggle UI
-local OPEN_SIZE = UDim2.new(0,500,0,350)
-local CLOSED_SIZE = UDim2.new(0,0,0,0)
-local ANIM_TIME = 0.28
-local animPlaying = false
-local function toggleUI()
-    if animPlaying then return end
-    animPlaying = true
-
-    if mainGui.Enabled then
-        mainFrame.Active = false
-        tabFrame.Active = false
-        contentFrame.Active = false
-        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
-            {Size = CLOSED_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 1})
-        tw:Play()
-        tw.Completed:Wait()
-        mainGui.Enabled = false
-        tabFrame.Active = true
-        contentFrame.Active = true
-    else
-        mainGui.Enabled = true
-        mainFrame.Size = CLOSED_SIZE
-        mainFrame.Position = UDim2.new(0.5,0,0.5,0)
-        mainFrame.ImageTransparency = 1
-        refreshCanvasSizes()
-        local tw = TweenService:Create(mainFrame, TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {Size = OPEN_SIZE, Position = UDim2.new(0.5,0,0.5,0), ImageTransparency = 0})
-        tw:Play()
-        tw.Completed:Wait()
-    end
-    animPlaying = false
-end
-toggleBtn.MouseButton1Click:Connect(toggleUI)
-
--- center UI on resize
-local function centerUI()
-    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-end
-game:GetService("GuiService"):GetPropertyChangedSignal("ScreenSize"):Connect(centerUI)
-
-print("[PHUCMAX UI] Pro Fix: animation + clipping + button anim OK.")
