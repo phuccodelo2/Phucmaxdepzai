@@ -559,19 +559,35 @@ local function serverHop()
     end
 end
 
--- KIỂM TRA VÀ NHẶT TRÁI
+-- KIỂM TRA VÀ NHẶT TRÁI (bay thay vì teleport)
 local function checkFruit()
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+
     for _,v in ipairs(workspace:GetChildren()) do
         if v:IsA("Tool") and v:FindFirstChild("Handle") then
             -- kiểm tra trái có trong danh sách không
             for _,fruitName in ipairs(FruitList) do
                 if string.find(string.lower(v.Name), string.lower(fruitName)) then
-                    -- teleport tới vị trí trái
-                    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        hrp.CFrame = v.Handle.CFrame + Vector3.new(0,5,0)
-                        task.wait(0.5)
-                        firetouchinterest(hrp, v.Handle, 0) -- chạm để nhặt
+                    local targetPos = v.Handle.Position + Vector3.new(0,5,0)
+                    local speed = 350
+                    
+                    -- bay dần tới trái
+                    while (hrp.Position - targetPos).Magnitude > 5 and _G.AutoFruit and LocalPlayer.Character do
+                        local dir = (targetPos - hrp.Position).Unit
+                        hrp.CFrame = CFrame.new(hrp.Position + dir * (speed * task.wait()), targetPos)
+                        
+                        -- Noclip
+                        for _,part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
+                        end
+                    end
+                    
+                    -- nhặt trái
+                    if hrp and v and v:FindFirstChild("Handle") then
+                        firetouchinterest(hrp, v.Handle, 0)
                         task.wait(0.1)
                         firetouchinterest(hrp, v.Handle, 1)
                     end
