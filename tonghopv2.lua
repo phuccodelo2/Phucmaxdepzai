@@ -24,7 +24,7 @@ toggleBtn.Name = "ToggleButton"
 toggleBtn.Size = UDim2.new(0,45,0,45)
 toggleBtn.Position = UDim2.new(0,20,0.5,-22)
 toggleBtn.AnchorPoint = Vector2.new(0,0.5)
-toggleBtn.Image = "rbxassetid://86753621306939"
+toggleBtn.Image = "rbxassetid://70869581156112"
 toggleBtn.BackgroundTransparency = 0.6
 toggleBtn.BorderSizePixel = 0
 
@@ -191,21 +191,57 @@ local function createButton(text)
     return btn
 end
 
--- demo items
-local t1 = createTab("Demo")
-local t2 = createTab("Main")
-local t3 = createTab("Demo")
-local t4 = createTab("Main")
-local t9 = createTab("Demo")
-local t7 = createTab("Main")
-local b1 = createButton("Demo nút 1")
-local b2 = createButton("Demo nút 2")
-local b3 = createButton("Demo nút 3")
-local b4 = createButton("Demo nút 4")
-local b5 = createButton("Demo nút 1")
-local b6 = createButton("Demo nút 2")
-local b7 = createButton("Demo nút 3")
-local b9 = createButton("Demo nút 4")
+-- Function tạo thông báo góc phải dưới
+local function notify(msg)
+    local sg = Instance.new("ScreenGui", game.CoreGui)
+    sg.ResetOnSpawn = false
+    sg.Name = "PHUC_NOTIFY"
+
+    local frame = Instance.new("Frame", sg)
+    frame.Size = UDim2.new(0, 250, 0, 40)
+    frame.Position = UDim2.new(1, -260, 1, -60)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+
+    local corner = Instance.new("UICorner", frame)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, -10, 1, 0)
+    label.Position = UDim2.new(0, 5, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = msg
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+
+    task.delay(3, function()
+        sg:Destroy()
+    end)
+end
+
+-- Tab info
+local info = createTab("info")
+
+-- Nút chỉ chứa chữ
+info:CreateButton("Thông tin: PHUCMAX Script Hub", function()
+    notify("Bạn đang dùng PHUCMAX Hub")
+end)
+
+-- Nút copy link discord
+info:CreateButton("Copy Discord Link", function()
+    setclipboard("https://discord.gg/yourlink") -- đổi link ở đây
+    notify("Đã copy link Discord!")
+end)
+
+-- Tab blox fruit
+local tab1 = createTab("blox fruit")
+
+tab1:CreateButton("Run Kaitun Script", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/nhattrai91.lua"))()
+    notify("Script đã chạy thành công!")
+end)
 
 -- refresh canvas
 local function refreshCanvasSizes()
