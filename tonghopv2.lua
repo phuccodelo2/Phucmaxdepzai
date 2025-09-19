@@ -1,3 +1,67 @@
+
+--// UI PHUCMAX + FPS + Ping (Rainbow Gradient)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PHUCMAX_UI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+
+-- Frame chứa text
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.BackgroundTransparency = 1
+Frame.AnchorPoint = Vector2.new(0.5, 0)
+Frame.Position = UDim2.new(0.5, 0, 0, 0) -- mép trên giữa màn hình
+Frame.Size = UDim2.new(0, 400, 0, 40)
+
+-- TextLabel chính
+local Label = Instance.new("TextLabel")
+Label.Parent = Frame
+Label.Size = UDim2.new(1, 0, 1, 0)
+Label.BackgroundTransparency = 1
+Label.Font = Enum.Font.SourceSansBold
+Label.TextSize = 30
+Label.Text = "PHUCMAX | FPS: 0 | Ping: 0ms"
+Label.TextStrokeTransparency = 0.2
+Label.RichText = true
+
+-- Gradient rainbow
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Parent = Label
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 127, 0)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(139, 0, 255))
+}
+UIGradient.Rotation = 0
+
+-- Animation rainbow
+task.spawn(function()
+    while task.wait(0.05) do
+        UIGradient.Rotation = (UIGradient.Rotation + 5) % 360
+    end
+end)
+
+-- FPS và Ping update
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+
+local fps, lastUpdate, frames = 0, tick(), 0
+
+RunService.RenderStepped:Connect(function()
+    frames = frames + 1
+    local now = tick()
+    if now - lastUpdate >= 1 then
+        fps = frames
+        frames = 0
+        lastUpdate = now
+        local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+        Label.Text = string.format("PHUCMAX | FPS: %d | Ping: %dms", fps, ping)
+    end
+end)
+
 -- PHUCMAX UI PRO FIX (ANIMATION + CLIP FIX + BUTTON/TAB ANIM)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -22,7 +86,7 @@ toggleBtn.Name = "ToggleButton"
 toggleBtn.Size = UDim2.new(0,45,0,45)
 toggleBtn.Position = UDim2.new(0,20,0.5,-22)
 toggleBtn.AnchorPoint = Vector2.new(0,0.5)
-toggleBtn.Image = "rbxassetid://86753621306939"
+toggleBtn.Image = "rbxassetid://70869581156112"
 toggleBtn.BackgroundTransparency = 0.6
 toggleBtn.BorderSizePixel = 0
 
@@ -317,10 +381,16 @@ end
 -- TAB: Info
 local infoContent = createTab("Info")
 createButton(infoContent, "Thông tin", function()
-    notify("by PHUCMAX tonghop hơn 50 script ")
 end)
-createButton(infoContent, "Copy Discord", function()
-    setclipboard("https://discord.gg/yourlink")
+
+createButton(infoContent, "by PHUCMAX tổng hợp hơn 50 script", function()
+end)
+
+createButton(infoContent, "muốn thêm script thì vô discord Ib ad thêm cho ", function()
+end)
+
+createButton(infoContent, "Copy Link Discord", function()
+    setclipboard("https://discord.gg/a7rtPheBY6")
     notify("Đã copy link Discord!")
 end)
 
@@ -340,11 +410,6 @@ end)
 
 createButton(bfContent, "Astral", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Overgustx2/Main/refs/heads/main/BloxFruits_25.html"))()
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "Maru", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/heads/main/MaruHub"))()
     notify("Script đã chạy thành công!")
 end)
 
@@ -701,9 +766,9 @@ createButton(fixContent, "Fix Lag X6 (Cực Đại)", function()
 end)
 
 -- Khôi phục map
-createButton(fixContent, "Khôi phục Map", function()
+createButton(fixContent, "vào lại sever ", function()
     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-    notify("Đang khôi phục map, vui lòng chờ (rejoin).")
+    notify("Đang vào lại vui lòng chờ (rejoin).")
 end)
 
 -- Mặc định bật tab Info
