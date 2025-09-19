@@ -71,10 +71,10 @@ mainGui.Enabled = false
 
 local mainFrame = Instance.new("ImageLabel", mainGui)
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0,500,0,350)
+mainFrame.Size = UDim2.new(0,400,0,250)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Image = "rbxassetid://86753621306939"
+mainFrame.Image = "rbxassetid://112536373654055"
 mainFrame.BackgroundTransparency = 1
 mainFrame.ScaleType = Enum.ScaleType.Crop
 mainFrame.ClipsDescendants = true
