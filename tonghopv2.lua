@@ -275,7 +275,7 @@ end
 -- TAB: Info
 local infoContent = createTab("Info")
 createButton(infoContent, "Thông tin", function()
-    notify("by PHUCMAX")
+    notify("by PHUCMAX tonghop hơn 50 script ")
 end)
 createButton(infoContent, "Copy Discord", function()
     setclipboard("https://discord.gg/yourlink")
@@ -303,6 +303,67 @@ end)
 
 createButton(bfContent, "Maru", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/heads/main/MaruHub"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "nhatruong", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/Autochest-Akgamingez"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Turbo Lite", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/Main.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Turbo Lite Nhặt Trái", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/TraiCay.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Turbo Lite Fiy", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/TurboLite/Script/refs/heads/main/Fly.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Đạt THG V2", function()
+    getgenv().Team = "Marines"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/DatThg/refs/heads/main/DatThgV2"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Banana Cat", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kimprobloxdz/Banana-Free/refs/heads/main/Protected_5609200582002947.lua.txt"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, " OMG Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "HNC Auto Chest", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hnc-roblox/HNC_Hub.Super.Chest/refs/heads/main/ChestBypass.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, " Zee Hub", function()
+    loadstring(game:HttpGet("https://zuwz.me/Ls-Zee-Hub"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, " Lion Auto Bounty", function()
+    loadstring(game:HttpGet("https://pastefy.app/l1siGJS1/raw"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, " Ganteng Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/516a5669fc39b4945cd0609a08264505.lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(bfContent, "Văn Thành Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/VanThanhIOS/OniiChanVanThanhIOS/refs/heads/main/VanThanhIOS2027Online"))()
     notify("Script đã chạy thành công!")
 end)
 
@@ -479,6 +540,22 @@ createButton(kkContent, "Farmdiamond", function()
     notify("Script đã chạy thành công!")
 end)
 
+local grContent = createTab("Rainbow Gradient")
+
+createButton(grContent, "ZusumeeHub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/vanthang512/ZusumeeHub/refs/heads/main/UpdateZyysume"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(grContent, "DarkSpawner", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/BestScript-cmd/GrowAGarden-Dark/refs/heads/main/DarkSpawner-Updated"))()
+    notify("Script đã chạy thành công!")
+end)
+
+createButton(grContent, "speed", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+    notify("Script đã chạy thành công!")
+end)
 
 -- Mặc định bật tab Info
 tabs["Info"].frame.Visible = true
