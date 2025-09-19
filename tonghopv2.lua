@@ -272,8 +272,7 @@ end
 -- ======================
 -- Tạo tab & nút riêng
 -- ======================
-
--- Tab Info
+-- TAB: Info
 local infoContent = createTab("Info")
 createButton(infoContent, "Thông tin", function()
     notify("by PHUCMAX")
@@ -283,9 +282,11 @@ createButton(infoContent, "Copy Discord", function()
     notify("Đã copy link Discord!")
 end)
 
--- Tab Blox Fruit
+
+-- TAB: Blox Fruit
 local bfContent = createTab("Blox Fruit")
-createButton(bfContent, "nhattrai của ad ", function()
+
+createButton(bfContent, "nhattrai của ad", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/phuccodelo2/Phucmaxdepzai/refs/heads/main/nhattrai91.lua"))()
     notify("Script đã chạy thành công!")
 end)
@@ -295,94 +296,92 @@ createButton(bfContent, "Redz", function()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " Astral", function()
+createButton(bfContent, "Astral", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Overgustx2/Main/refs/heads/main/BloxFruits_25.html"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(bfContent, "Maru", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/heads/main/MaruHub"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/heads/main/MaruHub"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(bfContent, "nhatruong", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/Autochest-Akgamingez"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/Autochest-Akgamingez"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " andepzai", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()
+createButton(bfContent, "andepzai", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " minxredz", function()
+createButton(bfContent, "minxredz", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinCE"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " bapred", function()
+createButton(bfContent, "bapred", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/BapRed/main/BapRedHub"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " cuttay", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/diemquy/CutTayHub/main/Cuttayhubreal.lua'))()
+createButton(bfContent, "cuttay", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/diemquy/CutTayHub/main/Cuttayhubreal.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " master", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/jebblox/scriptdatabase2/main/scripts/masterhub.lua"))()
+createButton(bfContent, "master", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/jebblox/scriptdatabase2/main/scripts/masterhub.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " bluex", function()
-    
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
+createButton(bfContent, "bluex", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " skull", function()
- loadstring(game:HttpGet("https://raw.githubusercontent.com/xxhumggxx/SkullHub/refs/heads/main/ChestV2.lua"))()
+createButton(bfContent, "skull", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xxhumggxx/SkullHub/refs/heads/main/ChestV2.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " rise", function()
+createButton(bfContent, "rise", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/TrashLua/BloxFruits/main/FreeScripts.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(bfContent, "royxkaitun", function()
-     loadstring(game:HttpGet("https://api.realaya.xyz/v1/files/l/73mkp0aqyfo4ypy8hvl0nz10lq49fey5.lua"))()
+    loadstring(game:HttpGet("https://api.realaya.xyz/v1/files/l/73mkp0aqyfo4ypy8hvl0nz10lq49fey5.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " xero", function()
-    
-loadstring(game:HttpGet("https://raw.githubusercontent.com/verudous/Xero-Hub/main/main.lua"))()
+createButton(bfContent, "xero", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/verudous/Xero-Hub/main/main.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, " min", function()
+createButton(bfContent, "min", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Zunes-Bypassed/NOPE/main/Min.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-
 createButton(bfContent, "ngocbong", function()
-     
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ngocbonggaming/script/refs/heads/main/NgocBongVn.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ngocbonggaming/script/refs/heads/main/NgocBongVn.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-local stContent = createTab("steelabrainroot")
 
-createButton(stContent, " chillhub", function()
+-- TAB: Steal a Brainrot
+local stContent = createTab("Steal a Brainrot")
+
+createButton(stContent, "chillhub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/tienkhanh1/spicy/main/Chilli.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " moondiety", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/m00ndiety/Moondiety/refs/heads/main/Loader'))()
+createButton(stContent, "moondiety", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/m00ndiety/Moondiety/refs/heads/main/Loader"))()
     notify("Script đã chạy thành công!")
 end)
 
@@ -391,23 +390,23 @@ createButton(stContent, "airhub", function()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " utopia", function()
+createButton(stContent, "utopia", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Klinac/scripts/main/steal_a_brainrot.lua", true))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " arbix", function()
+createButton(stContent, "arbix", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Youifpg/Steal-a-Brainrot-op/refs/heads/main/Arbixhub-obfuscated.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " ronix", function()
-    loadstring(game:HttpGet("pastebin.com/raw/HFx6faQY"))()
+createButton(stContent, "ronix", function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/HFx6faQY"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " timmy", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/WinzeTim/timmyhack2/refs/heads/main/stealabrainrot.lua'))()
+createButton(stContent, "timmy", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WinzeTim/timmyhack2/refs/heads/main/stealabrainrot.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
@@ -416,35 +415,37 @@ createButton(stContent, "inkx", function()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " lurk", function()
+createButton(stContent, "lurk", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/egor2078f/lurkhackv4/refs/heads/main/main.lua", true))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " prim", function()
-    loadstring(game:HttpGet("pastebin.com/raw/q8Q3Ff8F"))()
+createButton(stContent, "prim", function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/q8Q3Ff8F"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(stContent, " vth", function()
+createButton(stContent, "vth", function()
     loadstring(game:HttpGet("https://get-avth-ontop.netlify.app/my-paste/script.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-local kkContent = createTab("99nigthts ")
+
+-- TAB: 99 Nights
+local kkContent = createTab("99 Nights")
 
 createButton(kkContent, "pulsehub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Chavels123/Loader/refs/heads/main/loader.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " phongbac", function()
+createButton(kkContent, "phongbac", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameHub.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(kkContent, "Vexop", function()
-  loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
     notify("Script đã chạy thành công!")
 end)
 
@@ -453,34 +454,33 @@ createButton(kkContent, "rez", function()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " Voidware", function()
+createButton(kkContent, "Voidware", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VW-Add/main/nightsintheforest.lua", true))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " H4x", function()
+createButton(kkContent, "H4x", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/H4xScripts/Loader/refs/heads/main/loader.lua", true))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " Kenniel", function()
+createButton(kkContent, "Kenniel", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Kenniel123/99-Nights-in-the-Forest/refs/heads/main/99%20Nights%20in%20the%20Forest"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " ronix", function()
+createButton(kkContent, "ronix", function()
     loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/7d8a2a1a9a562a403b52532e58a14065.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
-createButton(kkContent, " Farmdiamond", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameFarmdiamond.lua"))()
+createButton(kkContent, "Farmdiamond", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameFarmdiamond.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
 
-
--- mặc định bật tab đầu
+-- Mặc định bật tab Info
 tabs["Info"].frame.Visible = true
 
 -- refresh canvas
