@@ -306,8 +306,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/he
 end)
 
 createButton(bfContent, "nhatruong", function()
-    
-
 loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/Autochest-Akgamingez"))()
     notify("Script đã chạy thành công!")
 end)
@@ -376,41 +374,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/ngocbonggaming/script
     notify("Script đã chạy thành công!")
 end)
 
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(bfContent, "nhattrai", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
 local stContent = createTab("steelabrainroot")
 
 createButton(stContent, " chillhub", function()
@@ -465,21 +428,6 @@ end)
 
 createButton(stContent, " vth", function()
     loadstring(game:HttpGet("https://get-avth-ontop.netlify.app/my-paste/script.lua"))()
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(stContent, " chillhub", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(stContent, " chillhub", function()
-    script
-    notify("Script đã chạy thành công!")
-end)
-
-createButton(stContent, " chillhub", function()
-    script
     notify("Script đã chạy thành công!")
 end)
 
