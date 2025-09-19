@@ -144,7 +144,7 @@ local function createTab(name)
     tabBtn.Text = name
     tabBtn.Font = Enum.Font.GothamBold
     tabBtn.TextSize = 16
-    tabBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    tabBtn.TextColor3 = Color3.fromRGB(0,50,150) 
     tabBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     tabBtn.BackgroundTransparency = 0.35
     tabBtn.AutoButtonColor = false
@@ -167,7 +167,7 @@ local function createButton(text, callback)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 16
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.TextColor3 = Color3.fromRGB(0,50,150) 
     btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundTransparency = 0.35
     btn.AutoButtonColor = false
@@ -540,7 +540,7 @@ createButton(kkContent, "Farmdiamond", function()
     notify("Script đã chạy thành công!")
 end)
 
-local grContent = createTab("Rainbow Gradient")
+local grContent = createTab("Grow a garden ")
 
 createButton(grContent, "ZusumeeHub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/vanthang512/ZusumeeHub/refs/heads/main/UpdateZyysume"))()
@@ -555,6 +555,113 @@ end)
 createButton(grContent, "speed", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
     notify("Script đã chạy thành công!")
+end)
+
+-- TAB FIX LAG
+local fixContent = createTab("Fix Lag")
+
+-- Hàm biến tất cả vật thể thành màu xám + plastic
+local function grayMap()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Color = Color3.fromRGB(150,150,150)
+            v.Reflectance = 0
+            v.CastShadow = false
+        end
+        if v:IsA("Decal") or v:IsA("Texture") then
+            v:Destroy()
+        end
+    end
+    game.Lighting.GlobalShadows = false
+    game.Lighting.Brightness = 1
+    game.Lighting.FogEnd = 1e9
+end
+
+-- Fix Lag X1
+createButton(fixContent, "Fix Lag X1", function()
+    grayMap()
+    notify("Đã bật Fix Lag X1 (biến map thành màu xám, tối ưu nhẹ).")
+end)
+
+-- Fix Lag X2
+createButton(fixContent, "Fix Lag X2", function()
+    grayMap()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Enabled = false
+        end
+    end
+    notify("Đã bật Fix Lag X2 (xóa hiệu ứng nhỏ + map xám).")
+end)
+
+-- Fix Lag X3
+createButton(fixContent, "Fix Lag X3", function()
+    grayMap()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Explosion") then
+            v:Destroy()
+        end
+    end
+    notify("Đã bật Fix Lag X3 (xóa hiệu ứng + bóng + map xám).")
+end)
+
+-- Fix Lag X4
+createButton(fixContent, "Fix Lag X4", function()
+    grayMap()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("MeshPart") or v:IsA("UnionOperation") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Color = Color3.fromRGB(120,120,120)
+            v.TextureID = ""
+        end
+        if v:IsA("SpecialMesh") then
+            v.TextureId = ""
+        end
+    end
+    game.Lighting.Brightness = 0
+    notify("Đã bật Fix Lag X4 (ẩn mesh + map xám).")
+end)
+
+-- Fix Lag X5
+createButton(fixContent, "Fix Lag X5", function()
+    grayMap()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Transparency = 0.6
+        end
+    end
+    local ter = game:GetService("Terrain")
+    ter.WaterReflectance = 0
+    ter.WaterTransparency = 1
+    ter.WaterWaveSize = 0
+    ter.WaterWaveSpeed = 0
+    notify("Đã bật Fix Lag X5 (ẩn 60% map + map xám).")
+end)
+
+-- Fix Lag X6 (Cực Đại)
+createButton(fixContent, "Fix Lag X6 (Cực Đại)", function()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Transparency = 1
+            v.CanCollide = false
+        end
+        if v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Explosion") then
+            v:Destroy()
+        end
+    end
+    game:GetService("Lighting"):ClearAllChildren()
+    game:GetService("Lighting").Brightness = 0
+    game:GetService("Lighting").GlobalShadows = false
+    game:GetService("Lighting").FogEnd = 9e9
+    game:GetService("Terrain"):Clear()
+    notify("Đã bật Fix Lag X6 (ẩn toàn bộ map, fix cực đại).")
+end)
+
+-- Khôi phục map
+createButton(fixContent, "Khôi phục Map", function()
+    game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    notify("Đang khôi phục map, vui lòng chờ (rejoin).")
 end)
 
 -- Mặc định bật tab Info
