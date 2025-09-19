@@ -405,8 +405,13 @@ createButton(bfContent, "nhattrai của ad", function()
     notify("Script đã chạy thành công!")
 end)
 
+createButton(bfContent, "TUANANHIOS", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhTuanDzai-Hub/TuanAnhIOS/refs/heads/main/TuanAnhIOS-Main.Lua"))()
+    notify("Script đã chạy thành công!")
+end)
+
 createButton(bfContent, "Redz", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))()
     notify("Script đã chạy thành công!")
 end)
 
