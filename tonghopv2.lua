@@ -1,5 +1,5 @@
 
---// UI PHUCMAX + FPS + Ping (Rainbow Gradient)
+--// UI PHUCMAX + FPS + Ping (Rainbow Gradient rõ sáng)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PHUCMAX_UI"
 ScreenGui.ResetOnSpawn = false
@@ -21,19 +21,21 @@ Label.BackgroundTransparency = 1
 Label.Font = Enum.Font.SourceSansBold
 Label.TextSize = 30
 Label.Text = "PHUCMAX | FPS: 0 | Ping: 0ms"
-Label.TextStrokeTransparency = 0.2
+Label.TextStrokeTransparency = 0 -- viền chữ rõ hơn
+Label.TextStrokeColor3 = Color3.fromRGB(255,255,255) -- viền trắng cho chữ sáng
 Label.RichText = true
 
--- Gradient rainbow
+-- Gradient rainbow (sáng hơn)
 local UIGradient = Instance.new("UIGradient")
 UIGradient.Parent = Label
 UIGradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 127, 0)),
-    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(255, 255, 0)),
-    ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 0)),
-    ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 0, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(139, 0, 255))
+    ColorSequenceKeypoint.new(0.16, Color3.fromRGB(255, 127, 0)),
+    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(255, 255, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 0)),
+    ColorSequenceKeypoint.new(0.66, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(75, 0, 130)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(148, 0, 211))
 }
 UIGradient.Rotation = 0
 
@@ -748,20 +750,24 @@ end)
 
 -- Fix Lag X6 (Cực Đại)
 createButton(fixContent, "Fix Lag X6 (Cực Đại)", function()
-    for _, v in ipairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.Transparency = 1
-            v.CanCollide = false
-        end
-        if v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") or v:IsA("Explosion") then
-            v:Destroy()
+    local Lighting = game:GetService("Lighting")
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            obj.Material = Enum.Material.SmoothPlastic
+            obj.Color = Color3.fromRGB(150,150,150)
+            obj.Reflectance = 0
+            obj.Transparency = 1
+        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") then
+            obj.Enabled = false
+        elseif obj:IsA("UnionOperation") or obj:IsA("MeshPart") then
+            obj.Transparency = 1
+        elseif obj.Name:match("Leaf") or obj.Name:match("Tree") then
+            obj:Destroy()
         end
     end
-    game:GetService("Lighting"):ClearAllChildren()
-    game:GetService("Lighting").Brightness = 0
-    game:GetService("Lighting").GlobalShadows = false
-    game:GetService("Lighting").FogEnd = 9e9
-    game:GetService("Terrain"):Clear()
+    -- Giảm 80% ánh sáng
+    Lighting.GlobalShadows = false
+    Lighting.Brightness = Lighting.Brightness * 0.2
     notify("Đã bật Fix Lag X6 (ẩn toàn bộ map, fix cực đại).")
 end)
 
