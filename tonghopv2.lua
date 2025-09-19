@@ -74,7 +74,7 @@ mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0,400,0,250)
 mainFrame.Position = UDim2.new(0.5,0,0.5,0)
 mainFrame.AnchorPoint = Vector2.new(0.5,0.5)
-mainFrame.Image = "rbxassetid://112536373654055"
+mainFrame.Image = "rbxassetid://86753621306939"
 mainFrame.BackgroundTransparency = 1
 mainFrame.ScaleType = Enum.ScaleType.Crop
 mainFrame.ClipsDescendants = true
@@ -84,6 +84,48 @@ mainCorner.CornerRadius = UDim.new(0,20)
 local mainStroke = Instance.new("UIStroke", mainFrame)
 mainStroke.Thickness = 3
 mainStroke.Color = Color3.fromRGB(180,220,255)
+
+-- Drag function cho mainFrame
+local UserInputService = game:GetService("UserInputService")
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(
+        startPos.X.Scale, startPos.X.Offset + delta.X,
+        startPos.Y.Scale, startPos.Y.Offset + delta.Y
+    )
+end
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
 
 -- TAB area
 local tabFrame = Instance.new("ScrollingFrame", mainFrame)
@@ -122,7 +164,7 @@ local function notify(msg)
     local note = Instance.new("TextLabel", mainGui)
     note.Size = UDim2.new(0,250,0,40)
     note.Position = UDim2.new(1,-260,1,-60)
-    note.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    note.BackgroundColor3 = Color3.fromRGB(0,50,150) 
     note.BackgroundTransparency = 0.2
     note.Text = msg
     note.Font = Enum.Font.GothamBold
@@ -144,7 +186,7 @@ local function createTab(name)
     tabBtn.Text = name
     tabBtn.Font = Enum.Font.GothamBold
     tabBtn.TextSize = 16
-    tabBtn.TextColor3 = Color3.fromRGB(0,50,150) 
+    tabBtn.TextColor3 = Color3.fromRGB(0,0,0) 
     tabBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     tabBtn.BackgroundTransparency = 0.35
     tabBtn.AutoButtonColor = false
@@ -167,7 +209,7 @@ local function createButton(text, callback)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 16
-    btn.TextColor3 = Color3.fromRGB(0,50,150) 
+    btn.TextColor3 = Color3.fromRGB(0,0,0) 
     btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundTransparency = 0.35
     btn.AutoButtonColor = false
@@ -194,7 +236,7 @@ local function createTab(name)
     tabBtn.Text = name
     tabBtn.Font = Enum.Font.GothamBold
     tabBtn.TextSize = 16
-    tabBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    tabBtn.TextColor3 = Color3.fromRGB(0,0,0)
     tabBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     tabBtn.BackgroundTransparency = 0.35
     tabBtn.AutoButtonColor = false
@@ -247,7 +289,7 @@ local function createButton(parent, text, callback)
     btn.Text = text
     btn.Font = Enum.Font.Gotham
     btn.TextSize = 16
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.TextColor3 = Color3.fromRGB(0,0,0)
     btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
     btn.BackgroundTransparency = 0.35
     btn.AutoButtonColor = false
