@@ -306,16 +306,13 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/he
 end)
 
 createButton(bfContent, "nhatruong", function()
-    getgenv().Team = "Marines" -- Pirates/Marines
-
-getgenv().Hide_Menu = false -- true/false
+    
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/skibiditoiletgojo/Haidepzai/refs/heads/main/Autochest-Akgamingez"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(bfContent, " andepzai", function()
-    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 loadstring(game:HttpGet("https://raw.githubusercontent.com/AnDepZaiHub/AnDepZaiHubBeta/refs/heads/main/AnDepZaiHubNewUpdated.lua"))()
     notify("Script đã chạy thành công!")
 end)
@@ -341,20 +338,12 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/jebblox/scriptdatabas
 end)
 
 createButton(bfContent, " bluex", function()
-    hub _G.Team = "Pirates" 
-_G.FixLag = false
+    
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
     notify("Script đã chạy thành công!")
 end)
 
 createButton(bfContent, " skull", function()
-    _G.Settings = {
-    ["Enable Farm"] = true,
-    ["SnipeLegendaryItem"] = true,
-    ["Choose Team"] = "Marines",
-    ["White Screen"] = false,
-    ["Reset Anti Detect"] = true
-}
  loadstring(game:HttpGet("https://raw.githubusercontent.com/xxhumggxx/SkullHub/refs/heads/main/ChestV2.lua"))()
     notify("Script đã chạy thành công!")
 end)
@@ -370,7 +359,7 @@ createButton(bfContent, "royxkaitun", function()
 end)
 
 createButton(bfContent, " xero", function()
-    getgenv().Team = "Marines" -- Pirates/Marines
+    
 loadstring(game:HttpGet("https://raw.githubusercontent.com/verudous/Xero-Hub/main/main.lua"))()
     notify("Script đã chạy thành công!")
 end)
@@ -382,7 +371,7 @@ end)
 
 
 createButton(bfContent, "ngocbong", function()
-     getgenv().Team = "Marines"
+     
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ngocbonggaming/script/refs/heads/main/NgocBongVn.lua"))()
     notify("Script đã chạy thành công!")
 end)
@@ -537,7 +526,6 @@ createButton(kkContent, " ronix", function()
 end)
 
 createButton(kkContent, " Farmdiamond", function()
-    getgenv().WebhookURL = ""
 loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/FoxnameFarmdiamond.lua"))()
     notify("Script đã chạy thành công!")
 end)
