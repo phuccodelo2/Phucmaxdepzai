@@ -114,8 +114,23 @@ local function lookAtNPC(char, npc)
     local myHRP = char:FindFirstChild("HumanoidRootPart")
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if myHRP and targetHRP then
-        local lookCF = CFrame.new(myHRP.Position, targetHRP.Position)
         myHRP.CFrame = CFrame.new(myHRP.Position, targetHRP.Position)
+    end
+end
+
+-- Giữ bám trên đầu NPC2 không rớt xuống đất
+local function stickToHead(char, npc, duration)
+    local myHRP = char:FindFirstChild("HumanoidRootPart")
+    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+    if not myHRP or not targetHRP then return end
+    local start = tick()
+    while tick() - start < duration do
+        -- Luôn cập nhật vị trí phía trên đầu (khoảng cách 5 studs)
+        local posAbove = targetHRP.Position + Vector3.new(0,5,0)
+        myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
+        camLockToNPC(npc)
+        lookAtNPC(char, npc)
+        task.wait(0.03)
     end
 end
 
@@ -131,14 +146,11 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
-    -- Tele lên đầu quái cách 5 studs
-    local posAbove = targetHRP.Position + Vector3.new(0,5,0)
-    myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)  -- hướng mặt về NPC2
-    camLockToNPC(npc)
-    lookAtNPC(char, npc)
+    -- Tele lên đầu quái cách 5 studs, giữ bám trên đầu 3s
+    stickToHead(char, npc, 3)
 
-    -- Chờ 3s rồi xuống đất cách xa 17 studs
-    task.wait(3)
+    -- Chờ 0.1s rồi xuống đất cách xa 17 studs
+    task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
     local posFar = targetHRP.Position + dir * 17
     posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z)  -- xuống sát mặt đất
