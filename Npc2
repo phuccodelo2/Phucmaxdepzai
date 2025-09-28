@@ -1,4 +1,4 @@
--- PHUCMAX Camlock + Teleport + Vòng quanh NPC2
+-- PHUCMAX Camlock + Teleport + Vòng quanh NPC2 + UI máu + Auto Click + Tool Check
 -- by Copilot
 
 local Players = game:GetService("Players")
@@ -21,6 +21,17 @@ local function getNPC()
         end
     end
     return nil
+end
+
+local function getNPCHealth()
+    local npc = getNPC()
+    if npc then
+        local hum = npc:FindFirstChildOfClass("Humanoid")
+        if hum then
+            return hum.Health, hum.MaxHealth
+        end
+    end
+    return 0, 0
 end
 
 -- UI
@@ -65,6 +76,30 @@ Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 16)
 local btnStroke = Instance.new("UIStroke", btn)
 btnStroke.Thickness = 1.8
 
+-- UI Máu quái góc phải
+local healthFrame = Instance.new("Frame")
+healthFrame.Parent = gui
+healthFrame.Size = UDim2.fromOffset(220, 42)
+healthFrame.Position = UDim2.new(1, -230, 1, -54) -- Góc phải dưới
+healthFrame.AnchorPoint = Vector2.new(0,1)
+healthFrame.BackgroundColor3 = Color3.fromRGB(30,30,45)
+healthFrame.BackgroundTransparency = 0.12
+healthFrame.BorderSizePixel = 0
+Instance.new("UICorner", healthFrame).CornerRadius = UDim.new(0, 14)
+
+local healthLbl = Instance.new("TextLabel")
+healthLbl.Parent = healthFrame
+healthLbl.Size = UDim2.new(1, -16, 1, -12)
+healthLbl.Position = UDim2.fromOffset(8, 6)
+healthLbl.BackgroundTransparency = 1
+healthLbl.Font = Enum.Font.GothamBold
+healthLbl.TextScaled = true
+healthLbl.Text = "HP: -- / --"
+healthLbl.TextColor3 = Color3.fromRGB(255,80,80)
+
+local healthStroke = Instance.new("UIStroke", healthFrame)
+healthStroke.Thickness = 2
+
 -- Drag UI
 do
     local dragging, dragStart, startPos
@@ -96,6 +131,18 @@ RunService.RenderStepped:Connect(function(dt)
     stroke.Color = col
     btnStroke.Color = col
     title.TextColor3 = col
+    healthStroke.Color = col
+    healthLbl.TextColor3 = col
+end)
+
+-- UI cập nhật máu quái liên tục
+RunService.RenderStepped:Connect(function()
+    local hp, maxhp = getNPCHealth()
+    if maxhp > 0 then
+        healthLbl.Text = string.format("HP: %d / %d", hp, maxhp)
+    else
+        healthLbl.Text = "HP: -- / --"
+    end
 end)
 
 -- Camlock & Farm Logic
@@ -125,12 +172,58 @@ local function stickToHead(char, npc, duration)
     if not myHRP or not targetHRP then return end
     local start = tick()
     while tick() - start < duration do
-        -- Luôn cập nhật vị trí phía trên đầu (khoảng cách 5 studs)
         local posAbove = targetHRP.Position + Vector3.new(0,5,0)
         myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
         task.wait(0.03)
+    end
+end
+
+-- Auto Equip Tool "phonglon"
+local function equipTool(toolName)
+    local backpack = lp:FindFirstChildOfClass("Backpack")
+    if not backpack then return false end
+    local tool = backpack:FindFirstChild(toolName)
+    if tool then
+        lp.Character.Humanoid:EquipTool(tool)
+        return true
+    end
+    -- Nếu tool chưa có trên nhân vật, thử lấy từ backpack
+    return false
+end
+
+local function hasToolEquipped(toolName)
+    local char = lp.Character
+    if not char then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if hum and hum:FindFirstChild(toolName) then
+        return true
+    end
+    for _,v in pairs(char:GetChildren()) do
+        if v:IsA("Tool") and v.Name == toolName then
+            return true
+        end
+    end
+    return false
+end
+
+-- Auto click không chiếm chuột thật
+local function autoClick(toolName)
+    local char = lp.Character
+    if not char then return end
+    local tool = nil
+    for _,v in pairs(char:GetChildren()) do
+        if v:IsA("Tool") and v.Name == toolName then
+            tool = v
+            break
+        end
+    end
+    if tool then
+        -- Gọi hàm Activate của tool, không cần click thật
+        pcall(function()
+            tool:Activate()
+        end)
     end
 end
 
@@ -146,6 +239,16 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
+    -- Đảm bảo đã cầm tool "phonglon"
+    if not hasToolEquipped("phonglon") then
+        local ok = equipTool("phonglon")
+        if not ok then
+            notify("PHUCMAX", "Không tìm thấy tool: phonglon")
+            return
+        end
+        task.wait(0.2)
+    end
+
     -- Tele lên đầu quái cách 5 studs, giữ bám trên đầu 3s
     stickToHead(char, npc, 3)
 
@@ -153,15 +256,15 @@ local function smartFarm()
     task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
     local posFar = targetHRP.Position + dir * 17
-    posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z)  -- xuống sát mặt đất
+    posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z)
     myHRP.CFrame = CFrame.new(posFar, targetHRP.Position)
     camLockToNPC(npc)
     lookAtNPC(char, npc)
 
     -- Xoay vòng quanh quái cực nhanh
     local radius = 17
-    local rotations = 1.5 -- số vòng quay
-    local speed = 25 -- tốc độ quay (cực nhanh)
+    local rotations = 1.5
+    local speed = 25
     local steps = math.floor(rotations * 360 / 10)
     for i = 1, steps do
         local angle = math.rad(i * 10 * speed)
@@ -170,6 +273,7 @@ local function smartFarm()
         myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
+        autoClick("phonglon") -- auto click mỗi vòng
         task.wait(0.01)
     end
 end
