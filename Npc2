@@ -180,33 +180,6 @@ local function stickToHead(char, npc, duration)
     end
 end
 
--- Auto Equip Tool "phonglon"
-local function equipTool(toolName)
-    local backpack = lp:FindFirstChildOfClass("Backpack")
-    if not backpack then return false end
-    local tool = backpack:FindFirstChild(toolName)
-    if tool then
-        lp.Character.Humanoid:EquipTool(tool)
-        return true
-    end
-    -- Nếu tool chưa có trên nhân vật, thử lấy từ backpack
-    return false
-end
-
-local function hasToolEquipped(toolName)
-    local char = lp.Character
-    if not char then return false end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum and hum:FindFirstChild(toolName) then
-        return true
-    end
-    for _,v in pairs(char:GetChildren()) do
-        if v:IsA("Tool") and v.Name == toolName then
-            return true
-        end
-    end
-    return false
-end
 
 -- Auto click không chiếm chuột thật
 local function autoClick(toolName)
