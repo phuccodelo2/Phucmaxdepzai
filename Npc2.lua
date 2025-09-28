@@ -164,7 +164,7 @@ local function stickToHead(char, npc, duration)
     if not myHRP or not targetHRP then return end
     local start = tick()
     while tick() - start < duration do
-        local posAbove = targetHRP.Position + Vector3.new(0,17,0)
+        local posAbove = targetHRP.Position + Vector3.new(0,10,0)
         myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
@@ -184,7 +184,7 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
-    stickToHead(char, npc, 2)
+    stickToHead(char, npc, 4)
 
     task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
