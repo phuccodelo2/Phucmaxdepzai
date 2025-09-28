@@ -184,7 +184,7 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
-    stickToHead(char, npc, 1)
+    stickToHead(char, npc, 0.5)
 
     task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
@@ -195,7 +195,7 @@ local function smartFarm()
     lookAtNPC(char, npc)
 
     local radius = 17
-    local rotations = 1.5
+    local rotations = 4.5
     local speed = 25
     local steps = math.floor(rotations * 360 / 10)
     for i = 1, steps do
