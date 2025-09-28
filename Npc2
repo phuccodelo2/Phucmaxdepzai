@@ -1,10 +1,11 @@
--- PHUCMAX Camlock + Teleport + Vòng quanh NPC2 + UI máu + Auto Click + Tool Check
+-- PHUCMAX Camlock + Teleport + Vòng quanh NPC2 + Auto Click + UI Hiển thị máu Quái
 -- by Copilot
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
 local cam = workspace.CurrentCamera
 
@@ -23,18 +24,7 @@ local function getNPC()
     return nil
 end
 
-local function getNPCHealth()
-    local npc = getNPC()
-    if npc then
-        local hum = npc:FindFirstChildOfClass("Humanoid")
-        if hum then
-            return hum.Health, hum.MaxHealth
-        end
-    end
-    return 0, 0
-end
-
--- UI
+-- UI Main
 local gui = Instance.new("ScreenGui")
 gui.Name = "PHUCMAX_UI"
 gui.ResetOnSpawn = false
@@ -76,29 +66,41 @@ Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 16)
 local btnStroke = Instance.new("UIStroke", btn)
 btnStroke.Thickness = 1.8
 
--- UI Máu quái góc phải
-local healthFrame = Instance.new("Frame")
-healthFrame.Parent = gui
-healthFrame.Size = UDim2.fromOffset(220, 42)
-healthFrame.Position = UDim2.new(1, -230, 1, -54) -- Góc phải dưới
-healthFrame.AnchorPoint = Vector2.new(0,1)
-healthFrame.BackgroundColor3 = Color3.fromRGB(30,30,45)
-healthFrame.BackgroundTransparency = 0.12
-healthFrame.BorderSizePixel = 0
-Instance.new("UICorner", healthFrame).CornerRadius = UDim.new(0, 14)
+-- UI Hiển thị máu Quái (NPC2) ở trên giữa màn hình
+local hpGUI = Instance.new("ScreenGui")
+hpGUI.Name = "PHUCMAX_HP_GUI"
+hpGUI.ResetOnSpawn = false
+hpGUI.Parent = gui.Parent
 
-local healthLbl = Instance.new("TextLabel")
-healthLbl.Parent = healthFrame
-healthLbl.Size = UDim2.new(1, -16, 1, -12)
-healthLbl.Position = UDim2.fromOffset(8, 6)
-healthLbl.BackgroundTransparency = 1
-healthLbl.Font = Enum.Font.GothamBold
-healthLbl.TextScaled = true
-healthLbl.Text = "HP: -- / --"
-healthLbl.TextColor3 = Color3.fromRGB(255,80,80)
+local hpFrame = Instance.new("Frame")
+hpFrame.Parent = hpGUI
+hpFrame.BackgroundTransparency = 0.35
+hpFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+hpFrame.BorderSizePixel = 0
+hpFrame.Size = UDim2.new(0, 210, 0, 38)
+hpFrame.Position = UDim2.new(0.5, -105, 0, 2) -- Sát mép trên, giữa màn hình
+Instance.new("UICorner", hpFrame).CornerRadius = UDim.new(0, 14)
+local hpStroke = Instance.new("UIStroke", hpFrame)
+hpStroke.Thickness = 2
 
-local healthStroke = Instance.new("UIStroke", healthFrame)
-healthStroke.Thickness = 2
+local hpBar = Instance.new("Frame")
+hpBar.Parent = hpFrame
+hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+hpBar.BorderSizePixel = 0
+hpBar.Position = UDim2.new(0,8,0,22)
+hpBar.Size = UDim2.new(0.95, -16,0,10)
+Instance.new("UICorner", hpBar).CornerRadius = UDim.new(0, 8)
+
+local hpText = Instance.new("TextLabel")
+hpText.Parent = hpFrame
+hpText.Size = UDim2.new(1, -16, 0, 20)
+hpText.Position = UDim2.fromOffset(8, 2)
+hpText.BackgroundTransparency = 1
+hpText.Font = Enum.Font.GothamBold
+hpText.TextScaled = true
+hpText.Text = "Máu NPC2: --/--"
+hpText.TextColor3 = Color3.fromRGB(255,255,255)
+hpText.TextStrokeTransparency = 0.7
 
 -- Drag UI
 do
@@ -115,7 +117,7 @@ do
             dragging = false
         end
     end)
-    game:GetService("UserInputService").InputChanged:Connect(function(i)
+    UserInputService.InputChanged:Connect(function(i)
         if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
             local delta = i.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -131,23 +133,13 @@ RunService.RenderStepped:Connect(function(dt)
     stroke.Color = col
     btnStroke.Color = col
     title.TextColor3 = col
-    healthStroke.Color = col
-    healthLbl.TextColor3 = col
-end)
-
--- UI cập nhật máu quái liên tục
-RunService.RenderStepped:Connect(function()
-    local hp, maxhp = getNPCHealth()
-    if maxhp > 0 then
-        healthLbl.Text = string.format("HP: %d / %d", hp, maxhp)
-    else
-        healthLbl.Text = "HP: -- / --"
-    end
+    hpStroke.Color = col
 end)
 
 -- Camlock & Farm Logic
 local farming = false
 local farmLoop = nil
+local autoClickLoop = nil
 
 local function camLockToNPC(npc)
     local head = npc:FindFirstChild("Head") or npc:FindFirstChild("HumanoidRootPart")
@@ -180,26 +172,6 @@ local function stickToHead(char, npc, duration)
     end
 end
 
-
--- Auto click không chiếm chuột thật
-local function autoClick(toolName)
-    local char = lp.Character
-    if not char then return end
-    local tool = nil
-    for _,v in pairs(char:GetChildren()) do
-        if v:IsA("Tool") and v.Name == toolName then
-            tool = v
-            break
-        end
-    end
-    if tool then
-        -- Gọi hàm Activate của tool, không cần click thật
-        pcall(function()
-            tool:Activate()
-        end)
-    end
-end
-
 local function smartFarm()
     local npc = getNPC()
     if not npc then
@@ -212,29 +184,16 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
-    -- Đảm bảo đã cầm tool "phonglon"
-    if not hasToolEquipped("phonglon") then
-        local ok = equipTool("phonglon")
-        if not ok then
-            notify("PHUCMAX", "Không tìm thấy tool: phonglon")
-            return
-        end
-        task.wait(0.2)
-    end
-
-    -- Tele lên đầu quái cách 5 studs, giữ bám trên đầu 3s
     stickToHead(char, npc, 3)
 
-    -- Chờ 0.1s rồi xuống đất cách xa 17 studs
     task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
     local posFar = targetHRP.Position + dir * 17
-    posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z)
+    posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z) 
     myHRP.CFrame = CFrame.new(posFar, targetHRP.Position)
     camLockToNPC(npc)
     lookAtNPC(char, npc)
 
-    -- Xoay vòng quanh quái cực nhanh
     local radius = 17
     local rotations = 1.5
     local speed = 25
@@ -246,7 +205,6 @@ local function smartFarm()
         myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
-        autoClick("phonglon") -- auto click mỗi vòng
         task.wait(0.01)
     end
 end
@@ -258,12 +216,48 @@ local function farmMainLoop()
     end
 end
 
+-- Auto Click (liên tục click chuột trái khi farm)
+local function autoClick()
+    while farming do
+        pcall(function()
+            local VirtualUser = game:GetService("VirtualUser")
+            VirtualUser:Button1Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(0.07)
+            VirtualUser:Button1Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end)
+        task.wait(0.09) -- Tổng 0.16s/lần click
+    end
+end
+
+-- Hiển thị máu quái (NPC2) realtime
+local function updateHPBar()
+    local lastNpc
+    RunService.RenderStepped:Connect(function()
+        local npc = getNPC()
+        if npc and npc:FindFirstChildOfClass("Humanoid") then
+            local hum = npc:FindFirstChildOfClass("Humanoid")
+            local hp = math.floor(hum.Health)
+            local maxHp = math.floor(hum.MaxHealth)
+            hpText.Text = ("Máu NPC2: %d / %d"):format(hp,maxHp)
+            local pct = maxHp > 0 and hp / maxHp or 0
+            hpBar.Size = UDim2.new(math.clamp(pct,0,1)*0.95, -16, 0, 10)
+            hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70):Lerp(Color3.fromRGB(55,255,70), pct)
+        else
+            hpText.Text = "Máu NPC2: --/--"
+            hpBar.Size = UDim2.new(0,0,0,10)
+            hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+        end
+    end)
+end
+updateHPBar() -- Kích hoạt hiển thị máu
+
 local function turnOn()
     farming = true
     btn.Text = "Farm Camlock: ON"
     cam.CameraType = Enum.CameraType.Scriptable
     farmLoop = task.spawn(farmMainLoop)
-    notify("PHUCMAX", "Farm Camlock + Vòng quanh NPC2 ON")
+    autoClickLoop = task.spawn(autoClick)
+    notify("PHUCMAX", "Farm Camlock + Vòng quanh NPC2 + Auto Click ON")
 end
 
 local function turnOff()
@@ -274,6 +268,10 @@ local function turnOff()
         task.cancel(farmLoop)
         farmLoop = nil
     end
+    if autoClickLoop then
+        task.cancel(autoClickLoop)
+        autoClickLoop = nil
+    end
     notify("PHUCMAX", "Farm Camlock OFF")
 end
 
@@ -281,4 +279,4 @@ btn.MouseButton1Click:Connect(function()
     if farming then turnOff() else turnOn() end
 end)
 
-notify("PHUCMAX", "UI bật xong. Nhấn để Farm Camlock NPC2.")
+notify("PHUCMAX", "UI bật xong. Nhấn để Farm Camlock NPC2, auto click & xem máu quái trên đầu màn hình.")
