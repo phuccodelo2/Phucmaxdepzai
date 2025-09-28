@@ -205,14 +205,14 @@ local function smartFarm()
         myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
-        task.wait(4)
+        task.wait(0.01)
     end
 end
 
 local function farmMainLoop()
     while farming do
         smartFarm()
-        task.wait(0.2)
+        task.wait(4)
     end
 end
 
