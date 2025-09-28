@@ -184,7 +184,7 @@ local function smartFarm()
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
 
-    stickToHead(char, npc, 4)
+    stickToHead(char, npc, 2)
 
     task.wait(0.1)
     local dir = (myHRP.Position - targetHRP.Position).Unit
@@ -212,7 +212,7 @@ end
 local function farmMainLoop()
     while farming do
         smartFarm()
-        task.wait(4)
+        task.wait(0.2)
     end
 end
 
