@@ -164,7 +164,7 @@ local function stickToHead(char, npc, duration)
     if not myHRP or not targetHRP then return end
     local start = tick()
     while tick() - start < duration do
-        local posAbove = targetHRP.Position + Vector3.new(0,10,0)
+        local posAbove = targetHRP.Position + Vector3.new(0,7,0)
         myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
@@ -205,7 +205,7 @@ local function smartFarm()
         myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
         camLockToNPC(npc)
         lookAtNPC(char, npc)
-        task.wait(0.01)
+        task.wait(4)
     end
 end
 
