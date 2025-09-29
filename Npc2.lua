@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
 local lp = Players.LocalPlayer
 local cam = workspace.CurrentCamera
 
@@ -193,50 +194,6 @@ local function smartFarm()
     myHRP.CFrame = CFrame.new(posFar, targetHRP.Position)
     camLockToNPC(npc)
     lookAtNPC(char, npc)
-
-    local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
-local lp = game.Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
-getgenv().farming = false
-
-local function getNPC()
-    return workspace:FindFirstChild("npc2") -- mày đổi tên NPC ở đây
-end
-
-local function smartFarm()
-    local npc = getNPC()
-    if not npc then return end
-    local char = lp.Character
-    if not char then return end
-
-    local myHRP = char:FindFirstChild("HumanoidRootPart")
-    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
-    if not myHRP or not targetHRP then return end
-
-    -- orbit liên tục
-    RunService.RenderStepped:Connect(function()
-        if getgenv().farming and myHRP and targetHRP and targetHRP.Parent then
-            local radius = 17
-            local speed = math.pi -- 1 vòng = 2s (tăng/giảm để nhanh chậm)
-            local angle = tick() * speed
-
-            local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
-            local pos = targetHRP.Position + offset
-            myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
-
-            -- auto lock + nhìn NPC
-            camLockToNPC(npc)
-            lookAtNPC(char, npc)
-
-            -- auto click
-            VirtualUser:ClickButton1(Vector2.new())
-
-            -- camera nhìn quái
-            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetHRP.Position)
-        end
-    end)
 end
 
 local function farmMainLoop()
@@ -250,36 +207,64 @@ end
 local function autoClick()
     while farming do
         pcall(function()
-            local VirtualUser = game:GetService("VirtualUser")
-            VirtualUser:Button1Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            VirtualUser:Button1Down(Vector2.new(0,0), cam.CFrame)
             task.wait(0.07)
-            VirtualUser:Button1Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            VirtualUser:Button1Up(Vector2.new(0,0), cam.CFrame)
         end)
         task.wait(0.09) -- Tổng 0.16s/lần click
     end
 end
 
--- Hiển thị máu quái (NPC2) realtime
-local function updateHPBar()
-    local lastNpc
-    RunService.RenderStepped:Connect(function()
-        local npc = getNPC()
-        if npc and npc:FindFirstChildOfClass("Humanoid") then
-            local hum = npc:FindFirstChildOfClass("Humanoid")
-            local hp = math.floor(hum.Health)
-            local maxHp = math.floor(hum.MaxHealth)
-            hpText.Text = ("Máu BOSS: %d / %d"):format(hp,maxHp)
-            local pct = maxHp > 0 and hp / maxHp or 0
-            hpBar.Size = UDim2.new(math.clamp(pct,0,1)*0.95, -16, 0, 10)
-            hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70):Lerp(Color3.fromRGB(55,255,70), pct)
-        else
-            hpText.Text = "Máu BOSS: --/--"
-            hpBar.Size = UDim2.new(0,0,0,10)
-            hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+-- Orbit NPC2 liên tục (vòng quanh boss) + camera lock
+local orbitConnection = nil
+local function startOrbit()
+    local char = lp.Character
+    local npc = getNPC()
+    if not char or not npc then return end
+    local myHRP = char:FindFirstChild("HumanoidRootPart")
+    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+    if not myHRP or not targetHRP then return end
+
+    if orbitConnection then orbitConnection:Disconnect() end
+    orbitConnection = RunService.RenderStepped:Connect(function()
+        if farming and myHRP and targetHRP and targetHRP.Parent then
+            local radius = 17
+            local speed = math.pi
+            local angle = tick() * speed
+            local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
+            local pos = targetHRP.Position + offset
+            myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
+            camLockToNPC(npc)
+            lookAtNPC(char, npc)
+            cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
         end
     end)
 end
-updateHPBar() -- Kích hoạt hiển thị máu
+
+local function stopOrbit()
+    if orbitConnection then
+        orbitConnection:Disconnect()
+        orbitConnection = nil
+    end
+end
+
+-- Hiển thị máu quái (NPC2) realtime
+RunService.RenderStepped:Connect(function()
+    local npc = getNPC()
+    if npc and npc:FindFirstChildOfClass("Humanoid") then
+        local hum = npc:FindFirstChildOfClass("Humanoid")
+        local hp = math.floor(hum.Health)
+        local maxHp = math.floor(hum.MaxHealth)
+        hpText.Text = ("Máu BOSS: %d / %d"):format(hp,maxHp)
+        local pct = maxHp > 0 and hp / maxHp or 0
+        hpBar.Size = UDim2.new(math.clamp(pct,0,1)*0.95, -16, 0, 10)
+        hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70):Lerp(Color3.fromRGB(55,255,70), pct)
+    else
+        hpText.Text = "Máu BOSS: --/--"
+        hpBar.Size = UDim2.new(0,0,0,10)
+        hpBar.BackgroundColor3 = Color3.fromRGB(255,70,70)
+    end
+end)
 
 local function turnOn()
     farming = true
@@ -287,6 +272,7 @@ local function turnOn()
     cam.CameraType = Enum.CameraType.Scriptable
     farmLoop = task.spawn(farmMainLoop)
     autoClickLoop = task.spawn(autoClick)
+    startOrbit()
     notify("PHUCMAX", "Farm Boss ON")
 end
 
@@ -294,6 +280,7 @@ local function turnOff()
     farming = false
     btn.Text = "Farm BOSS: OFF"
     cam.CameraType = Enum.CameraType.Custom
+    stopOrbit()
     if farmLoop then
         task.cancel(farmLoop)
         farmLoop = nil
@@ -309,4 +296,4 @@ btn.MouseButton1Click:Connect(function()
     if farming then turnOff() else turnOn() end
 end)
 
-notify("PHUCMAX", "script  bật xong. không khuyến khích đổi qua tool, ngắn .")
+notify("PHUCMAX", "Script bật xong. Không khuyến khích đổi qua tool, ngắn.")
