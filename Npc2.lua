@@ -228,10 +228,10 @@ local function startOrbit()
     if orbitConnection then orbitConnection:Disconnect() end
     orbitConnection = RunService.RenderStepped:Connect(function()
         if farming and myHRP and targetHRP and targetHRP.Parent then
-            local radius = 17
-            local speed = 10
+            local radius = 15
+            local speed = 100
             local angle = tick() * speed
-            local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
+            local offset = Vector3.new(math.cos(angle)*radius, 1, math.sin(angle)*radius)
             local pos = targetHRP.Position + offset
             myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
             camLockToNPC(npc)
