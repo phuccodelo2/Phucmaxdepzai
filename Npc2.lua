@@ -208,10 +208,10 @@ local function autoClick()
     while farming do
         pcall(function()
             VirtualUser:Button1Down(Vector2.new(0,0), cam.CFrame)
-            task.wait(0.07)
+            task.wait(0.007)
             VirtualUser:Button1Up(Vector2.new(0,0), cam.CFrame)
         end)
-        task.wait(0.09) -- Tổng 0.16s/lần click
+        task.wait(0.009) -- Tổng 0.16s/lần click
     end
 end
 
@@ -229,7 +229,7 @@ local function startOrbit()
     orbitConnection = RunService.RenderStepped:Connect(function()
         if farming and myHRP and targetHRP and targetHRP.Parent then
             local radius = 17
-            local speed = math.pi
+            local speed = 10
             local angle = tick() * speed
             local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
             local pos = targetHRP.Position + offset
