@@ -1,5 +1,6 @@
 -- PHUCMAX Camlock + Teleport + Vòng quanh NPC2 + Auto Click + UI Hiển thị máu Quái
--- by Copilot
+-- Đã chỉnh sửa: Farm sẽ teleport lên đầu quái (NPC2), bám trên đầu 3 giây, quái không đánh được.
+-- Sau 3s mới bắt đầu xoay quanh boss (orbit), chân chạm mặt đất.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -79,7 +80,7 @@ hpFrame.BackgroundTransparency = 0.35
 hpFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
 hpFrame.BorderSizePixel = 0
 hpFrame.Size = UDim2.new(0, 210, 0, 38)
-hpFrame.Position = UDim2.new(0.5, -105, 0, 2) -- Sát mép trên, giữa màn hình
+hpFrame.Position = UDim2.new(0.5, -105, 0, 2)
 Instance.new("UICorner", hpFrame).CornerRadius = UDim.new(0, 14)
 local hpStroke = Instance.new("UIStroke", hpFrame)
 hpStroke.Thickness = 2
@@ -126,7 +127,7 @@ do
     end)
 end
 
--- Rainbow
+-- Rainbow hiệu ứng UI
 local hue = 0
 RunService.RenderStepped:Connect(function(dt)
     hue = (hue + dt*0.15) % 1
@@ -142,102 +143,44 @@ local farming = false
 local farmLoop = nil
 local autoClickLoop = nil
 
-local function camLockToNPC(npc)
-    local head = npc:FindFirstChild("Head") or npc:FindFirstChild("HumanoidRootPart")
-    if head then
-        cam.CameraType = Enum.CameraType.Scriptable
-        cam.CFrame = CFrame.new(cam.CFrame.Position, head.Position)
-    end
-end
+local orbitConnection = nil
 
-local function lookAtNPC(char, npc)
-    local myHRP = char:FindFirstChild("HumanoidRootPart")
-    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
-    if myHRP and targetHRP then
-        myHRP.CFrame = CFrame.new(myHRP.Position, targetHRP.Position)
-    end
-end
-
--- Giữ bám trên đầu NPC2 không rớt xuống đất
-local function stickToHead(char, npc, duration)
+-- Bám trên đầu quái 3 giây (quái không đánh được)
+local function stickToHeadFor3s(char, npc)
     local myHRP = char:FindFirstChild("HumanoidRootPart")
     local targetHRP = npc:FindFirstChild("HumanoidRootPart")
     if not myHRP or not targetHRP then return end
     local start = tick()
-    while tick() - start < duration do
+    while farming and tick() - start < 3 do
         local posAbove = targetHRP.Position + Vector3.new(0,8.5,0)
         myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
-        camLockToNPC(npc)
-        lookAtNPC(char, npc)
+        cam.CameraType = Enum.CameraType.Scriptable
+        cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
         task.wait(0.03)
     end
 end
 
-local function smartFarm()
-    local npc = getNPC()
-    if not npc then
-        notify("PHUCMAX", "Không tìm thấy NPC2")
-        return
-    end
-    local char = lp.Character
-    if not char then return end
-    local myHRP = char:FindFirstChild("HumanoidRootPart")
-    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
-    if not myHRP or not targetHRP then return end
-
-    stickToHead(char, npc, 4.5)
-
-    task.wait(0.1)
-    local dir = (myHRP.Position - targetHRP.Position).Unit
-    local posFar = targetHRP.Position + dir * 17
-    posFar = Vector3.new(posFar.X, workspace.FallenPartsDestroyHeight + 3, posFar.Z) 
-    myHRP.CFrame = CFrame.new(posFar, targetHRP.Position)
-    camLockToNPC(npc)
-    lookAtNPC(char, npc)
-end
-
-local function farmMainLoop()
-    while farming do
-        smartFarm()
-        task.wait(0.002)
-    end
-end
-
--- Auto Click (liên tục click chuột trái khi farm)
-local function autoClick()
-    while farming do
-        pcall(function()
-            VirtualUser:Button1Down(Vector2.new(0,0), cam.CFrame)
-            task.wait(0.007)
-            VirtualUser:Button1Up(Vector2.new(0,0), cam.CFrame)
-        end)
-        task.wait(0.009) -- Tổng 0.16s/lần click
-    end
-end
-
--- Orbit NPC2 liên tục (vòng quanh boss) + camera lock
-local orbitConnection = nil
-local function startOrbit()
-    local char = lp.Character
-    local npc = getNPC()
-    if not char or not npc then return end
-    local myHRP = char:FindFirstChild("HumanoidRootPart")
-    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
-    if not myHRP or not targetHRP then return end
-
+-- Orbit quanh NPC2, chân chạm đất
+local function startOrbitOnGround()
     if orbitConnection then orbitConnection:Disconnect() end
     orbitConnection = RunService.RenderStepped:Connect(function()
-        if farming and myHRP and targetHRP and targetHRP.Parent then
-            local radius = 15
-            local speed = 100
-            local angle = tick() * speed
-            local offset = Vector3.new(math.cos(angle)*radius, 1, math.sin(angle)*radius)
-            local pos = targetHRP.Position + offset
-            myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
-            camLockToNPC(npc)
-            lookAtNPC(char, npc)
-            cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
-        end
+        if not farming then return end
+        local char = lp.Character
+        local npc = getNPC()
+        if not char or not npc then return end
+        local myHRP = char:FindFirstChild("HumanoidRootPart")
+        local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+        if not myHRP or not targetHRP or not targetHRP.Parent then return end
+
+        local radius = 15
+        local speed = 100
+        local angle = tick() * speed
+        local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius) -- Y=0 để chân chạm đất
+        local groundY = workspace.FallenPartsDestroyHeight + 3
+        local pos = Vector3.new(targetHRP.Position.X + offset.X, groundY, targetHRP.Position.Z + offset.Z)
+        myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
+        cam.CameraType = Enum.CameraType.Scriptable
+        cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
     end)
 end
 
@@ -245,6 +188,34 @@ local function stopOrbit()
     if orbitConnection then
         orbitConnection:Disconnect()
         orbitConnection = nil
+    end
+end
+
+-- Farm chính: dán đầu 3s rồi orbit quanh boss
+local function farmMainLoop()
+    while farming do
+        local npc = getNPC()
+        local char = lp.Character
+        if npc and char then
+            stickToHeadFor3s(char, npc) -- bám trên đầu quái 3s
+            if farming then
+                startOrbitOnGround() -- bắt đầu xoay quanh quái, chân chạm đất
+                break -- orbit chỉ cần khởi động 1 lần
+            end
+        end
+        task.wait(0.1)
+    end
+end
+
+-- Auto Click liên tục khi farm
+local function autoClick()
+    while farming do
+        pcall(function()
+            VirtualUser:Button1Down(Vector2.new(0,0), cam.CFrame)
+            task.wait(0.007)
+            VirtualUser:Button1Up(Vector2.new(0,0), cam.CFrame)
+        end)
+        task.wait(0.009)
     end
 end
 
@@ -272,7 +243,6 @@ local function turnOn()
     cam.CameraType = Enum.CameraType.Scriptable
     farmLoop = task.spawn(farmMainLoop)
     autoClickLoop = task.spawn(autoClick)
-    startOrbit()
     notify("PHUCMAX", "Farm Boss ON")
 end
 
@@ -296,4 +266,4 @@ btn.MouseButton1Click:Connect(function()
     if farming then turnOff() else turnOn() end
 end)
 
-notify("PHUCMAX", "Script bật xong. Không khuyến khích đổi qua tool, ngắn.")
+notify("PHUCMAX", "Script đã chỉnh sửa hoàn chỉnh. Bật farm sẽ bám đầu boss 3s rồi xoay quanh chân chạm đất.")
