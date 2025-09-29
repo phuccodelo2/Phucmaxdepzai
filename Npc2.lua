@@ -152,7 +152,7 @@ local function stickToHeadFor3s(char, npc)
     if not myHRP or not targetHRP then return end
     local start = tick()
     while farming and tick() - start < 3 do
-        local posAbove = targetHRP.Position + Vector3.new(0,8.5,0)
+        local posAbove = targetHRP.Position + Vector3.new(0,9.5,0)
         myHRP.CFrame = CFrame.new(posAbove, targetHRP.Position)
         cam.CameraType = Enum.CameraType.Scriptable
         cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
@@ -172,7 +172,7 @@ local function startOrbitOnGround()
         local targetHRP = npc:FindFirstChild("HumanoidRootPart")
         if not myHRP or not targetHRP or not targetHRP.Parent then return end
 
-        local radius = 15
+        local radius = 14
         local speed = 100
         local angle = tick() * speed
         local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius)
