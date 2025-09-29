@@ -194,19 +194,49 @@ local function smartFarm()
     camLockToNPC(npc)
     lookAtNPC(char, npc)
 
-    local radius = 17
-    local rotations = 1.5
-    local speed = 100
-    local steps = math.floor(rotations * 360 / 100)
-    for i = 1, steps do
-        local angle = math.rad(i * 10 * speed)
-        local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
-        local pos = targetHRP.Position + offset
-        myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
-        camLockToNPC(npc)
-        lookAtNPC(char, npc)
-        task.wait(0.01)
-    end
+    local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+local lp = game.Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+getgenv().farming = false
+
+local function getNPC()
+    return workspace:FindFirstChild("npc2") -- mày đổi tên NPC ở đây
+end
+
+local function smartFarm()
+    local npc = getNPC()
+    if not npc then return end
+    local char = lp.Character
+    if not char then return end
+
+    local myHRP = char:FindFirstChild("HumanoidRootPart")
+    local targetHRP = npc:FindFirstChild("HumanoidRootPart")
+    if not myHRP or not targetHRP then return end
+
+    -- orbit liên tục
+    RunService.RenderStepped:Connect(function()
+        if getgenv().farming and myHRP and targetHRP and targetHRP.Parent then
+            local radius = 17
+            local speed = math.pi -- 1 vòng = 2s (tăng/giảm để nhanh chậm)
+            local angle = tick() * speed
+
+            local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
+            local pos = targetHRP.Position + offset
+            myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
+
+            -- auto lock + nhìn NPC
+            camLockToNPC(npc)
+            lookAtNPC(char, npc)
+
+            -- auto click
+            VirtualUser:ClickButton1(Vector2.new())
+
+            -- camera nhìn quái
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetHRP.Position)
+        end
+    end)
 end
 
 local function farmMainLoop()
