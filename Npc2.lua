@@ -197,7 +197,7 @@ local function smartFarm()
     local radius = 17
     local rotations = 1.5
     local speed = 100
-    local steps = math.floor(rotations * 360 / 10)
+    local steps = math.floor(rotations * 360 / 100)
     for i = 1, steps do
         local angle = math.rad(i * 10 * speed)
         local offset = Vector3.new(math.cos(angle)*radius, 2, math.sin(angle)*radius)
@@ -212,7 +212,7 @@ end
 local function farmMainLoop()
     while farming do
         smartFarm()
-        task.wait(7.2)
+        task.wait(0.002)
     end
 end
 
