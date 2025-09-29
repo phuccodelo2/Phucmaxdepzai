@@ -175,9 +175,12 @@ local function startOrbitOnGround()
         local radius = 15
         local speed = 100
         local angle = tick() * speed
-        local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius) -- Y=0 để chân chạm đất
-        local groundY = workspace.FallenPartsDestroyHeight + 3
-        local pos = Vector3.new(targetHRP.Position.X + offset.X, groundY, targetHRP.Position.Z + offset.Z)
+        local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius)
+        
+        -- Sửa chỗ này: lấy vị trí Y của boss hiện tại
+        local npcY = targetHRP.Position.Y
+        local pos = Vector3.new(targetHRP.Position.X + offset.X, npcY, targetHRP.Position.Z + offset.Z)
+        
         myHRP.CFrame = CFrame.new(pos, targetHRP.Position)
         cam.CameraType = Enum.CameraType.Scriptable
         cam.CFrame = CFrame.new(cam.CFrame.Position, targetHRP.Position)
