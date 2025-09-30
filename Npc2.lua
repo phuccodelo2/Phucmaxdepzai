@@ -172,7 +172,7 @@ local function startOrbitOnGround()
         local targetHRP = npc:FindFirstChild("HumanoidRootPart")
         if not myHRP or not targetHRP or not targetHRP.Parent then return end
 
-        local radius = 17.5
+        local radius = 22.5
         local speed = 32
         local angle = tick() * speed
         local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius)
