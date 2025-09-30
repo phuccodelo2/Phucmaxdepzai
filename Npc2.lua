@@ -173,7 +173,7 @@ local function startOrbitOnGround()
         if not myHRP or not targetHRP or not targetHRP.Parent then return end
 
         local radius = 17.5
-        local speed = 10000
+        local speed = 32
         local angle = tick() * speed
         local offset = Vector3.new(math.cos(angle)*radius, 0, math.sin(angle)*radius)
         
@@ -269,4 +269,4 @@ btn.MouseButton1Click:Connect(function()
     if farming then turnOff() else turnOn() end
 end)
 
-notify("PHUCMAX", "Script đã chỉnh sửa hoàn chỉnh. Bật farm sẽ bám đầu boss 3s rồi xoay quanh chân chạm đất.")
+notify("PHUCMAX", "tới gần quái bật lên 3s rồi mới dùng tool.nhớ bật fixlagmax và noclip ")
